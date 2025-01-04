@@ -1,0 +1,33 @@
+server_port: "8080" # Port to listen on
+
+database:
+  host: "localhost" # Database host
+  port: "5432" # Database port
+  user: "dbuser" # Database user
+  password: "password" # Database password
+  database: "dbname" # Database name
+  ssl: true # Enable SSL
+
+jwt:
+  secret: "mysecret" # JWT secret
+  access_token_lifetime_ms: 3600000 # Access token lifetime in milliseconds
+  refresh_token_lifetime_ms: 7200000 # Refresh token lifetime in milliseconds
+  id_token_lifetime_ms: 3600000 # ID token lifetime in milliseconds
+
+max_login_attempts: 5 # Maximum number of login attempts per user before locking their account
+login_attempt_lockout_period_ms: 60000 # Time period in milliseconds for which the user will be locked after exceeding the maximum login attempts
+
+rate_limit:
+  request_per_second: 10 # Rate limit request per second
+  burst_size: 20 # Is the maximum number of requests allowed after the request per second limit is reached
+
+allowed_origins: # Allowed domains or IP addresses
+  - "http://127.0.0.1"
+  - "http://localhost:3000"
+  - "http://localhost:8080"
+
+allow_all_origins: false # Allow all origins. If true, the allowed_origins will be ignored.
+
+environment: "development" # Environment, can be "development" or "production". In "production" mode, the swagger documentation will be disabled.
+
+log_level: "INFO" # Log level, can be "INFO", "WARN", "ERROR" and "DEBUG", default is "INFO" (Info: 0, Warn: 1, Error: 2, Debug: 3)
