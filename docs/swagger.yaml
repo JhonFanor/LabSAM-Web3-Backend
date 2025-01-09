@@ -1,0 +1,79 @@
+definitions:
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  requests.UserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  responses.ErrorResponse:
+    properties:
+      details:
+        description: Opcional, para errores detallados
+        items:
+          type: string
+        type: array
+      error:
+        type: string
+    type: object
+  responses.UserResponse:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided details
+      parameters:
+      - description: User registration data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "400":
+          description: Validation failed or bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+swagger: "2.0"
