@@ -1,14 +1,19 @@
 package validations
 
 import (
-	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
+	passwordvalidator "github.com/wagslane/go-password-validator"
 )
 
+const minEntropyBits = 60
+
 func PasswordValidation(fl validator.FieldLevel) bool {
-	password := fl.Field().String()
-	re := `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$`
-	matched, _ := regexp.MatchString(re, password)
-	return matched
+	password := strings.TrimSpace(fl.Field().String())
+	err := passwordvalidator.Validate(password, minEntropyBits)
+	if err != nil {
+		return false
+	}
+	return true
 }

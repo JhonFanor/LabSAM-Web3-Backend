@@ -9,8 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func DatabaseProvide(logger logging.Logger) (*gorm.DB, error) {
-	config := config.NewDatabaseConfig()
+func DatabaseProvide(logger logging.Logger, config *config.DatabaseConfig) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
 		config.Host, config.User, config.Password, config.DBName, config.Port)

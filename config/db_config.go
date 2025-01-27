@@ -14,7 +14,6 @@ type DatabaseConfig struct {
 }
 
 func NewDatabaseConfig() *DatabaseConfig {
-	LoadEnvVariables()
 
 	return &DatabaseConfig{
 		Host:     os.Getenv("DB_HOST"),

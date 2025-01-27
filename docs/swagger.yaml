@@ -12,6 +12,13 @@ definitions:
       username:
         type: string
     type: object
+  requests.LoginRequest:
+    properties:
+      password:
+        type: string
+      username_or_email:
+        type: string
+    type: object
   requests.UserRequest:
     properties:
       email:
@@ -26,10 +33,16 @@ definitions:
     - password
     - username
     type: object
+  responses.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
   responses.ErrorResponse:
     properties:
       details:
-        description: Opcional, para errores detallados
         items:
           type: string
         type: array
@@ -46,6 +59,67 @@ definitions:
 info:
   contact: {}
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and generate access and refresh tokens
+      parameters:
+      - description: User login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.AuthResponse'
+        "400":
+          description: Bad request, invalid credentials
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Login a user
+      tags:
+      - Auth
+  /auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new access token using a valid refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.AuthResponse'
+        "400":
+          description: Bad request, invalid refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - Auth
   /auth/register:
     post:
       consumes:

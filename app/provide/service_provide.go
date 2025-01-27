@@ -10,6 +10,7 @@ func ServiceProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			services.NewAuthService,
+			services.NewUserService,
 		),
 	)
 }

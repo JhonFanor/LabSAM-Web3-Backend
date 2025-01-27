@@ -44,7 +44,7 @@ func (vm *ValidatorMiddleware) ValidateInput(input interface{}) gin.HandlerFunc 
 			c.Abort()
 			return
 		}
-
+		c.Set("input", input)
 		c.Next()
 	}
 }
