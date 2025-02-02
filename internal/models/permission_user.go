@@ -1,6 +1,6 @@
 package models
 
 type PermissionUser struct {
-	PermissionID uint `gorm:"primaryKey"`
-	UserID       uint `gorm:"primaryKey"`
+	PermissionID uint `gorm:"primary_key" json:"permission_id"`
+	UserID       uint `gorm:"primary_key" json:"user_id"`
 }

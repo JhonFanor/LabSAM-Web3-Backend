@@ -1,46 +1,97 @@
 package services
 
 import (
-	"errors"
 	"lamsam-web3-backend/internal/models"
-	"lamsam-web3-backend/internal/repositories"
-	"lamsam-web3-backend/pkg/security"
 
 	"gorm.io/gorm"
 )
 
 type AuthService interface {
-	RegisterUser(user *models.User) (*models.User, error)
+	RegisterRegularUser(user *models.User, regularUser *models.RegularUser) (*models.User, error)
+	RegisterUniversityUser(user *models.User, universityUser *models.UniversityUser) (*models.User, error)
+	RegisterBusinessUser(user *models.User, businessUser *models.BusinessUser) (*models.User, error)
 }
 
 type authService struct {
-	userRepo repositories.UserRepository
-	db       *gorm.DB
+	userService           UserService
+	regularUserService    RegularUserService
+	universityUserService UniversityUserService
+	businessUserService   BusinessUserService
+	roleServcie           RoleService
+	db                    *gorm.DB
 }
 
-func NewAuthService(userRepo repositories.UserRepository, db *gorm.DB) AuthService {
+func NewAuthService(userService UserService, regularUserService RegularUserService, universityUserService UniversityUserService, businessUserService BusinessUserService, roleServcie RoleService, db *gorm.DB) AuthService {
 	return &authService{
-		userRepo: userRepo,
-		db:       db,
+		userService:           userService,
+		regularUserService:    regularUserService,
+		universityUserService: universityUserService,
+		businessUserService:   businessUserService,
+		roleServcie:           roleServcie,
+		db:                    db,
 	}
 }
 
-func (s *authService) RegisterUser(user *models.User) (*models.User, error) {
-	if existingUser, _ := s.userRepo.FindByEmail(user.Email); existingUser != nil {
-		return nil, errors.New("el email ya está registrado")
-	}
-
-	if existingUser, _ := s.userRepo.FindByUsername(user.Username); existingUser != nil {
-		return nil, errors.New("el nombre de usuario ya está registrado")
-	}
-
-	var err error
-	user.Password, err = security.HashPassword(user.Password)
+func (s *authService) RegisterRegularUser(user *models.User, regularUser *models.RegularUser) (*models.User, error) {
+	role, err := s.roleServcie.GetByName("business")
 	if err != nil {
-		return nil, errors.New("error al encriptar la contraseña")
+		return nil, err
 	}
 
-	createdUser, err := s.userRepo.Create(user)
+	user.RoleID = role.ID
+
+	createdUser, err := s.userService.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	regularUser.UserID = createdUser.ID
+	_, err = s.regularUserService.CreateRegularUser(regularUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUser, nil
+}
+
+func (s *authService) RegisterUniversityUser(user *models.User, universityUser *models.UniversityUser) (*models.User, error) {
+	role, err := s.roleServcie.GetByName("business")
+	if err != nil {
+		return nil, err
+	}
+
+	user.RoleID = role.ID
+
+	createdUser, err := s.userService.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	universityUser.UserID = createdUser.ID
+	_, err = s.universityUserService.CreateUniversityUser(universityUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdUser, nil
+}
+
+func (s *authService) RegisterBusinessUser(user *models.User, businessUser *models.BusinessUser) (*models.User, error) {
+
+	role, err := s.roleServcie.GetByName("business")
+	if err != nil {
+		return nil, err
+	}
+
+	user.RoleID = role.ID
+
+	createdUser, err := s.userService.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	businessUser.UserID = createdUser.ID
+	_, err = s.businessUserService.CreateBusinessUser(businessUser)
 	if err != nil {
 		return nil, err
 	}

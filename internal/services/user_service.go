@@ -8,36 +8,51 @@ import (
 )
 
 type UserService interface {
-	FindUserByEmail(email string) (*models.User, error)       // Método exportado
-	FindUserByUsername(username string) (*models.User, error) // Método exportado
+	CreateUser(user *models.User) (*models.User, error)
+	UpdateUser(user *models.User) error
+	DeleteUser(id uint) error
+	GetUserByID(id uint) (*models.User, error)
+	GetAllUsers() ([]models.User, error)
+	FindUserByEmail(email string) (*models.User, error)
+	FindUserByUsername(username string) (*models.User, error)
 }
 
 type userService struct {
-	userRepo repositories.UserRepository
-	db       *gorm.DB
+	repo repositories.UserRepository
+	db   *gorm.DB
 }
 
-func NewUserService(userRepo repositories.UserRepository, db *gorm.DB) UserService {
+func NewUserService(repo repositories.UserRepository, db *gorm.DB) UserService {
 	return &userService{
-		userRepo: userRepo,
-		db:       db,
+		repo: repo,
+		db:   db,
 	}
 }
 
-func (s *userService) FindUserByEmail(email string) (*models.User, error) { // Método exportado
-	user, err := s.userRepo.FindByEmail(email)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+func (s *userService) CreateUser(user *models.User) (*models.User, error) {
+	return s.repo.Create(user)
 }
 
-func (s *userService) FindUserByUsername(username string) (*models.User, error) { // Método exportado
-	user, err := s.userRepo.FindByUsername(username)
-	if err != nil {
-		return nil, err
-	}
+func (s *userService) UpdateUser(user *models.User) error {
+	return s.repo.Update(user)
+}
 
-	return user, nil
+func (s *userService) DeleteUser(id uint) error {
+	return s.repo.Delete(id)
+}
+
+func (s *userService) GetUserByID(id uint) (*models.User, error) {
+	return s.repo.GetByID(id)
+}
+
+func (s *userService) GetAllUsers() ([]models.User, error) {
+	return s.repo.GetAll()
+}
+
+func (s *userService) FindUserByEmail(email string) (*models.User, error) {
+	return s.repo.FindByEmail(email)
+}
+
+func (s *userService) FindUserByUsername(username string) (*models.User, error) {
+	return s.repo.FindByUsername(username)
 }

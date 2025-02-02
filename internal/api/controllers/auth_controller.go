@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"lamsam-web3-backend/config"
+	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/dto/requests"
 	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/services"
 	"lamsam-web3-backend/internal/utils"
 	"lamsam-web3-backend/pkg/security"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,31 +41,39 @@ func NewAuthController(p AuthControllerParams) *AuthController {
 	}
 }
 
-// RegisterUser godoc
-// @Summary      Register a new user
-// @Description  Register a new user with the provided details
-// @Tags         Auth
-// @Accept       json
-// @Produce      json
-// @Param        input body requests.UserRequest true "User registration data"
-// @Success      200 {object} responses.UserResponse
-// @Failure      400 {object} responses.ErrorResponse "Validation failed or bad request"
-// @Failure      500 {object} responses.ErrorResponse "Internal server error"
-// @Router       /auth/register [post]
-func (a *AuthController) RegisterUser(c *gin.Context) {
+// RegisterBusinessUser godoc
+// @Summary Register a new business user
+// @Description This API endpoint registers a new business user with all the necessary details.
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param input body requests.BusinessUserRequest true "Business User Information"
+// @Success 200 {object} responses.UserResponse "Business user successfully registered"
+// @Failure 400 {object} responses.ErrorResponse "Error registering business user"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /auth/business/register [post]
+func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 	validatedInput, _ := c.Get("input")
 
-	input := validatedInput.(*requests.UserRequest)
+	input := validatedInput.(*requests.BusinessUserRequest)
 
 	var user models.User
 	if err := mapstructure.Decode(*input, &user); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: "Error processing the request data",
+			Error: consts.ErrorMapConst,
 		})
 		return
 	}
-	log.Print(user)
-	createdUser, err := a.AuthService.RegisterUser(&user)
+
+	var businessUser models.BusinessUser
+	if err := mapstructure.Decode(*input, &businessUser); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	createdUser, err := a.AuthService.RegisterBusinessUser(&user, &businessUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{
 			Error: err.Error(),
@@ -73,9 +81,100 @@ func (a *AuthController) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	// Responder con éxito
 	c.JSON(http.StatusOK, responses.UserResponse{
-		Message: "User successfully registered",
+		Message: "Business user successfully registered",
+		User:    *createdUser,
+	})
+}
+
+// RegisterRegularUser godoc
+// @Summary Register a new regular user
+// @Description This API endpoint registers a new regular user with all the necessary details.
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param input body requests.RegularUserRequest true "Regular User Information"
+// @Success 200 {object} responses.UserResponse "Regular user successfully registered"
+// @Failure 400 {object} responses.ErrorResponse "Error registering regular user"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /auth/regular/register [post]
+func (a *AuthController) RegisterRegularUser(c *gin.Context) {
+	validatedInput, _ := c.Get("input")
+
+	input := validatedInput.(*requests.RegularUserRequest)
+
+	var user models.User
+	if err := mapstructure.Decode(*input, &user); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	var regularUser models.RegularUser
+	if err := mapstructure.Decode(*input, &regularUser); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	createdUser, err := a.AuthService.RegisterRegularUser(&user, &regularUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.UserResponse{
+		Message: "Regular user successfully registered",
+		User:    *createdUser,
+	})
+}
+
+// RegisterUniversityUser godoc
+// @Summary Register a new university user
+// @Description This API endpoint registers a new university user with all the necessary details.
+// @Tags Auth
+// @Accept  json
+// @Produce  json
+// @Param input body requests.UniversityUserRequest true "University User Information"
+// @Success 200 {object} responses.UserResponse "University user successfully registered"
+// @Failure 400 {object} responses.ErrorResponse "Error registering university user"
+// @Failure 500 {object} responses.ErrorResponse "Internal server error"
+// @Router /auth/university/register [post]
+func (a *AuthController) RegisterUniversityUser(c *gin.Context) {
+	validatedInput, _ := c.Get("input")
+
+	input := validatedInput.(*requests.UniversityUserRequest)
+
+	var user models.User
+	if err := mapstructure.Decode(*input, &user); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	var universityUser models.UniversityUser
+	if err := mapstructure.Decode(*input, &universityUser); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	createdUser, err := a.AuthService.RegisterUniversityUser(&user, &universityUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.UserResponse{
+		Message: "University user successfully registered",
 		User:    *createdUser,
 	})
 }
@@ -155,7 +254,7 @@ func (a *AuthController) Login(c *gin.Context) {
 // @Failure      400 {object} responses.ErrorResponse "Bad request, invalid refresh token"
 // @Failure      401 {object} responses.ErrorResponse "Invalid or expired refresh token"
 // @Failure      500 {object} responses.ErrorResponse "Internal server error"
-// @Router       /auth/refresh-token [post]
+// @Router       /auth/token/refresh [post]
 func (a *AuthController) RefreshToken(c *gin.Context) {
 	input, _ := c.Get("username")
 
@@ -167,7 +266,6 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Verificar si el usuario existe
 	user, err := a.UserService.FindUserByUsername(username)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
@@ -176,7 +274,6 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Generar un nuevo access token
 	accessToken, err := security.GenerateAccessToken(user.Username, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{

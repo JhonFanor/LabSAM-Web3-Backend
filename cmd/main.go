@@ -26,6 +26,7 @@ func main() {
 		provide.ServiceProvide(),
 		provide.MiddlewareProvide(),
 		provide.ControllerProvide(),
+		provide.RouteProvide(),
 		fx.Invoke(config.LoadEnvVariables),
 		fx.Invoke(app.RoutesRegister),
 		fx.Invoke(docs.SetupSwagger),

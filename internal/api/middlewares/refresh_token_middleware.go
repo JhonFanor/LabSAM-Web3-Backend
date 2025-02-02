@@ -10,9 +10,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RefreshTokenMiddleware(config *config.JwtConfig) gin.HandlerFunc {
+type RefreshTokenMiddleware struct {
+	Config *config.JwtConfig
+}
+
+func NewRefreshTokenMiddleware(config *config.JwtConfig) *RefreshTokenMiddleware {
+	return &RefreshTokenMiddleware{
+		Config: config,
+	}
+}
+
+func (rm *RefreshTokenMiddleware) ValidateRefreshToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Obtener el token del encabezado "Authorization"
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token no proporcionado"})
@@ -20,7 +29,6 @@ func RefreshTokenMiddleware(config *config.JwtConfig) gin.HandlerFunc {
 			return
 		}
 
-		// El token debe estar en el formato "Bearer <token>"
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Formato de refresh token inválido"})
@@ -30,15 +38,13 @@ func RefreshTokenMiddleware(config *config.JwtConfig) gin.HandlerFunc {
 
 		refreshToken := tokenParts[1]
 
-		// Validar el refresh token
-		claims, err := validations.ValidateRefreshToken(refreshToken, config)
+		claims, err := validations.ValidateRefreshToken(refreshToken, rm.Config)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token inválido o expirado"})
 			c.Abort()
 			return
 		}
 
-		// Agregar los claims al contexto para su uso posterior
 		c.Set("username", claims.Username)
 		c.Next()
 	}

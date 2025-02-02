@@ -1,0 +1,54 @@
+package repositories
+
+import (
+	"lamsam-web3-backend/internal/models"
+
+	"gorm.io/gorm"
+)
+
+type RegularUserRepository interface {
+	Create(regularUser *models.RegularUser) (*models.RegularUser, error)
+	Update(regularUser *models.RegularUser) error
+	Delete(userID uint) error
+	GetByUserID(userID uint) (*models.RegularUser, error)
+	GetAll() ([]models.RegularUser, error)
+}
+
+type regularUserRepository struct {
+	db *gorm.DB
+}
+
+func NewRegularUserRepository(db *gorm.DB) RegularUserRepository {
+	return &regularUserRepository{db: db}
+}
+
+func (r *regularUserRepository) Create(regularUser *models.RegularUser) (*models.RegularUser, error) {
+	if err := r.db.Create(regularUser).Error; err != nil {
+		return nil, err
+	}
+	return regularUser, nil
+}
+
+func (r *regularUserRepository) Update(regularUser *models.RegularUser) error {
+	return r.db.Save(regularUser).Error
+}
+
+func (r *regularUserRepository) Delete(userID uint) error {
+	return r.db.Delete(&models.RegularUser{}, userID).Error
+}
+
+func (r *regularUserRepository) GetByUserID(userID uint) (*models.RegularUser, error) {
+	var regularUser models.RegularUser
+	if err := r.db.First(&regularUser, userID).Error; err != nil {
+		return nil, err
+	}
+	return &regularUser, nil
+}
+
+func (r *regularUserRepository) GetAll() ([]models.RegularUser, error) {
+	var regularUsers []models.RegularUser
+	if err := r.db.Find(&regularUsers).Error; err != nil {
+		return nil, err
+	}
+	return regularUsers, nil
+}

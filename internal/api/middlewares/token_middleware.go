@@ -10,10 +10,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuthMiddleware valida el token de acceso en cada solicitud.
-func TokenMiddleware(config *config.JwtConfig) gin.HandlerFunc {
+type TokenMiddleware struct {
+	Config *config.JwtConfig
+}
+
+func NewTokenMiddleware(config *config.JwtConfig) *TokenMiddleware {
+	return &TokenMiddleware{
+		Config: config,
+	}
+}
+
+func (tm *TokenMiddleware) ValidateToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Obtener el token del encabezado "Authorization"
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de acceso no proporcionado"})
@@ -21,7 +29,6 @@ func TokenMiddleware(config *config.JwtConfig) gin.HandlerFunc {
 			return
 		}
 
-		// El token debe estar en el formato "Bearer <token>"
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Formato de token inválido"})
@@ -31,15 +38,13 @@ func TokenMiddleware(config *config.JwtConfig) gin.HandlerFunc {
 
 		tokenString := tokenParts[1]
 
-		// Validar el token
-		claims, err := validations.ValidateAccessToken(tokenString, config)
+		claims, err := validations.ValidateAccessToken(tokenString, tm.Config)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de acceso inválido o expirado"})
 			c.Abort()
 			return
 		}
 
-		// Agregar los claims al contexto para su uso posterior
 		c.Set("username", claims.Username)
 		c.Next()
 	}

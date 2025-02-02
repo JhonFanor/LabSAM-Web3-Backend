@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/business/register": {
+            "post": {
+                "description": "This API endpoint registers a new business user with all the necessary details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new business user",
+                "parameters": [
+                    {
+                        "description": "Business User Information",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.BusinessUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Business user successfully registered",
+                        "schema": {
+                            "$ref": "#/definitions/responses.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error registering business user",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate a user and generate access and refresh tokens",
@@ -108,9 +154,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/register": {
+        "/auth/regular/register": {
             "post": {
-                "description": "Register a new user with the provided details",
+                "description": "This API endpoint registers a new regular user with all the necessary details.",
                 "consumes": [
                     "application/json"
                 ],
@@ -120,27 +166,73 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Register a new user",
+                "summary": "Register a new regular user",
                 "parameters": [
                     {
-                        "description": "User registration data",
+                        "description": "Regular User Information",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.UserRequest"
+                            "$ref": "#/definitions/requests.RegularUserRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Regular user successfully registered",
                         "schema": {
                             "$ref": "#/definitions/responses.UserResponse"
                         }
                     },
                     "400": {
-                        "description": "Validation failed or bad request",
+                        "description": "Error registering regular user",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/university/register": {
+            "post": {
+                "description": "This API endpoint registers a new university user with all the necessary details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new university user",
+                "parameters": [
+                    {
+                        "description": "University User Information",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.UniversityUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "University user successfully registered",
+                        "schema": {
+                            "$ref": "#/definitions/responses.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error registering university user",
                         "schema": {
                             "$ref": "#/definitions/responses.ErrorResponse"
                         }
@@ -159,6 +251,9 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -176,6 +271,30 @@ const docTemplate = `{
                 }
             }
         },
+        "requests.BusinessUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "requests.LoginRequest": {
             "type": "object",
             "properties": {
@@ -187,15 +306,43 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.UserRequest": {
+        "requests.RegularUserRequest": {
             "type": "object",
             "required": [
                 "email",
+                "name",
                 "password",
                 "username"
             ],
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.UniversityUserRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 },
                 "password": {
