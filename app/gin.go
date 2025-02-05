@@ -7,5 +7,6 @@ import (
 func NewGinEngine() *gin.Engine {
 	engine := gin.Default()
 
+	engine.Use(Cors())
 	return engine
 }

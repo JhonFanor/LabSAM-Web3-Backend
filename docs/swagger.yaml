@@ -1,6 +1,8 @@
 definitions:
   models.User:
     properties:
+      avatar:
+        type: string
       created_at:
         type: string
       email:
@@ -12,9 +14,11 @@ definitions:
       username:
         type: string
     type: object
-  requests.UserRequest:
+  requests.BusinessUserRequest:
     properties:
       email:
+        type: string
+      name:
         type: string
       password:
         minLength: 8
@@ -23,13 +27,61 @@ definitions:
         type: string
     required:
     - email
+    - name
     - password
     - username
+    type: object
+  requests.LoginRequest:
+    properties:
+      password:
+        type: string
+      username_or_email:
+        type: string
+    type: object
+  requests.RegularUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
+  requests.UniversityUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
+  responses.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
     type: object
   responses.ErrorResponse:
     properties:
       details:
-        description: Opcional, para errores detallados
         items:
           type: string
         type: array
@@ -46,34 +98,158 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth/register:
+  /auth/business/register:
     post:
       consumes:
       - application/json
-      description: Register a new user with the provided details
+      description: This API endpoint registers a new business user with all the necessary
+        details.
       parameters:
-      - description: User registration data
+      - description: Business User Information
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/requests.UserRequest'
+          $ref: '#/definitions/requests.BusinessUserRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Business user successfully registered
           schema:
             $ref: '#/definitions/responses.UserResponse'
         "400":
-          description: Validation failed or bad request
+          description: Error registering business user
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-      summary: Register a new user
+      summary: Register a new business user
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and generate access and refresh tokens
+      parameters:
+      - description: User login data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.AuthResponse'
+        "400":
+          description: Bad request, invalid credentials
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Login a user
+      tags:
+      - Auth
+  /auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new access token using a valid refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.AuthResponse'
+        "400":
+          description: Bad request, invalid refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - Auth
+  /auth/regular/register:
+    post:
+      consumes:
+      - application/json
+      description: This API endpoint registers a new regular user with all the necessary
+        details.
+      parameters:
+      - description: Regular User Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegularUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Regular user successfully registered
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "400":
+          description: Error registering regular user
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Register a new regular user
+      tags:
+      - Auth
+  /auth/university/register:
+    post:
+      consumes:
+      - application/json
+      description: This API endpoint registers a new university user with all the
+        necessary details.
+      parameters:
+      - description: University User Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UniversityUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: University user successfully registered
+          schema:
+            $ref: '#/definitions/responses.UserResponse'
+        "400":
+          description: Error registering university user
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Register a new university user
       tags:
       - Auth
 swagger: "2.0"

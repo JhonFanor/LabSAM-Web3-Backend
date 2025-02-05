@@ -6,8 +6,3 @@ type UserResponse struct {
 	Message string      `json:"message"`
 	User    models.User `json:"user"`
 }
-
-type ErrorResponse struct {
-	Error   string   `json:"error"`
-	Details []string `json:"details,omitempty"`
-}

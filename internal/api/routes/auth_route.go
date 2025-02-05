@@ -6,11 +6,40 @@ import (
 	"lamsam-web3-backend/internal/dto/requests"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/fx"
 )
 
-func AuthRoutes(router *gin.Engine, validatorMiddleware *middlewares.ValidatorMiddleware, authController *controllers.AuthController) {
-	auth := router.Group("/auth")
+type AuthRoutesParams struct {
+	fx.In
+	Router                 *gin.Engine
+	ValidatorMiddleware    *middlewares.ValidatorMiddleware
+	RefreshTokenMiddleware *middlewares.RefreshTokenMiddleware
+	AuthController         *controllers.AuthController
+}
+
+type AuthRoutes struct {
+	Router                 *gin.Engine
+	ValidatorMiddleware    *middlewares.ValidatorMiddleware
+	RefreshTokenMiddleware *middlewares.RefreshTokenMiddleware
+	AuthController         *controllers.AuthController
+}
+
+func NewAuthRoutes(p AuthRoutesParams) *AuthRoutes {
+	return &AuthRoutes{
+		Router:                 p.Router,
+		ValidatorMiddleware:    p.ValidatorMiddleware,
+		RefreshTokenMiddleware: p.RefreshTokenMiddleware,
+		AuthController:         p.AuthController,
+	}
+}
+
+func (ar *AuthRoutes) Routes() {
+	auth := ar.Router.Group("/auth")
 	{
-		auth.POST("/register", validatorMiddleware.ValidateInput(&requests.UserRequest{}), authController.RegisterUser)
+		auth.POST("/register/regular", ar.ValidatorMiddleware.ValidateInput(&requests.RegularUserRequest{}), ar.AuthController.RegisterRegularUser)
+		auth.POST("/register/university", ar.ValidatorMiddleware.ValidateInput(&requests.UniversityUserRequest{}), ar.AuthController.RegisterUniversityUser)
+		auth.POST("/register/business", ar.ValidatorMiddleware.ValidateInput(&requests.BusinessUserRequest{}), ar.AuthController.RegisterBusinessUser)
+		auth.POST("/login", ar.ValidatorMiddleware.ValidateInput(&requests.LoginRequest{}), ar.AuthController.Login)
+		auth.POST("token/refresh", ar.RefreshTokenMiddleware.ValidateRefreshToken(), ar.AuthController.RefreshToken)
 	}
 }
