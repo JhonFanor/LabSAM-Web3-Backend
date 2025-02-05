@@ -2,16 +2,26 @@ package security
 
 import (
 	"lamsam-web3-backend/config"
+	"lamsam-web3-backend/internal/models"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateAccessToken(username string, config *config.JwtConfig) (string, error) {
-	expirationTime := time.Now().Add(15 * time.Minute) // 15 minutos de expiración
+func GenerateAccessToken(userID uint, username string, email string, role models.Role, permissions []models.Permission, config *config.JwtConfig) (string, error) {
+	expirationTime := time.Now().Add(15 * time.Minute)
+
+	var permissionNames []string
+	for _, p := range permissions {
+		permissionNames = append(permissionNames, p.Name)
+	}
 
 	claims := &Claims{
-		Username: username,
+		UserID:      userID,
+		Username:    username,
+		Email:       email,
+		Role:        role.Name,
+		Permissions: permissionNames,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

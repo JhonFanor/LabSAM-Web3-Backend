@@ -36,9 +36,9 @@ func NewAuthRoutes(p AuthRoutesParams) *AuthRoutes {
 func (ar *AuthRoutes) Routes() {
 	auth := ar.Router.Group("/auth")
 	{
-		auth.POST("/regular/register", ar.ValidatorMiddleware.ValidateInput(&requests.RegularUserRequest{}), ar.AuthController.RegisterRegularUser)
-		auth.POST("/university/register", ar.ValidatorMiddleware.ValidateInput(&requests.UniversityUserRequest{}), ar.AuthController.RegisterUniversityUser)
-		auth.POST("/business/register", ar.ValidatorMiddleware.ValidateInput(&requests.BusinessUserRequest{}), ar.AuthController.RegisterBusinessUser)
+		auth.POST("/register/regular", ar.ValidatorMiddleware.ValidateInput(&requests.RegularUserRequest{}), ar.AuthController.RegisterRegularUser)
+		auth.POST("/register/university", ar.ValidatorMiddleware.ValidateInput(&requests.UniversityUserRequest{}), ar.AuthController.RegisterUniversityUser)
+		auth.POST("/register/business", ar.ValidatorMiddleware.ValidateInput(&requests.BusinessUserRequest{}), ar.AuthController.RegisterBusinessUser)
 		auth.POST("/login", ar.ValidatorMiddleware.ValidateInput(&requests.LoginRequest{}), ar.AuthController.Login)
 		auth.POST("token/refresh", ar.RefreshTokenMiddleware.ValidateRefreshToken(), ar.AuthController.RefreshToken)
 	}

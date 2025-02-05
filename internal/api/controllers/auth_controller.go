@@ -19,25 +19,31 @@ import (
 
 type AuthControllerParams struct {
 	fx.In
-	Validator   *validator.Validate
-	JwtConfig   *config.JwtConfig
-	AuthService services.AuthService
-	UserService services.UserService
+	Validator         *validator.Validate
+	JwtConfig         *config.JwtConfig
+	AuthService       services.AuthService
+	UserService       services.UserService
+	RoleService       services.RoleService
+	PermissionService services.PermissionService
 }
 
 type AuthController struct {
-	Validator   *validator.Validate
-	JwtConfig   *config.JwtConfig
-	AuthService services.AuthService
-	UserService services.UserService
+	Validator         *validator.Validate
+	JwtConfig         *config.JwtConfig
+	AuthService       services.AuthService
+	UserService       services.UserService
+	RoleService       services.RoleService
+	PermissionService services.PermissionService
 }
 
 func NewAuthController(p AuthControllerParams) *AuthController {
 	return &AuthController{
-		Validator:   p.Validator,
-		JwtConfig:   p.JwtConfig,
-		AuthService: p.AuthService,
-		UserService: p.UserService,
+		Validator:         p.Validator,
+		JwtConfig:         p.JwtConfig,
+		AuthService:       p.AuthService,
+		UserService:       p.UserService,
+		RoleService:       p.RoleService,
+		PermissionService: p.PermissionService,
 	}
 }
 
@@ -51,7 +57,7 @@ func NewAuthController(p AuthControllerParams) *AuthController {
 // @Success 200 {object} responses.UserResponse "Business user successfully registered"
 // @Failure 400 {object} responses.ErrorResponse "Error registering business user"
 // @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /auth/business/register [post]
+// @Router /auth/register/business [post]
 func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 	validatedInput, _ := c.Get("input")
 
@@ -97,7 +103,7 @@ func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 // @Success 200 {object} responses.UserResponse "Regular user successfully registered"
 // @Failure 400 {object} responses.ErrorResponse "Error registering regular user"
 // @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /auth/regular/register [post]
+// @Router /auth/register/regular [post]
 func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 	validatedInput, _ := c.Get("input")
 
@@ -143,7 +149,7 @@ func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 // @Success 200 {object} responses.UserResponse "University user successfully registered"
 // @Failure 400 {object} responses.ErrorResponse "Error registering university user"
 // @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /auth/university/register [post]
+// @Router /auth/register/university [post]
 func (a *AuthController) RegisterUniversityUser(c *gin.Context) {
 	validatedInput, _ := c.Get("input")
 
@@ -212,7 +218,6 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	// Verify password
 	if !user.VerifyPassword(input.Password) {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
 			Error: "Invalid credentials",
@@ -220,8 +225,10 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	// Generate access and refresh tokens
-	accessToken, err := security.GenerateAccessToken(user.Username, a.JwtConfig)
+	role, _ := a.RoleService.GetRoleByID(user.RoleID)
+	permissions, _ := a.PermissionService.GetAllPermissionsByUser(user.ID, user.RoleID)
+
+	accessToken, err := security.GenerateAccessToken(user.ID, user.Username, user.Email, *role, permissions, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: "Could not generate access token",
@@ -237,7 +244,6 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	// Respond with success and the tokens
 	c.JSON(http.StatusOK, responses.AuthResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -274,7 +280,10 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := security.GenerateAccessToken(user.Username, a.JwtConfig)
+	role, _ := a.RoleService.GetRoleByID(user.RoleID)
+	permissions, _ := a.PermissionService.GetAllPermissionsByUser(user.ID, user.RoleID)
+
+	accessToken, err := security.GenerateAccessToken(user.ID, user.Username, user.Email, *role, permissions, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: "Could not generate access token",
@@ -282,7 +291,6 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Responder con el nuevo access token
 	c.JSON(http.StatusOK, responses.AuthResponse{
 		AccessToken: accessToken,
 	})
