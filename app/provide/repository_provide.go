@@ -9,6 +9,8 @@ import (
 func RepositoryProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
+			repositories.NewBankOfResumeRepository,
+			repositories.NewBankOfResumeSubtopicRepository,
 			repositories.NewBusinessUserRepository,
 			repositories.NewPermissionRepository,
 			repositories.NewPermissionRoleRepository,

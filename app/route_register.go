@@ -8,9 +8,11 @@ import (
 
 type RoutesRegisterParams struct {
 	fx.In
-	AuthRoutes *routes.AuthRoutes
+	AuthRoutes         *routes.AuthRoutes
+	BankOfResumeRoutes *routes.BankOfResumeRoutes
 }
 
 func RoutesRegister(p RoutesRegisterParams) {
 	p.AuthRoutes.Routes()
+	p.BankOfResumeRoutes.Routes()
 }

@@ -10,6 +10,7 @@ func ControllerProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			controllers.NewAuthController,
+			controllers.NewBankOfResumeController,
 		),
 	)
 }

@@ -11,7 +11,6 @@ func Cors() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
-		// Manejar preflight request
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(200)
 			return

@@ -1,4 +1,25 @@
 definitions:
+  models.BankOfResume:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      education:
+        type: string
+      experience:
+        type: string
+      id:
+        type: integer
+      skills:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
   models.User:
     properties:
       avatar:
@@ -12,6 +33,25 @@ definitions:
       updated_at:
         type: string
       username:
+        type: string
+    type: object
+  requests.BankOfResumeRequest:
+    properties:
+      description:
+        type: string
+      education:
+        type: string
+      experience:
+        type: string
+      id:
+        type: integer
+      skills:
+        type: string
+      subtopicIDs:
+        items:
+          type: integer
+        type: array
+      title:
         type: string
     type: object
   requests.BusinessUserRequest:
@@ -88,6 +128,11 @@ definitions:
       error:
         type: string
     type: object
+  responses.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
   responses.UserResponse:
     properties:
       message:
@@ -98,37 +143,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth/business/register:
-    post:
-      consumes:
-      - application/json
-      description: This API endpoint registers a new business user with all the necessary
-        details.
-      parameters:
-      - description: Business User Information
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/requests.BusinessUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Business user successfully registered
-          schema:
-            $ref: '#/definitions/responses.UserResponse'
-        "400":
-          description: Error registering business user
-          schema:
-            $ref: '#/definitions/responses.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/responses.ErrorResponse'
-      summary: Register a new business user
-      tags:
-      - Auth
   /auth/login:
     post:
       consumes:
@@ -163,34 +177,38 @@ paths:
       summary: Login a user
       tags:
       - Auth
-  /auth/refresh-token:
+  /auth/register/business:
     post:
       consumes:
       - application/json
-      description: Generate a new access token using a valid refresh token
+      description: This API endpoint registers a new business user with all the necessary
+        details.
+      parameters:
+      - description: Business User Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.BusinessUserRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Business user successfully registered
           schema:
-            $ref: '#/definitions/responses.AuthResponse'
+            $ref: '#/definitions/responses.UserResponse'
         "400":
-          description: Bad request, invalid refresh token
-          schema:
-            $ref: '#/definitions/responses.ErrorResponse'
-        "401":
-          description: Invalid or expired refresh token
+          description: Error registering business user
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-      summary: Refresh access token
+      summary: Register a new business user
       tags:
       - Auth
-  /auth/regular/register:
+  /auth/register/regular:
     post:
       consumes:
       - application/json
@@ -221,7 +239,7 @@ paths:
       summary: Register a new regular user
       tags:
       - Auth
-  /auth/university/register:
+  /auth/register/university:
     post:
       consumes:
       - application/json
@@ -252,4 +270,178 @@ paths:
       summary: Register a new university user
       tags:
       - Auth
+  /auth/token/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new access token using a valid refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.AuthResponse'
+        "400":
+          description: Bad request, invalid refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - Auth
+  /bank-of-resume/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new BankOfResume record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Bank Of Resume Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.BankOfResumeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.BankOfResume'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new BankOfResume entry
+      tags:
+      - BankOfResume
+  /bank-of-resume/delete/{id}:
+    delete:
+      description: This endpoint deletes a BankOfResume record.
+      parameters:
+      - description: Bank Of Resume ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            $ref: '#/definitions/responses.SuccessResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Delete a BankOfResume entry
+      tags:
+      - BankOfResume
+  /bank-of-resume/get-all:
+    get:
+      description: This endpoint fetches all BankOfResume records with pagination.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of BankOfResume entries
+          schema:
+            items:
+              $ref: '#/definitions/models.BankOfResume'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get all BankOfResume entries
+      tags:
+      - BankOfResume
+  /bank-of-resume/get/{id}:
+    get:
+      description: This endpoint fetches a single BankOfResume record.
+      parameters:
+      - description: Bank Of Resume ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved
+          schema:
+            $ref: '#/definitions/models.BankOfResume'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get a single BankOfResume entry by ID
+      tags:
+      - BankOfResume
+  /bank-of-resume/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint updates a BankOfResume record.
+      parameters:
+      - description: Bank Of Resume ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Bank Of Resume Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.BankOfResume'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated
+          schema:
+            $ref: '#/definitions/models.BankOfResume'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Update an existing BankOfResume entry
+      tags:
+      - BankOfResume
 swagger: "2.0"

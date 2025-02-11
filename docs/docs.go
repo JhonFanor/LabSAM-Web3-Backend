@@ -15,52 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/business/register": {
-            "post": {
-                "description": "This API endpoint registers a new business user with all the necessary details.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Register a new business user",
-                "parameters": [
-                    {
-                        "description": "Business User Information",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requests.BusinessUserRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Business user successfully registered",
-                        "schema": {
-                            "$ref": "#/definitions/responses.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Error registering business user",
-                        "schema": {
-                            "$ref": "#/definitions/responses.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/responses.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate a user and generate access and refresh tokens",
@@ -113,9 +67,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/refresh-token": {
+        "/auth/register/business": {
             "post": {
-                "description": "Generate a new access token using a valid refresh token",
+                "description": "This API endpoint registers a new business user with all the necessary details.",
                 "consumes": [
                     "application/json"
                 ],
@@ -125,22 +79,27 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Refresh access token",
+                "summary": "Register a new business user",
+                "parameters": [
+                    {
+                        "description": "Business User Information",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.BusinessUserRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Business user successfully registered",
                         "schema": {
-                            "$ref": "#/definitions/responses.AuthResponse"
+                            "$ref": "#/definitions/responses.UserResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad request, invalid refresh token",
-                        "schema": {
-                            "$ref": "#/definitions/responses.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid or expired refresh token",
+                        "description": "Error registering business user",
                         "schema": {
                             "$ref": "#/definitions/responses.ErrorResponse"
                         }
@@ -154,7 +113,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/regular/register": {
+        "/auth/register/regular": {
             "post": {
                 "description": "This API endpoint registers a new regular user with all the necessary details.",
                 "consumes": [
@@ -200,7 +159,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/university/register": {
+        "/auth/register/university": {
             "post": {
                 "description": "This API endpoint registers a new university user with all the necessary details.",
                 "consumes": [
@@ -245,9 +204,305 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/token/refresh": {
+            "post": {
+                "description": "Generate a new access token using a valid refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh access token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-of-resume/create": {
+            "post": {
+                "description": "This endpoint creates a new BankOfResume record. Requires authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankOfResume"
+                ],
+                "summary": "Create a new BankOfResume entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Bank Of Resume Information",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.BankOfResumeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BankOfResume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-of-resume/delete/{id}": {
+            "delete": {
+                "description": "This endpoint deletes a BankOfResume record.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankOfResume"
+                ],
+                "summary": "Delete a BankOfResume entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Of Resume ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-of-resume/get-all": {
+            "get": {
+                "description": "This endpoint fetches all BankOfResume records with pagination.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankOfResume"
+                ],
+                "summary": "Get all BankOfResume entries",
+                "responses": {
+                    "200": {
+                        "description": "List of BankOfResume entries",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BankOfResume"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-of-resume/get/{id}": {
+            "get": {
+                "description": "This endpoint fetches a single BankOfResume record.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankOfResume"
+                ],
+                "summary": "Get a single BankOfResume entry by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Of Resume ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved",
+                        "schema": {
+                            "$ref": "#/definitions/models.BankOfResume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank-of-resume/update/{id}": {
+            "put": {
+                "description": "This endpoint updates a BankOfResume record.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankOfResume"
+                ],
+                "summary": "Update an existing BankOfResume entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Of Resume ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated Bank Of Resume Information",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BankOfResume"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated",
+                        "schema": {
+                            "$ref": "#/definitions/models.BankOfResume"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "models.BankOfResume": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "education": {
+                    "type": "string"
+                },
+                "experience": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "skills": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -267,6 +522,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.BankOfResumeRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "education": {
+                    "type": "string"
+                },
+                "experience": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "skills": {
+                    "type": "string"
+                },
+                "subtopicIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -375,6 +659,14 @@ const docTemplate = `{
                     }
                 },
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

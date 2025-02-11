@@ -10,6 +10,8 @@ func ServiceProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			services.NewAuthService,
+			services.NewBankOfResumeService,
+			services.NewBankOfResumeSubtopicService,
 			services.NewBusinessUserService,
 			services.NewPermissionRoleService,
 			services.NewPermissionService,

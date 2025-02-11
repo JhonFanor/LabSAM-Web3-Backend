@@ -10,6 +10,7 @@ func RouteProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			routes.NewAuthRoutes,
+			routes.NewBankOfResumeRoutes,
 		),
 	)
 }
