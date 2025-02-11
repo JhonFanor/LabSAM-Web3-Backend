@@ -14,8 +14,3 @@ type EducationalOffer struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type EducationalOfferSubtopic struct {
-	EducationalOfferID uint `gorm:"primaryKey"`
-	SubtopicID         uint `gorm:"primaryKey"`
-}

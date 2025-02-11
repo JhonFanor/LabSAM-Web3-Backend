@@ -10,8 +10,3 @@ type Legislation struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type LegislationSubtopic struct {
-	LegislationID uint `gorm:"primaryKey"`
-	SubtopicID    uint `gorm:"primaryKey"`
-}

@@ -15,7 +15,6 @@ type JobExchange struct {
 	UpdatedAt   time.Time
 }
 
-type JobExchangeSubtopic struct {
-	JobExchangeID uint `gorm:"primaryKey"`
-	SubtopicID    uint `gorm:"primaryKey"`
+func (JobExchange) TableName() string {
+	return "jobs_exchange"
 }

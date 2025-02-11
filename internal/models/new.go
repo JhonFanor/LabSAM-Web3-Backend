@@ -14,8 +14,3 @@ type New struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type NewsSubtopic struct {
-	NewsID     uint `gorm:"primaryKey"`
-	SubtopicID uint `gorm:"primaryKey"`
-}

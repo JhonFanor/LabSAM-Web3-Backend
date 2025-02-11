@@ -10,8 +10,3 @@ type Documentation struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type DocumentationSubtopic struct {
-	DocumentationID uint `gorm:"primaryKey"`
-	SubtopicID      uint `gorm:"primaryKey"`
-}

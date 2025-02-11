@@ -11,8 +11,3 @@ type Investigation struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type InvestigationSubtopic struct {
-	InvestigationID uint `gorm:"primaryKey"`
-	SubtopicID      uint `gorm:"primaryKey"`
-}

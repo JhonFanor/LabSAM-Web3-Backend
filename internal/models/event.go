@@ -12,8 +12,3 @@ type Event struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type EventSubtopic struct {
-	EventID    uint `gorm:"primaryKey"`
-	SubtopicID uint `gorm:"primaryKey"`
-}
