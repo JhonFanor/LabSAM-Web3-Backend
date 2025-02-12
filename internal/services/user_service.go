@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +31,12 @@ func NewUserService(repo repositories.UserRepository, db *gorm.DB) UserService {
 }
 
 func (s *userService) CreateUser(user *models.User) (*models.User, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(hashedPassword)
+
 	return s.repo.Create(user)
 }
 

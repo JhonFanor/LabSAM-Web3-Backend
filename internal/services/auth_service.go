@@ -55,7 +55,7 @@ func (s *authService) RegisterRegularUser(user *models.User, regularUser *models
 }
 
 func (s *authService) RegisterUniversityUser(user *models.User, universityUser *models.UniversityUser) (*models.User, error) {
-	role, err := s.roleServcie.GetByName("business")
+	role, err := s.roleServcie.GetByName("university")
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (s *authService) RegisterUniversityUser(user *models.User, universityUser *
 
 func (s *authService) RegisterBusinessUser(user *models.User, businessUser *models.BusinessUser) (*models.User, error) {
 
-	role, err := s.roleServcie.GetByName("business")
+	role, err := s.roleServcie.GetByName("regular")
 	if err != nil {
 		return nil, err
 	}

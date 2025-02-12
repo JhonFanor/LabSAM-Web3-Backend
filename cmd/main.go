@@ -20,6 +20,7 @@ func main() {
 			config.NewDatabaseConfig,
 			config.NewJwtConfig,
 			gormmanagers.NewDBManager,
+			gormmanagers.NewGormQueryManager,
 		),
 		provide.ValidatorProvide(),
 		provide.RepositoryProvide(),

@@ -220,7 +220,7 @@ func (a *AuthController) Login(c *gin.Context) {
 
 	if !user.VerifyPassword(input.Password) {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
-			Error: "Invalid credentials",
+			Error: "Invalid password",
 		})
 		return
 	}

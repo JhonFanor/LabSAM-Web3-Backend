@@ -8,14 +8,16 @@ import (
 )
 
 type DBManager struct {
-	DB     *gorm.DB
-	Logger logging.Logger
+	DB           *gorm.DB
+	QueryManager *GormQueryManager
+	Logger       logging.Logger
 }
 
-func NewDBManager(db *gorm.DB, logger logging.Logger) *DBManager {
+func NewDBManager(db *gorm.DB, queryManager *GormQueryManager, logger logging.Logger) *DBManager {
 	return &DBManager{
-		DB:     db,
-		Logger: logger,
+		DB:           db,
+		QueryManager: queryManager,
+		Logger:       logger,
 	}
 }
 
