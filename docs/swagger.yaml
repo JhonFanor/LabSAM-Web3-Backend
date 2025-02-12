@@ -1,4 +1,181 @@
 definitions:
+  models.BankOfResume:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      education:
+        type: string
+      experience:
+        type: string
+      id:
+        type: integer
+      skills:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.Company:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      industry:
+        type: string
+      locationID:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+      website:
+        type: string
+    type: object
+  models.Documentation:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.EducationalOffer:
+    properties:
+      cost:
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      id:
+        type: integer
+      institution:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+      website:
+        type: string
+    type: object
+  models.Event:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.Investigation:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.JobExchange:
+    properties:
+      company:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      salaryRange:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.Legislation:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.News:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      link:
+        type: string
+      source:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
   models.User:
     properties:
       avatar:
@@ -13,6 +190,30 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  requests.BankOfResumeRequest:
+    properties:
+      description:
+        type: string
+      education:
+        type: string
+      experience:
+        type: string
+      skills:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - description
+    - education
+    - experience
+    - skills
+    - subtopic_ids
+    - title
     type: object
   requests.BusinessUserRequest:
     properties:
@@ -31,12 +232,186 @@ definitions:
     - password
     - username
     type: object
+  requests.CompanyRequest:
+    properties:
+      email:
+        type: string
+      industry:
+        type: string
+      location_id:
+        type: integer
+      name:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      website:
+        type: string
+    required:
+    - email
+    - industry
+    - location_id
+    - name
+    - subtopic_ids
+    - website
+    type: object
+  requests.DocumentationRequest:
+    properties:
+      description:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - description
+    - subtopic_ids
+    - title
+    type: object
+  requests.EducationalOfferRequest:
+    properties:
+      cost:
+        type: number
+      description:
+        type: string
+      duration:
+        type: string
+      institution:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      website:
+        type: string
+    required:
+    - cost
+    - description
+    - duration
+    - institution
+    - subtopic_ids
+    - title
+    - website
+    type: object
+  requests.EventRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      link:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - date
+    - description
+    - link
+    - subtopic_ids
+    - title
+    type: object
+  requests.InvestigationRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - date
+    - description
+    - subtopic_ids
+    - title
+    type: object
+  requests.JobExchangeRequest:
+    properties:
+      company:
+        type: string
+      description:
+        type: string
+      salary_range:
+        type: string
+      status:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - company
+    - description
+    - salary_range
+    - status
+    - subtopic_ids
+    - title
+    - type
+    type: object
+  requests.LegislationRequest:
+    properties:
+      description:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - description
+    - subtopic_ids
+    - title
+    type: object
   requests.LoginRequest:
     properties:
       password:
         type: string
       username_or_email:
         type: string
+    type: object
+  requests.NewsRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      image:
+        type: string
+      link:
+        type: string
+      source:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - date
+    - description
+    - image
+    - link
+    - source
+    - subtopic_ids
+    - title
     type: object
   requests.RegularUserRequest:
     properties:
@@ -88,6 +463,11 @@ definitions:
       error:
         type: string
     type: object
+  responses.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
   responses.UserResponse:
     properties:
       message:
@@ -98,37 +478,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /auth/business/register:
-    post:
-      consumes:
-      - application/json
-      description: This API endpoint registers a new business user with all the necessary
-        details.
-      parameters:
-      - description: Business User Information
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/requests.BusinessUserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Business user successfully registered
-          schema:
-            $ref: '#/definitions/responses.UserResponse'
-        "400":
-          description: Error registering business user
-          schema:
-            $ref: '#/definitions/responses.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/responses.ErrorResponse'
-      summary: Register a new business user
-      tags:
-      - Auth
   /auth/login:
     post:
       consumes:
@@ -163,34 +512,38 @@ paths:
       summary: Login a user
       tags:
       - Auth
-  /auth/refresh-token:
+  /auth/register/business:
     post:
       consumes:
       - application/json
-      description: Generate a new access token using a valid refresh token
+      description: This API endpoint registers a new business user with all the necessary
+        details.
+      parameters:
+      - description: Business User Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.BusinessUserRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Business user successfully registered
           schema:
-            $ref: '#/definitions/responses.AuthResponse'
+            $ref: '#/definitions/responses.UserResponse'
         "400":
-          description: Bad request, invalid refresh token
-          schema:
-            $ref: '#/definitions/responses.ErrorResponse'
-        "401":
-          description: Invalid or expired refresh token
+          description: Error registering business user
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-      summary: Refresh access token
+      summary: Register a new business user
       tags:
       - Auth
-  /auth/regular/register:
+  /auth/register/regular:
     post:
       consumes:
       - application/json
@@ -221,7 +574,7 @@ paths:
       summary: Register a new regular user
       tags:
       - Auth
-  /auth/university/register:
+  /auth/register/university:
     post:
       consumes:
       - application/json
@@ -252,4 +605,491 @@ paths:
       summary: Register a new university user
       tags:
       - Auth
+  /auth/token/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new access token using a valid refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.AuthResponse'
+        "400":
+          description: Bad request, invalid refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - Auth
+  /bank-of-resume/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new BankOfResume record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Bank Of Resume Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.BankOfResumeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.BankOfResume'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new BankOfResume entry
+      tags:
+      - BankOfResume
+  /bank-of-resume/delete/{id}:
+    delete:
+      description: This endpoint deletes a BankOfResume record.
+      parameters:
+      - description: Bank Of Resume ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            $ref: '#/definitions/responses.SuccessResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Delete a BankOfResume entry
+      tags:
+      - BankOfResume
+  /bank-of-resume/get-all:
+    get:
+      description: This endpoint fetches all BankOfResume records with pagination.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of BankOfResume entries
+          schema:
+            items:
+              $ref: '#/definitions/models.BankOfResume'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get all BankOfResume entries
+      tags:
+      - BankOfResume
+  /bank-of-resume/get/{id}:
+    get:
+      description: This endpoint fetches a single BankOfResume record.
+      parameters:
+      - description: Bank Of Resume ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved
+          schema:
+            $ref: '#/definitions/models.BankOfResume'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get a single BankOfResume entry by ID
+      tags:
+      - BankOfResume
+  /bank-of-resume/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint updates a BankOfResume record.
+      parameters:
+      - description: Bank Of Resume ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Bank Of Resume Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.BankOfResume'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated
+          schema:
+            $ref: '#/definitions/models.BankOfResume'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Update an existing BankOfResume entry
+      tags:
+      - BankOfResume
+  /company/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Company record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Company Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Company'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Company entry
+      tags:
+      - Company
+  /documentation/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Documentation record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Documentation Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.DocumentationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Documentation'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Documentation entry
+      tags:
+      - Documentation
+  /educational-offer/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Educational Offer record. Requires
+        authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Educational Offer Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.EducationalOfferRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.EducationalOffer'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Educational Offer entry
+      tags:
+      - EducationalOffer
+  /event/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Event record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Event Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.EventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Event entry
+      tags:
+      - Event
+  /investigation/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Investigation record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Investigation Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.InvestigationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Investigation'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Investigation entry
+      tags:
+      - Investigation
+  /job-exchange/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Job Exchange record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Job Exchange Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.JobExchangeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.JobExchange'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Job Exchange entry
+      tags:
+      - JobExchange
+  /legislation/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Legislation record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Legislation Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LegislationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Legislation'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Legislation entry
+      tags:
+      - Legislation
+  /news/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new News record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: News Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.NewsRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.News'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new News entry
+      tags:
+      - News
 swagger: "2.0"

@@ -10,6 +10,15 @@ func ControllerProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
 			controllers.NewAuthController,
+			controllers.NewBankOfResumeController,
+			controllers.NewCompanyController,
+			controllers.NewDocumentationController,
+			controllers.NewEducationalOfferController,
+			controllers.NewEventController,
+			controllers.NewInvestigationController,
+			controllers.NewJobExchangeController,
+			controllers.NewLegislationController,
+			controllers.NewNewsController,
 		),
 	)
 }
