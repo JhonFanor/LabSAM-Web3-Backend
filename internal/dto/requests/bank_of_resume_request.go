@@ -6,5 +6,5 @@ type BankOfResumeRequest struct {
 	Skills      string `json:"skills" validate:"required"`
 	Experience  string `json:"experience" validate:"required"`
 	Education   string `json:"education" validate:"required"`
-	SubtopicIDs []uint `json:"subtopic_id" validate:"required"`
+	SubtopicIDs []uint `json:"subtopic_ids" validate:"required"`
 }

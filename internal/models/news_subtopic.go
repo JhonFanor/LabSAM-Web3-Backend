@@ -6,5 +6,5 @@ type NewsSubtopic struct {
 }
 
 func (NewsSubtopic) TableName() string {
-	return "new_subtopic"
+	return "news_subtopic"
 }

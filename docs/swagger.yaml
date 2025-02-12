@@ -20,6 +20,162 @@ definitions:
       userID:
         type: integer
     type: object
+  models.Company:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      industry:
+        type: string
+      locationID:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+      website:
+        type: string
+    type: object
+  models.Documentation:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.EducationalOffer:
+    properties:
+      cost:
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      id:
+        type: integer
+      institution:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+      website:
+        type: string
+    type: object
+  models.Event:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.Investigation:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.JobExchange:
+    properties:
+      company:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      salaryRange:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.Legislation:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  models.News:
+    properties:
+      createdAt:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      link:
+        type: string
+      source:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
   models.User:
     properties:
       avatar:
@@ -43,16 +199,21 @@ definitions:
         type: string
       experience:
         type: string
-      id:
-        type: integer
       skills:
         type: string
-      subtopicIDs:
+      subtopic_ids:
         items:
           type: integer
         type: array
       title:
         type: string
+    required:
+    - description
+    - education
+    - experience
+    - skills
+    - subtopic_ids
+    - title
     type: object
   requests.BusinessUserRequest:
     properties:
@@ -71,12 +232,186 @@ definitions:
     - password
     - username
     type: object
+  requests.CompanyRequest:
+    properties:
+      email:
+        type: string
+      industry:
+        type: string
+      location_id:
+        type: integer
+      name:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      website:
+        type: string
+    required:
+    - email
+    - industry
+    - location_id
+    - name
+    - subtopic_ids
+    - website
+    type: object
+  requests.DocumentationRequest:
+    properties:
+      description:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - description
+    - subtopic_ids
+    - title
+    type: object
+  requests.EducationalOfferRequest:
+    properties:
+      cost:
+        type: number
+      description:
+        type: string
+      duration:
+        type: string
+      institution:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      website:
+        type: string
+    required:
+    - cost
+    - description
+    - duration
+    - institution
+    - subtopic_ids
+    - title
+    - website
+    type: object
+  requests.EventRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      link:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - date
+    - description
+    - link
+    - subtopic_ids
+    - title
+    type: object
+  requests.InvestigationRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - date
+    - description
+    - subtopic_ids
+    - title
+    type: object
+  requests.JobExchangeRequest:
+    properties:
+      company:
+        type: string
+      description:
+        type: string
+      salary_range:
+        type: string
+      status:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - company
+    - description
+    - salary_range
+    - status
+    - subtopic_ids
+    - title
+    - type
+    type: object
+  requests.LegislationRequest:
+    properties:
+      description:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - description
+    - subtopic_ids
+    - title
+    type: object
   requests.LoginRequest:
     properties:
       password:
         type: string
       username_or_email:
         type: string
+    type: object
+  requests.NewsRequest:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      image:
+        type: string
+      link:
+        type: string
+      source:
+        type: string
+      subtopic_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+    required:
+    - date
+    - description
+    - image
+    - link
+    - source
+    - subtopic_ids
+    - title
     type: object
   requests.RegularUserRequest:
     properties:
@@ -444,4 +779,317 @@ paths:
       summary: Update an existing BankOfResume entry
       tags:
       - BankOfResume
+  /company/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Company record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Company Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CompanyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Company'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Company entry
+      tags:
+      - Company
+  /documentation/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Documentation record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Documentation Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.DocumentationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Documentation'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Documentation entry
+      tags:
+      - Documentation
+  /educational-offer/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Educational Offer record. Requires
+        authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Educational Offer Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.EducationalOfferRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.EducationalOffer'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Educational Offer entry
+      tags:
+      - EducationalOffer
+  /event/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Event record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Event Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.EventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Event entry
+      tags:
+      - Event
+  /investigation/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Investigation record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Investigation Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.InvestigationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Investigation'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Investigation entry
+      tags:
+      - Investigation
+  /job-exchange/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Job Exchange record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Job Exchange Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.JobExchangeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.JobExchange'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Job Exchange entry
+      tags:
+      - JobExchange
+  /legislation/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new Legislation record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Legislation Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LegislationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Legislation'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new Legislation entry
+      tags:
+      - Legislation
+  /news/create:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new News record. Requires authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: News Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/requests.NewsRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.News'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Create a new News entry
+      tags:
+      - News
 swagger: "2.0"

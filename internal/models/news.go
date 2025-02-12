@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type New struct {
+type News struct {
 	ID          uint   `gorm:"primaryKey"`
 	Title       string `gorm:"size:255;not null"`
 	Description string `gorm:"not null"`
@@ -13,4 +13,8 @@ type New struct {
 	UserID      uint
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+func (News) TableName() string {
+	return "news"
 }

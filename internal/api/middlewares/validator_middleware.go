@@ -2,7 +2,9 @@ package middlewares
 
 import (
 	"lamsam-web3-backend/internal/dto/responses"
+	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -18,8 +20,10 @@ func NewValidatorMiddleware(validator *validator.Validate) *ValidatorMiddleware 
 	}
 }
 
-func (vm *ValidatorMiddleware) ValidateInput(input interface{}) gin.HandlerFunc {
+func (vm *ValidatorMiddleware) ValidateInput(inputType interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		input := reflect.New(reflect.TypeOf(inputType).Elem()).Interface()
+		log.Print(input)
 		if err := c.ShouldBindJSON(input); err != nil {
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{
 				Error: "Invalid input data. Please check your request payload.",
@@ -44,7 +48,8 @@ func (vm *ValidatorMiddleware) ValidateInput(input interface{}) gin.HandlerFunc 
 			c.Abort()
 			return
 		}
-		c.Set("input", input)
+
+		c.Set("input", input) // Guarda la instancia corregida
 		c.Next()
 	}
 }

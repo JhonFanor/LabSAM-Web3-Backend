@@ -14,57 +14,57 @@ import (
 	"go.uber.org/fx"
 )
 
-type CompanyControllerParams struct {
+type NewsControllerParams struct {
 	fx.In
-	CompanyService services.CompanyService
+	NewsService services.NewsService
 }
 
-type CompanyController struct {
-	service services.CompanyService
+type NewsController struct {
+	service services.NewsService
 }
 
-func NewCompanyController(p CompanyControllerParams) *CompanyController {
-	return &CompanyController{
-		service: p.CompanyService,
+func NewNewsController(p NewsControllerParams) *NewsController {
+	return &NewsController{
+		service: p.NewsService,
 	}
 }
 
-// CreateCompany godoc
-// @Summary Create a new Company entry
-// @Description This endpoint creates a new Company record. Requires authentication.
-// @Tags Company
+// CreateNews godoc
+// @Summary Create a new News entry
+// @Description This endpoint creates a new News record. Requires authentication.
+// @Tags News
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Bearer Token"
-// @Param input body requests.CompanyRequest true "Company Information"
-// @Success 201 {object} models.Company "Successfully created"
+// @Param input body requests.NewsRequest true "News Information"
+// @Success 201 {object} models.News "Successfully created"
 // @Failure 400 {object} responses.ErrorResponse "Bad request"
 // @Failure 401 {object} responses.ErrorResponse "Unauthorized"
 // @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /company/create [post]
-func (c *CompanyController) CreateCompany(ctx *gin.Context) {
+// @Router /news/create [post]
+func (n *NewsController) CreateNews(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")
 
-	companyRequest := validatedInput.(*requests.CompanyRequest)
+	newsRequest := validatedInput.(*requests.NewsRequest)
 
 	claimsValue, _ := ctx.Get("claims")
 
 	claims, _ := claimsValue.(*security.Claims)
 
-	var company models.Company
-	if err := mapstructure.Decode(companyRequest, &company); err != nil {
+	var news models.News
+	if err := mapstructure.Decode(newsRequest, &news); err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: consts.ErrorMapConst,
 		})
 		return
 	}
 
-	createdCompany, err := c.service.CreateCompany(&company, claims.UserID, companyRequest.SubtopicIDs)
+	createdNews, err := n.service.CreateNews(&news, claims.UserID, newsRequest.SubtopicIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, createdCompany)
+	ctx.JSON(http.StatusCreated, createdNews)
 }

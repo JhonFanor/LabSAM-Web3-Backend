@@ -6,5 +6,5 @@ type CompanySubtopic struct {
 }
 
 func (CompanySubtopic) TableName() string {
-	return "bank_of_resume_subtopic"
+	return "company_subtopic"
 }
