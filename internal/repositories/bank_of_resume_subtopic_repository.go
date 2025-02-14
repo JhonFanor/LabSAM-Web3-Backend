@@ -8,6 +8,7 @@ import (
 
 type BankOfResumeSubtopicRepository interface {
 	Create(bankOfResumeSubtopic *models.BankOfResumeSubtopic) (*models.BankOfResumeSubtopic, error)
+	GetByID(bankOfResumeID, subtopicID uint) (*models.BankOfResumeSubtopic, error)
 	Delete(bankOfResumeID, subtopicID uint) error
 }
 
@@ -26,6 +27,14 @@ func (r *bankOfResumeSubtopicRepository) Create(bankOfResumeSubtopic *models.Ban
 		return nil, err
 	}
 	return bankOfResumeSubtopic, nil
+}
+
+func (r *bankOfResumeSubtopicRepository) GetByID(bankOfResumeID, subtopicID uint) (*models.BankOfResumeSubtopic, error) {
+	var bankOfResumeSubtopic models.BankOfResumeSubtopic
+	if err := r.db.Where("bank_of_resume_id = ? AND subtopic_id = ?", bankOfResumeID, subtopicID).First(&bankOfResumeSubtopic).Error; err != nil {
+		return nil, err
+	}
+	return &bankOfResumeSubtopic, nil
 }
 
 func (r *bankOfResumeSubtopicRepository) Delete(bankOfResumeID, subtopicID uint) error {
