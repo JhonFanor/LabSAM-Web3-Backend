@@ -34,8 +34,12 @@ func NewBankOfResumeRoutes(p BankOfResumeRoutesParams) *BankOfResumeRoutes {
 }
 
 func (br *BankOfResumeRoutes) Routes() {
-	auth := br.Router.Group("/bank-of-resume")
+	bankOfResume := br.Router.Group("/bank-of-resume")
 	{
-		auth.POST("/create", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
+		bankOfResume.POST("/create", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
+		bankOfResume.GET("/get/all", br.BankOfResumeController.GetAllBankOfResumes)
+		bankOfResume.GET("/get/:id", br.BankOfResumeController.GetBankOfResumeByID)
+		bankOfResume.PUT("/update/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
+		bankOfResume.DELETE("/delete/:id", br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
 	}
 }

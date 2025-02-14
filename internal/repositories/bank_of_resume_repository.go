@@ -1,11 +1,11 @@
 package repositories
 
 import (
-	"context"
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +14,7 @@ type BankOfResumeRepository interface {
 	Update(bankOfResume *models.BankOfResume) error
 	Delete(id uint) error
 	GetByID(id uint) (*models.BankOfResume, error)
-	GetAll(ctx context.Context) ([]models.BankOfResume, *dto.PaginationDTO, error)
+	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 }
 
 type bankOfResumeRepository struct {
@@ -52,19 +52,8 @@ func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) 
 	return &bankOfResume, nil
 }
 
-func (r *bankOfResumeRepository) GetAll(ctx context.Context) ([]models.BankOfResume, *dto.PaginationDTO, error) {
-	var bankOfResumes []models.BankOfResume
+func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.BankOfResume{})
 
-	tx := r.db.Model(&models.BankOfResume{})
-
-	tx, paginationInfo, err := r.qm.ApplyPaginationAndFilters(ctx, tx, &models.BankOfResume{})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if err := tx.Find(&bankOfResumes).Error; err != nil {
-		return nil, nil, err
-	}
-
-	return bankOfResumes, paginationInfo, nil
+	return paginationInfo, nil
 }
