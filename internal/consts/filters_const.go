@@ -6,8 +6,6 @@ const (
 	InOptionsSeparator          = ","
 )
 
-// Filter operators
-
 const (
 	FilterOperatorEq                       = "eq"
 	FilterOperatorNeq                      = "neq"

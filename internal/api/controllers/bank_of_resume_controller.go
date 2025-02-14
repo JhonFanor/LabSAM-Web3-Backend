@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -34,32 +33,26 @@ func NewBankOfResumeController(p BankOfResumeControllerParams) *BankOfResumeCont
 
 // CreateBankOfResume godoc
 // @Summary Create a new BankOfResume entry
-// @Description This endpoint creates a new BankOfResume record. Requires authentication.
+// @Description Create a new BankOfResume record. Requires authentication.
 // @Tags BankOfResume
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param Authorization header string true "Bearer Token"
-// @Param input body requests.BankOfResumeRequest true "Bank Of Resume Information"
+// @Param input body requests.BankOfResumeCreateRequest true "Bank Of Resume Information"
 // @Success 201 {object} models.BankOfResume "Successfully created"
 // @Failure 400 {object} responses.ErrorResponse "Bad request"
 // @Failure 401 {object} responses.ErrorResponse "Unauthorized"
 // @Failure 500 {object} responses.ErrorResponse "Internal server error"
 // @Router /bank-of-resume/create [post]
 func (b *BankOfResumeController) CreateBankOfResume(c *gin.Context) {
-
 	validatedInput, _ := c.Get("input")
-
-	bankOfResumeRequest := validatedInput.(*requests.BankOfResumeRequest)
-
+	bankOfResumeRequest := validatedInput.(*requests.BankOfResumeCreateRequest)
 	claimsValue, _ := c.Get("claims")
-
 	claims, _ := claimsValue.(*security.Claims)
 
 	var bankOfResume models.BankOfResume
 	if err := mapstructure.Decode(bankOfResumeRequest, &bankOfResume); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
 		return
 	}
 
@@ -74,28 +67,26 @@ func (b *BankOfResumeController) CreateBankOfResume(c *gin.Context) {
 
 // GetAllBankOfResumes godoc
 // @Summary Get all BankOfResume entries
-// @Description This endpoint fetches all BankOfResume records with pagination.
+// @Description Fetch all BankOfResume records with pagination.
 // @Tags BankOfResume
-// @Produce  json
-// @Success 200 {object} []models.BankOfResume "List of BankOfResume entries"
+// @Produce json
+// @Success 200 {object} dto.PaginationDTO "List of BankOfResume entries"
 // @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /bank-of-resume/get-all [get]
+// @Router /bank-of-resume/get/all [get]
 func (b *BankOfResumeController) GetAllBankOfResumes(c *gin.Context) {
-	ctx := context.Background()
-	data, pagination, err := b.service.GetAllBankOfResumes(ctx)
+	pagination, err := b.service.GetAllBankOfResumes(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"data": data, "pagination": pagination})
+	c.JSON(http.StatusOK, pagination)
 }
 
 // GetBankOfResumeByID godoc
 // @Summary Get a single BankOfResume entry by ID
-// @Description This endpoint fetches a single BankOfResume record.
+// @Description Fetch a single BankOfResume record by ID.
 // @Tags BankOfResume
-// @Produce  json
+// @Produce json
 // @Param id path int true "Bank Of Resume ID"
 // @Success 200 {object} models.BankOfResume "Successfully retrieved"
 // @Failure 400 {object} responses.ErrorResponse "Bad request"
@@ -119,12 +110,13 @@ func (b *BankOfResumeController) GetBankOfResumeByID(c *gin.Context) {
 
 // UpdateBankOfResume godoc
 // @Summary Update an existing BankOfResume entry
-// @Description This endpoint updates a BankOfResume record.
+// @Description Update a BankOfResume record.
 // @Tags BankOfResume
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param id path int true "Bank Of Resume ID"
-// @Param input body models.BankOfResume true "Updated Bank Of Resume Information"
+// @Param input body requests.BankOfResumeUpdateRequest true "Updated Bank Of Resume Information"
 // @Success 200 {object} models.BankOfResume "Successfully updated"
 // @Failure 400 {object} responses.ErrorResponse "Bad request"
 // @Failure 404 {object} responses.ErrorResponse "Not found"
@@ -136,14 +128,19 @@ func (b *BankOfResumeController) UpdateBankOfResume(c *gin.Context) {
 		return
 	}
 
+	validatedInput, _ := c.Get("input")
+	bankOfResumeRequest := validatedInput.(*requests.BankOfResumeUpdateRequest)
 	var bankOfResume models.BankOfResume
-	if err := c.ShouldBindJSON(&bankOfResume); err != nil {
-		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+	if err := mapstructure.Decode(bankOfResumeRequest, &bankOfResume); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
 		return
 	}
 
 	bankOfResume.ID = uint(id)
-	if err := b.service.UpdateBankOfResume(&bankOfResume); err != nil {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	if err := b.service.UpdateBankOfResume(&bankOfResume, claims.UserID, claims.Role); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
@@ -153,9 +150,10 @@ func (b *BankOfResumeController) UpdateBankOfResume(c *gin.Context) {
 
 // DeleteBankOfResume godoc
 // @Summary Delete a BankOfResume entry
-// @Description This endpoint deletes a BankOfResume record.
+// @Description Delete a BankOfResume record by ID.
 // @Tags BankOfResume
-// @Produce  json
+// @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param id path int true "Bank Of Resume ID"
 // @Success 200 {object} responses.SuccessResponse "Successfully deleted"
 // @Failure 400 {object} responses.ErrorResponse "Bad request"
@@ -168,7 +166,10 @@ func (b *BankOfResumeController) DeleteBankOfResume(c *gin.Context) {
 		return
 	}
 
-	if err := b.service.DeleteBankOfResume(uint(id)); err != nil {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	if err := b.service.DeleteBankOfResume(uint(id), claims.UserID, claims.Role); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
