@@ -9,3 +9,12 @@ type EducationalOfferRequest struct {
 	Website     string  `json:"website" validate:"required"`
 	SubtopicIDs []uint  `json:"subtopic_ids" validate:"required"`
 }
+
+type EducationalUpdateOfferRequest struct {
+	Title       string  `json:"title"`
+	Institution string  `json:"institution"`
+	Duration    string  `json:"duration"`
+	Cost        float64 `json:"cost"`
+	Description string  `json:"description"`
+	Website     string  `json:"website"`
+}

@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"lamsam-web3-backend/internal/consts"
+	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
 	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/services"
 	"lamsam-web3-backend/pkg/security"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
@@ -67,4 +69,74 @@ func (i *InvestigationController) CreateInvestigation(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, createdInvestigation)
+}
+
+func (i *InvestigationController) GetAllInvestigations(c *gin.Context) {
+	pagination, err := i.service.GetAllInvestigations(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (i *InvestigationController) GetInvestigationByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: customerrors.ErrInvalidID.Error()})
+		return
+	}
+
+	investigation, err := i.service.GetInvestigationByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Investigation not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, investigation)
+}
+
+func (i *InvestigationController) UpdateInvestigation(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: customerrors.ErrInvalidID.Error()})
+		return
+	}
+
+	validatedInput, _ := c.Get("input")
+	investigationRequest := validatedInput.(*requests.InvestigationUpdateRequest)
+	var investigation models.Investigation
+	if err := mapstructure.Decode(investigationRequest, &investigation); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+		return
+	}
+
+	investigation.ID = uint(id)
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	if err := i.service.UpdateInvestigation(&investigation, claims.UserID, claims.Role); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, investigation)
+}
+
+func (i *InvestigationController) DeleteInvestigation(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid ID"})
+		return
+	}
+
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	if err := i.service.DeleteInvestigation(uint(id), claims.UserID, claims.Role); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.SuccessResponse{Message: "Successfully deleted"})
 }

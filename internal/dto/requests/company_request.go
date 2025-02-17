@@ -8,3 +8,11 @@ type CompanyRequest struct {
 	Email          string `json:"email" validate:"required"`
 	SubtopicIDs    []uint `json:"subtopic_ids" validate:"required"`
 }
+
+type CompanyUpdateRequest struct {
+	Name           string `json:"name" `
+	Industry       string `json:"industry"`
+	LocalitationID int    `json:"localitation_id"`
+	Website        string `json:"website"`
+	Email          string `json:"email"`
+}

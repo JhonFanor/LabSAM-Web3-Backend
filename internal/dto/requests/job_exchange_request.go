@@ -9,3 +9,12 @@ type JobExchangeRequest struct {
 	Status      string `json:"status" validate:"required"`
 	SubtopicIDs []uint `json:"subtopic_ids" validate:"required"`
 }
+
+type JobExchangeUpdateRequest struct {
+	Title       string `json:"title"`
+	Company     string `json:"company"`
+	Description string `json:"description"`
+	Type        string `json:"type"`
+	SalaryRange string `json:"salary_range"`
+	Status      string `json:"status"`
+}
