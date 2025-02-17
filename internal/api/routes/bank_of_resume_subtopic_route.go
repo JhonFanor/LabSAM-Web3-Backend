@@ -9,7 +9,7 @@ import (
 	"go.uber.org/fx"
 )
 
-type BankOfResumeRoutesSubtopicParams struct {
+type BankOfResumeSubtopicRoutesParams struct {
 	fx.In
 	Router                         *gin.Engine
 	ValidatorMiddleware            *middlewares.ValidatorMiddleware
@@ -24,7 +24,7 @@ type BankOfResumeSubtopicRoutes struct {
 	BankOfResumeSubtopicController *controllers.BankOfResumeSubtopicController
 }
 
-func NewBankOfResumeSutopicRoutes(p BankOfResumeRoutesSubtopicParams) *BankOfResumeSubtopicRoutes {
+func NewBankOfResumeSubtopicRoutes(p BankOfResumeSubtopicRoutesParams) *BankOfResumeSubtopicRoutes {
 	return &BankOfResumeSubtopicRoutes{
 		Router:                         p.Router,
 		ValidatorMiddleware:            p.ValidatorMiddleware,
@@ -36,7 +36,7 @@ func NewBankOfResumeSutopicRoutes(p BankOfResumeRoutesSubtopicParams) *BankOfRes
 func (br *BankOfResumeSubtopicRoutes) Routes() {
 	bankOfResumeSubtopic := br.Router.Group("/bank-of-resume-subtopic")
 	{
-		bankOfResumeSubtopic.POST("/create", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.CreateBankOfResumeSubtopic)
+		bankOfResumeSubtopic.POST("/create/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.CreateBankOfResumeSubtopic)
 		bankOfResumeSubtopic.DELETE("/delete/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.DeleteBankOfResumeSubtopic)
 	}
 }

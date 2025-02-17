@@ -34,8 +34,12 @@ func NewEventRoutes(p EventRoutesParams) *EventRoutes {
 }
 
 func (er *EventRoutes) Routes() {
-	auth := er.Router.Group("/event")
+	event := er.Router.Group("/event")
 	{
-		auth.POST("/create", er.ValidatorMiddleware.ValidateInput(&requests.EventRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.CreateEvent)
+		event.POST("/create", er.ValidatorMiddleware.ValidateInput(&requests.EventRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.CreateEvent)
+		event.GET("/get/all", er.EventController.GetAllEvents)
+		event.GET("/get/:id", er.EventController.GetEventByID)
+		event.PUT("/update/:id", er.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.UpdateEvent)
+		event.DELETE("/delete/:id", er.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.DeleteEvent)
 	}
 }

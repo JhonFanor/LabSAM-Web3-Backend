@@ -11,14 +11,23 @@ func RouteProvide() fx.Option {
 		fx.Provide(
 			routes.NewAuthRoutes,
 			routes.NewBankOfResumeRoutes,
+			routes.NewBankOfResumeSubtopicRoutes,
 			routes.NewCompanyRoutes,
+			routes.NewCompanySubtopicRoutes,
 			routes.NewDocumentationRoutes,
+			routes.NewDocumentationSubtopicRoutes,
 			routes.NewEducationalOfferRoutes,
+			routes.NewEducationalOfferSubtopicRoutes,
 			routes.NewEventRoutes,
+			routes.NewEventSubtopicRoutes,
 			routes.NewInvestigationRoutes,
+			routes.NewInvestigationSubtopicRoutes,
 			routes.NewJobExchangeRoutes,
+			routes.NewJobExchangeSubtopicRoutes,
 			routes.NewLegislationRoutes,
+			routes.NewLegislationSubtopicRoutes,
 			routes.NewNewsRoutes,
+			routes.NewNewsSubtopicRoutes,
 		),
 	)
 }

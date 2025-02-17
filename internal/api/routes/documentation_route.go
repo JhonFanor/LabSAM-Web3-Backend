@@ -34,8 +34,12 @@ func NewDocumentationRoutes(p DocumentationRoutesParams) *DocumentationRoutes {
 }
 
 func (dr *DocumentationRoutes) Routes() {
-	auth := dr.Router.Group("/documentation")
+	documentation := dr.Router.Group("/documentation")
 	{
-		auth.POST("/create", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
+		documentation.POST("/create", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
+		documentation.GET("/get/all", dr.DocumentationController.GetAllDocumentations)
+		documentation.GET("/get/:id", dr.DocumentationController.GetDocumentationByID)
+		documentation.PUT("/update/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.UpdateDocumentation)
+		documentation.DELETE("/delete/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.DeleteDocumentation)
 	}
 }

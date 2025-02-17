@@ -13,14 +13,14 @@ type BankOfResumeRoutesParams struct {
 	fx.In
 	Router                 *gin.Engine
 	ValidatorMiddleware    *middlewares.ValidatorMiddleware
-	TonkenMiddleware       *middlewares.TokenMiddleware
+	TokenMiddleware        *middlewares.TokenMiddleware
 	BankOfResumeController *controllers.BankOfResumeController
 }
 
 type BankOfResumeRoutes struct {
 	Router                 *gin.Engine
 	ValidatorMiddleware    *middlewares.ValidatorMiddleware
-	TonkenMiddleware       *middlewares.TokenMiddleware
+	TokenMiddleware        *middlewares.TokenMiddleware
 	BankOfResumeController *controllers.BankOfResumeController
 }
 
@@ -28,7 +28,7 @@ func NewBankOfResumeRoutes(p BankOfResumeRoutesParams) *BankOfResumeRoutes {
 	return &BankOfResumeRoutes{
 		Router:                 p.Router,
 		ValidatorMiddleware:    p.ValidatorMiddleware,
-		TonkenMiddleware:       p.TonkenMiddleware,
+		TokenMiddleware:        p.TokenMiddleware,
 		BankOfResumeController: p.BankOfResumeController,
 	}
 }
@@ -36,10 +36,10 @@ func NewBankOfResumeRoutes(p BankOfResumeRoutesParams) *BankOfResumeRoutes {
 func (br *BankOfResumeRoutes) Routes() {
 	bankOfResume := br.Router.Group("/bank-of-resume")
 	{
-		bankOfResume.POST("/create", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
+		bankOfResume.POST("/create", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
 		bankOfResume.GET("/get/all", br.BankOfResumeController.GetAllBankOfResumes)
 		bankOfResume.GET("/get/:id", br.BankOfResumeController.GetBankOfResumeByID)
-		bankOfResume.PUT("/update/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
-		bankOfResume.DELETE("/delete/:id", br.TonkenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
+		bankOfResume.PUT("/update/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
+		bankOfResume.DELETE("/delete/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
 	}
 }

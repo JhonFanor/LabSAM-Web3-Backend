@@ -34,8 +34,12 @@ func NewNewsRoutes(p NewsRoutesParams) *NewsRoutes {
 }
 
 func (nr *NewsRoutes) Routes() {
-	auth := nr.Router.Group("/news")
+	news := nr.Router.Group("/news")
 	{
-		auth.POST("/create", nr.ValidatorMiddleware.ValidateInput(&requests.NewsRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.CreateNews)
+		news.POST("/create", nr.ValidatorMiddleware.ValidateInput(&requests.NewsRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.CreateNews)
+		news.GET("/get/all", nr.NewsController.GetAllNews)
+		news.GET("/get/:id", nr.NewsController.GetNewsByID)
+		news.PUT("/update/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsUpdateRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.UpdateNews)
+		news.DELETE("/delete/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsUpdateRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.DeleteNews)
 	}
 }

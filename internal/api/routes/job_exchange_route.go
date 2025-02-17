@@ -34,8 +34,12 @@ func NewJobExchangeRoutes(p JobExchangeRoutesParams) *JobExchangeRoutes {
 }
 
 func (jer *JobExchangeRoutes) Routes() {
-	auth := jer.Router.Group("/job-exchange")
+	jobExchange := jer.Router.Group("/job-exchange")
 	{
-		auth.POST("/create", jer.ValidatorMiddleware.ValidateInput(&requests.JobExchangeRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobExchangeController.CreateJobExchange)
+		jobExchange.POST("/create", jer.ValidatorMiddleware.ValidateInput(&requests.JobExchangeRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobExchangeController.CreateJobExchange)
+		jobExchange.GET("/get/all", jer.JobExchangeController.GetAllJobsExchange)
+		jobExchange.GET("/get/:id", jer.JobExchangeController.GetJobExchangeByID)
+		jobExchange.PUT("/update/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobExchangeUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobExchangeController.UpdateJobExchange)
+		jobExchange.DELETE("/delete/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobExchangeUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobExchangeController.DeleteJobExchange)
 	}
 }

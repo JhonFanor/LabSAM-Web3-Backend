@@ -25,7 +25,7 @@ type CompanySubtopicController struct {
 	companyService services.CompanyService
 }
 
-func NewComapanySubtopicController(p CompanySubtopicControllerParams) *CompanySubtopicController {
+func NewCompanySubtopicController(p CompanySubtopicControllerParams) *CompanySubtopicController {
 	return &CompanySubtopicController{
 		service:        p.CompanySubtopicService,
 		companyService: p.CompanyService,

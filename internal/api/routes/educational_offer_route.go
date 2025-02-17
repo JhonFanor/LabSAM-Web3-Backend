@@ -34,8 +34,12 @@ func NewEducationalOfferRoutes(p EducationalOfferRoutesParams) *EducationalOffer
 }
 
 func (eor *EducationalOfferRoutes) Routes() {
-	auth := eor.Router.Group("/educational-offer")
+	educationalOffer := eor.Router.Group("/educational-offer")
 	{
-		auth.POST("/create", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
+		educationalOffer.POST("/create", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
+		educationalOffer.GET("/get/all", eor.EducationalOfferController.GetAllEducationalOffers)
+		educationalOffer.GET("/get/:id", eor.EducationalOfferController.GetEducationalOfferByID)
+		educationalOffer.PUT("/update/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.UpdateEducationalOffer)
+		educationalOffer.DELETE("/delete/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.DeleteEducationalOffer)
 	}
 }
