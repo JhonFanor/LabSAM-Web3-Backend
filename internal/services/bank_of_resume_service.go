@@ -14,10 +14,10 @@ import (
 
 type BankOfResumeService interface {
 	CreateBankOfResume(bankOfResume *models.BankOfResume, userID uint, subtopicIDs []uint) (*models.BankOfResume, error)
+	GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error)
+	GetBankOfResumeByID(id uint) (*models.BankOfResume, error)
 	UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error
 	DeleteBankOfResume(id uint, userId uint, role string) error
-	GetBankOfResumeByID(id uint) (*models.BankOfResume, error)
-	GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error)
 }
 
 type bankOfResumeService struct {
@@ -63,6 +63,17 @@ func (s *bankOfResumeService) CreateBankOfResume(bankOfResume *models.BankOfResu
 	return createdBankOfResume, nil
 }
 
+func (s *bankOfResumeService) GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error) {
+	return s.repo.GetAll(c)
+}
+
+func (s *bankOfResumeService) GetBankOfResumeByID(id uint) (*models.BankOfResume, error) {
+	if id == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(id)
+}
+
 func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error {
 	if bankOfResume == nil || bankOfResume.ID == 0 {
 		return customerrors.ErrInvalidData
@@ -100,15 +111,4 @@ func (s *bankOfResumeService) DeleteBankOfResume(id uint, userID uint, role stri
 	}
 
 	return s.repo.Delete(id)
-}
-
-func (s *bankOfResumeService) GetBankOfResumeByID(id uint) (*models.BankOfResume, error) {
-	if id == 0 {
-		return nil, customerrors.ErrInvalidID
-	}
-	return s.repo.GetByID(id)
-}
-
-func (s *bankOfResumeService) GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error) {
-	return s.repo.GetAll(c)
 }

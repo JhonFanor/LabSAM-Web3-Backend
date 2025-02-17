@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
@@ -10,6 +11,7 @@ import (
 
 type InvestigationSubtopicService interface {
 	CreateInvestigationSubtopic(investigationSubtopic *models.InvestigationSubtopic) (*models.InvestigationSubtopic, error)
+	GetInvestigationSubtopicByID(investigationID uint, subtopicID uint) (*models.InvestigationSubtopic, error)
 	DeleteInvestigationSubtopic(investigationID, subtopicID uint) error
 }
 
@@ -29,7 +31,25 @@ func (s *investigationSubtopicService) CreateInvestigationSubtopic(investigation
 	if investigationSubtopic == nil {
 		return nil, customerrors.ErrInvalidData
 	}
+
+	existing, err := s.GetInvestigationSubtopicByID(investigationSubtopic.InvestigationID, investigationSubtopic.SubtopicID)
+
+	if err == nil {
+		return existing, nil
+	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	return s.repo.Create(investigationSubtopic)
+}
+
+func (s *investigationSubtopicService) GetInvestigationSubtopicByID(investigationID uint, subtopicID uint) (*models.InvestigationSubtopic, error) {
+	if investigationID == 0 || subtopicID == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(investigationID, subtopicID)
 }
 
 func (s *investigationSubtopicService) DeleteInvestigationSubtopic(investigationID, subtopicID uint) error {

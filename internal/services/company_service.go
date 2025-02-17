@@ -3,14 +3,21 @@ package services
 import (
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
+	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
+	"lamsam-web3-backend/internal/utils"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type CompanyService interface {
 	CreateCompany(company *models.Company, userID uint, subtopicIDs []uint) (*models.Company, error)
+	GetAllCompanies(c *gin.Context) (*dto.PaginationDTO, error)
+	GetCompanyByID(id uint) (*models.Company, error)
+	UpdateCompany(company *models.Company, userID uint, role string) error
+	DeleteCompany(id uint, userID uint, role string) error
 }
 
 type companyService struct {
@@ -54,4 +61,54 @@ func (s *companyService) CreateCompany(company *models.Company, userID uint, sub
 	}
 
 	return createdCompany, nil
+}
+
+func (s *companyService) GetAllCompanies(c *gin.Context) (*dto.PaginationDTO, error) {
+	return s.repo.GetAll(c)
+}
+
+func (s *companyService) GetCompanyByID(id uint) (*models.Company, error) {
+	if id == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(id)
+}
+
+func (s *companyService) UpdateCompany(company *models.Company, userID uint, role string) error {
+	if company == nil || company.ID == 0 {
+		return customerrors.ErrInvalidData
+	}
+
+	existing, err := s.GetCompanyByID(company.ID)
+	if err != nil {
+		return err
+	}
+
+	if existing.UserID != userID && role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	updates := utils.GetModifiedFields(existing, company)
+	if len(updates) == 0 {
+		return nil
+	}
+
+	return s.repo.Update(company)
+}
+
+func (s *companyService) DeleteCompany(id uint, userID uint, role string) error {
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.GetCompanyByID(id)
+	if err != nil {
+		return err
+	}
+
+	if existing.UserID != userID && role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	return s.repo.Delete(id)
 }

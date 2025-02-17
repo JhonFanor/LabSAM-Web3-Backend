@@ -3,14 +3,21 @@ package services
 import (
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
+	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
+	"lamsam-web3-backend/internal/utils"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type LegislationService interface {
 	CreateLegislation(legislation *models.Legislation, userID uint, subtopicIDs []uint) (*models.Legislation, error)
+	GetAllLegislations(c *gin.Context) (*dto.PaginationDTO, error)
+	GetLegislationByID(id uint) (*models.Legislation, error)
+	UpdateLegislation(legislation *models.Legislation, userID uint, role string) error
+	DeleteLegislation(id uint, userID uint, role string) error
 }
 
 type legislationService struct {
@@ -54,4 +61,54 @@ func (s *legislationService) CreateLegislation(legislation *models.Legislation, 
 	}
 
 	return createdLegislation, nil
+}
+
+func (s *legislationService) GetAllLegislations(c *gin.Context) (*dto.PaginationDTO, error) {
+	return s.repo.GetAll(c)
+}
+
+func (s *legislationService) GetLegislationByID(id uint) (*models.Legislation, error) {
+	if id == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(id)
+}
+
+func (s *legislationService) UpdateLegislation(legislation *models.Legislation, userID uint, role string) error {
+	if legislation == nil || legislation.ID == 0 {
+		return customerrors.ErrInvalidData
+	}
+
+	existing, err := s.GetLegislationByID(legislation.ID)
+	if err != nil {
+		return err
+	}
+
+	if existing.UserID != userID && role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	updates := utils.GetModifiedFields(existing, legislation)
+	if len(updates) == 0 {
+		return nil
+	}
+
+	return s.repo.Update(legislation)
+}
+
+func (s *legislationService) DeleteLegislation(id uint, userID uint, role string) error {
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.GetLegislationByID(id)
+	if err != nil {
+		return err
+	}
+
+	if existing.UserID != userID && role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	return s.repo.Delete(id)
 }

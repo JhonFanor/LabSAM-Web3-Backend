@@ -11,6 +11,7 @@ import (
 
 type BankOfResumeSubtopicService interface {
 	CreateBankOfResumeSubtopic(bankOfResumeSubtopic *models.BankOfResumeSubtopic) (*models.BankOfResumeSubtopic, error)
+	GetBankOfResumeSubtopicByID(bankOfResumeID uint, subtopicID uint) (*models.BankOfResumeSubtopic, error)
 	DeleteBankOfResumeSubtopic(bankOfResumeID, subtopicID uint) error
 }
 
@@ -31,7 +32,7 @@ func (s *bankOfResumeSubtopicService) CreateBankOfResumeSubtopic(bankOfResumeSub
 		return nil, customerrors.ErrInvalidData
 	}
 
-	existing, err := s.repo.GetByID(bankOfResumeSubtopic.BankOfResumeID, bankOfResumeSubtopic.SubtopicID)
+	existing, err := s.GetBankOfResumeSubtopicByID(bankOfResumeSubtopic.BankOfResumeID, bankOfResumeSubtopic.SubtopicID)
 
 	if err == nil {
 		return existing, nil

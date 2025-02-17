@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
@@ -10,6 +11,7 @@ import (
 
 type EducationalOfferSubtopicService interface {
 	CreateEducationalOfferSubtopic(educationalOfferSubtopic *models.EducationalOfferSubtopic) (*models.EducationalOfferSubtopic, error)
+	GetEducationalOfferByID(educationalOfferID uint, subtopicID uint) (*models.EducationalOfferSubtopic, error)
 	DeleteEducationalOfferSubtopic(educationalOfferID, subtopicID uint) error
 }
 
@@ -29,7 +31,25 @@ func (s *educationalOfferSubtopicService) CreateEducationalOfferSubtopic(educati
 	if educationalOfferSubtopic == nil {
 		return nil, customerrors.ErrInvalidData
 	}
+
+	existing, err := s.GetEducationalOfferByID(educationalOfferSubtopic.EducationalOfferID, educationalOfferSubtopic.SubtopicID)
+
+	if err == nil {
+		return existing, nil
+	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	return s.repo.Create(educationalOfferSubtopic)
+}
+
+func (s *educationalOfferSubtopicService) GetEducationalOfferByID(educationalOfferID uint, subtopicID uint) (*models.EducationalOfferSubtopic, error) {
+	if educationalOfferID == 0 || subtopicID == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(educationalOfferID, subtopicID)
 }
 
 func (s *educationalOfferSubtopicService) DeleteEducationalOfferSubtopic(educationalOfferID, subtopicID uint) error {

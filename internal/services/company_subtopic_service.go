@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
@@ -10,6 +11,7 @@ import (
 
 type CompanySubtopicService interface {
 	CreateCompanySubtopic(companySubtopic *models.CompanySubtopic) (*models.CompanySubtopic, error)
+	GetCompanySubtopicByID(companyID uint, subtopicID uint) (*models.CompanySubtopic, error)
 	DeleteCompanySubtopic(companyID, subtopicID uint) error
 }
 
@@ -29,7 +31,25 @@ func (s *companySubtopicService) CreateCompanySubtopic(companySubtopic *models.C
 	if companySubtopic == nil {
 		return nil, customerrors.ErrInvalidData
 	}
+
+	existing, err := s.GetCompanySubtopicByID(companySubtopic.CompanyID, companySubtopic.SubtopicID)
+
+	if err == nil {
+		return existing, nil
+	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	return s.repo.Create(companySubtopic)
+}
+
+func (s *companySubtopicService) GetCompanySubtopicByID(companyID uint, subtopicID uint) (*models.CompanySubtopic, error) {
+	if s.db.CreateBatchSize == 0 || subtopicID == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(companyID, subtopicID)
 }
 
 func (s *companySubtopicService) DeleteCompanySubtopic(companyID, subtopicID uint) error {
