@@ -8,6 +8,7 @@ import (
 
 type EventSubtopicRepository interface {
 	Create(eventSubtopic *models.EventSubtopic) (*models.EventSubtopic, error)
+	GetByID(eventID, subtopicID uint) (*models.EventSubtopic, error)
 	Delete(eventID, subtopicID uint) error
 }
 
@@ -26,6 +27,14 @@ func (r *eventSubtopicRepository) Create(eventSubtopic *models.EventSubtopic) (*
 		return nil, err
 	}
 	return eventSubtopic, nil
+}
+
+func (r *eventSubtopicRepository) GetByID(eventID, subtopicID uint) (*models.EventSubtopic, error) {
+	var eventSubtopic models.EventSubtopic
+	if err := r.db.Where("event_id = ? AND subtopic_id = ?", eventID, subtopicID).First(&eventSubtopic).Error; err != nil {
+		return nil, err
+	}
+	return &eventSubtopic, nil
 }
 
 func (r *eventSubtopicRepository) Delete(eventID, subtopicID uint) error {

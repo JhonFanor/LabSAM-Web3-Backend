@@ -8,6 +8,7 @@ import (
 
 type JobExchangeSubtopicRepository interface {
 	Create(jobExchangeSubtopic *models.JobExchangeSubtopic) (*models.JobExchangeSubtopic, error)
+	GetByID(jobExchangeID, subtopicID uint) (*models.JobExchangeSubtopic, error)
 	Delete(jobExchangeID, subtopicID uint) error
 }
 
@@ -26,6 +27,14 @@ func (r *jobExchangeSubtopicRepository) Create(jobExchangeSubtopic *models.JobEx
 		return nil, err
 	}
 	return jobExchangeSubtopic, nil
+}
+
+func (r *jobExchangeSubtopicRepository) GetByID(jobExchangeID, subtopicID uint) (*models.JobExchangeSubtopic, error) {
+	var jobExchangeSubtopic models.JobExchangeSubtopic
+	if err := r.db.Where("job_exchange_id = ? AND subtopic_id = ?", jobExchangeID, subtopicID).First(&jobExchangeSubtopic).Error; err != nil {
+		return nil, err
+	}
+	return &jobExchangeSubtopic, nil
 }
 
 func (r *jobExchangeSubtopicRepository) Delete(jobExchangeID, subtopicID uint) error {

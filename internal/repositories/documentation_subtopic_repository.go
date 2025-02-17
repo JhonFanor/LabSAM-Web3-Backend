@@ -8,6 +8,7 @@ import (
 
 type DocumentationSubtopicRepository interface {
 	Create(documentationSubtopic *models.DocumentationSubtopic) (*models.DocumentationSubtopic, error)
+	GetByID(documentationID, subtopicID uint) (*models.DocumentationSubtopic, error)
 	Delete(documentationID, subtopicID uint) error
 }
 
@@ -26,6 +27,14 @@ func (r *documentationSubtopicRepository) Create(documentationSubtopic *models.D
 		return nil, err
 	}
 	return documentationSubtopic, nil
+}
+
+func (r *documentationSubtopicRepository) GetByID(documentationID, subtopicID uint) (*models.DocumentationSubtopic, error) {
+	var documentationSubtopic models.DocumentationSubtopic
+	if err := r.db.Where("documentation_id = ? AND subtopic_id = ?", documentationID, subtopicID).First(&documentationSubtopic).Error; err != nil {
+		return nil, err
+	}
+	return &documentationSubtopic, nil
 }
 
 func (r *documentationSubtopicRepository) Delete(documentationID, subtopicID uint) error {

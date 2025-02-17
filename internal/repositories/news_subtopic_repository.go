@@ -8,6 +8,7 @@ import (
 
 type NewsSubtopicRepository interface {
 	Create(newsSubtopic *models.NewsSubtopic) (*models.NewsSubtopic, error)
+	GetByID(newsID, subtopicID uint) (*models.NewsSubtopic, error)
 	Delete(newsID, subtopicID uint) error
 }
 
@@ -26,6 +27,14 @@ func (r *newsSubtopicRepository) Create(newsSubtopic *models.NewsSubtopic) (*mod
 		return nil, err
 	}
 	return newsSubtopic, nil
+}
+
+func (r *newsSubtopicRepository) GetByID(newsID, subtopicID uint) (*models.NewsSubtopic, error) {
+	var newsSubtopic models.NewsSubtopic
+	if err := r.db.Where("news_id = ? AND subtopic_id = ?", newsID, subtopicID).First(&newsSubtopic).Error; err != nil {
+		return nil, err
+	}
+	return &newsSubtopic, nil
 }
 
 func (r *newsSubtopicRepository) Delete(newsID, subtopicID uint) error {

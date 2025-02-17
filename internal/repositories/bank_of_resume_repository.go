@@ -11,10 +11,10 @@ import (
 
 type BankOfResumeRepository interface {
 	Create(bankOfResume *models.BankOfResume) (*models.BankOfResume, error)
-	Update(bankOfResume *models.BankOfResume) error
-	Delete(id uint) error
 	GetByID(id uint) (*models.BankOfResume, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
+	Update(bankOfResume *models.BankOfResume) error
+	Delete(id uint) error
 }
 
 type bankOfResumeRepository struct {
@@ -36,12 +36,10 @@ func (r *bankOfResumeRepository) Create(bankOfResume *models.BankOfResume) (*mod
 	return bankOfResume, nil
 }
 
-func (r *bankOfResumeRepository) Update(bankOfResume *models.BankOfResume) error {
-	return r.db.Save(bankOfResume).Error
-}
+func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.BankOfResume{})
 
-func (r *bankOfResumeRepository) Delete(id uint) error {
-	return r.db.Delete(&models.BankOfResume{}, id).Error
+	return paginationInfo, nil
 }
 
 func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) {
@@ -52,8 +50,10 @@ func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) 
 	return &bankOfResume, nil
 }
 
-func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.BankOfResume{})
+func (r *bankOfResumeRepository) Update(bankOfResume *models.BankOfResume) error {
+	return r.db.Save(bankOfResume).Error
+}
 
-	return paginationInfo, nil
+func (r *bankOfResumeRepository) Delete(id uint) error {
+	return r.db.Delete(&models.BankOfResume{}, id).Error
 }

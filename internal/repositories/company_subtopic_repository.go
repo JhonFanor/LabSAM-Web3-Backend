@@ -8,6 +8,7 @@ import (
 
 type CompanySubtopicRepository interface {
 	Create(companySubtopic *models.CompanySubtopic) (*models.CompanySubtopic, error)
+	GetByID(companyID, subtopicID uint) (*models.CompanySubtopic, error)
 	Delete(companyID, subtopicID uint) error
 }
 
@@ -26,6 +27,14 @@ func (r *companySubtopicRepository) Create(companySubtopic *models.CompanySubtop
 		return nil, err
 	}
 	return companySubtopic, nil
+}
+
+func (r *companySubtopicRepository) GetByID(companyID, subtopicID uint) (*models.CompanySubtopic, error) {
+	var companySubtopic models.CompanySubtopic
+	if err := r.db.Where("company_id = ? AND subtopic_id = ?", companyID, subtopicID).First(&companySubtopic).Error; err != nil {
+		return nil, err
+	}
+	return &companySubtopic, nil
 }
 
 func (r *companySubtopicRepository) Delete(companyID, subtopicID uint) error {
