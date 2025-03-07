@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -81,16 +82,20 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 		return err
 	}
 
+	// Verifica permisos: Solo el dueño o admin pueden actualizar
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, news)
+	log.Print(news)
+	updates := utils.StructToMap(news)
 	if len(updates) == 0 {
-		return nil
+		log.Print(updates)
+		return customerrors.ErrNoUpdates // Error si no hay cambios
 	}
 
-	return s.repo.Update(news)
+	// Llama al repositorio con el mapa de updates
+	return s.repo.Update(existing, updates)
 }
 
 func (s *newsService) DeleteNews(id uint, userID uint, role string) error {

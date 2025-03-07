@@ -6,4 +6,5 @@ var (
 	ErrInvalidData  = errors.New("invalid data provided")
 	ErrInvalidID    = errors.New("invalid ID")
 	ErrUnauthorized = errors.New("unauthorized action")
+	ErrNoUpdates    = errors.New("No hay cambios para actualizar")
 )

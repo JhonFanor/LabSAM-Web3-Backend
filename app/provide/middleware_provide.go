@@ -9,7 +9,6 @@ import (
 func MiddlewareProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
-			middlewares.NewRefreshTokenMiddleware,
 			middlewares.NewTokenMiddleware,
 			middlewares.NewValidatorMiddleware,
 		),

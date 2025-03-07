@@ -6,54 +6,60 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type NewsRepository interface {
 	Create(news *models.News) (*models.News, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 	GetByID(id uint) (*models.News, error)
-	Update(news *models.News) error
+	Update(news *models.News, updates map[string]interface{}) error
 	Delete(id uint) error
 }
 
 type newsRepository struct {
-	db *gorm.DB
-	qm *gormmanagers.GormQueryManager
+	dbManager *gormmanagers.DBManager
+	qm        *gormmanagers.GormQueryManager
 }
 
-func NewNewsRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) NewsRepository {
+// Constructor modificado para recibir DBManager
+func NewNewsRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) NewsRepository {
 	return &newsRepository{
-		db: db,
-		qm: qm,
+		dbManager: dbManager,
+		qm:        qm,
 	}
 }
 
+// Método para crear una noticia
 func (r *newsRepository) Create(news *models.News) (*models.News, error) {
-	if err := r.db.Create(news).Error; err != nil {
+	if err := r.dbManager.Create(news); err != nil {
 		return nil, err
 	}
 	return news, nil
 }
 
+// Método para obtener todas las noticias con paginación
 func (r *newsRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.News{})
-
 	return paginationInfo, nil
 }
 
+// Método para obtener una noticia por ID
 func (r *newsRepository) GetByID(id uint) (*models.News, error) {
 	var news models.News
-	if err := r.db.First(&news, id).Error; err != nil {
+	conditions := map[string]interface{}{"id": id}
+	if err := r.dbManager.Find(&news, conditions); err != nil {
 		return nil, err
 	}
 	return &news, nil
 }
 
-func (r *newsRepository) Update(news *models.News) error {
-	return r.db.Save(news).Error
+// Método para actualizar una noticia
+func (r *newsRepository) Update(news *models.News, updates map[string]interface{}) error {
+	return r.dbManager.Update(news, updates)
 }
 
+// Método para eliminar una noticia
 func (r *newsRepository) Delete(id uint) error {
-	return r.db.Delete(&models.News{}, id).Error
+	news := models.News{ID: id} // Crear instancia solo con el ID
+	return r.dbManager.Delete(&news)
 }

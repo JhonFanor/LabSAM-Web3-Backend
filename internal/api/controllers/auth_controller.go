@@ -8,6 +8,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/services"
 	"lamsam-web3-backend/internal/utils"
+	"lamsam-web3-backend/internal/validations"
 	"lamsam-web3-backend/pkg/security"
 	"net/http"
 
@@ -87,9 +88,9 @@ func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.UserResponse{
+	c.JSON(http.StatusOK, responses.SuccessResponse{
 		Message: "Business user successfully registered",
-		User:    *createdUser,
+		Data:    *createdUser,
 	})
 }
 
@@ -133,9 +134,9 @@ func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.UserResponse{
+	c.JSON(http.StatusOK, responses.SuccessResponse{
 		Message: "Regular user successfully registered",
-		User:    *createdUser,
+		Data:    *createdUser,
 	})
 }
 
@@ -179,9 +180,9 @@ func (a *AuthController) RegisterUniversityUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.UserResponse{
+	c.JSON(http.StatusOK, responses.SuccessResponse{
 		Message: "University user successfully registered",
-		User:    *createdUser,
+		Data:    *createdUser,
 	})
 }
 
@@ -244,9 +245,10 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("refresh_token", refreshToken, 3600*24*7, "/", "localhost", false, true)
+
 	c.JSON(http.StatusOK, responses.AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken: accessToken,
 	})
 }
 
@@ -262,17 +264,24 @@ func (a *AuthController) Login(c *gin.Context) {
 // @Failure      500 {object} responses.ErrorResponse "Internal server error"
 // @Router       /auth/token/refresh [post]
 func (a *AuthController) RefreshToken(c *gin.Context) {
-	input, _ := c.Get("username")
-
-	username, ok := input.(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Error al procesar el token",
+	// Obtener el refresh_token de la cookie
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
+			Error: "No refresh token found",
 		})
 		return
 	}
 
-	user, err := a.UserService.FindUserByUsername(username)
+	claims, err := validations.ValidateRefreshToken(refreshToken, a.JwtConfig)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
+			Error: "Invalid or expired refresh token",
+		})
+		return
+	}
+
+	user, err := a.UserService.FindUserByUsername(claims.Username)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
 			Error: "User not found",
@@ -283,15 +292,21 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 	role, _ := a.RoleService.GetRoleByID(user.RoleID)
 	permissions, _ := a.PermissionService.GetAllPermissionsByUser(user.ID, user.RoleID)
 
-	accessToken, err := security.GenerateAccessToken(user.ID, user.Username, user.Email, *role, permissions, a.JwtConfig)
+	newAccessToken, err := security.GenerateAccessToken(user.ID, user.Username, user.Email, *role, permissions, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: "Could not generate access token",
+			Error: "Could not generate new access token",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, responses.AuthResponse{
-		AccessToken: accessToken,
+		AccessToken: newAccessToken,
 	})
+}
+
+func (a *AuthController) Logout(c *gin.Context) {
+	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Sesión cerrada correctamente"})
 }

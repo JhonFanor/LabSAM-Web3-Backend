@@ -10,10 +10,10 @@ import (
 
 type TopicService interface {
 	CreateTopic(topic *models.Topic) (*models.Topic, error)
+	GetAllTopic() ([]models.Topic, error)
+	GetTopicByID(id uint) (*models.Topic, error)
 	UpdateTopic(topic *models.Topic) error
 	DeleteTopic(id uint) error
-	GetTopicByID(id uint) (*models.Topic, error)
-	GetAllTopic() ([]models.Topic, error)
 }
 
 type topicService struct {
@@ -35,6 +35,17 @@ func (s *topicService) CreateTopic(topic *models.Topic) (*models.Topic, error) {
 	return s.repo.Create(topic)
 }
 
+func (s *topicService) GetAllTopic() ([]models.Topic, error) {
+	return s.repo.GetAll()
+}
+
+func (s *topicService) GetTopicByID(id uint) (*models.Topic, error) {
+	if id == 0 {
+		return nil, customerrors.ErrInvalidID
+	}
+	return s.repo.GetByID(id)
+}
+
 func (s *topicService) UpdateTopic(topic *models.Topic) error {
 	if topic == nil || topic.ID == 0 {
 		return customerrors.ErrInvalidData
@@ -47,15 +58,4 @@ func (s *topicService) DeleteTopic(id uint) error {
 		return customerrors.ErrInvalidID
 	}
 	return s.repo.Delete(id)
-}
-
-func (s *topicService) GetTopicByID(id uint) (*models.Topic, error) {
-	if id == 0 {
-		return nil, customerrors.ErrInvalidID
-	}
-	return s.repo.GetByID(id)
-}
-
-func (s *topicService) GetAllTopic() ([]models.Topic, error) {
-	return s.repo.GetAll()
 }

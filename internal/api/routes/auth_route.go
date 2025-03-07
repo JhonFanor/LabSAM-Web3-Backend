@@ -11,25 +11,22 @@ import (
 
 type AuthRoutesParams struct {
 	fx.In
-	Router                 *gin.Engine
-	ValidatorMiddleware    *middlewares.ValidatorMiddleware
-	RefreshTokenMiddleware *middlewares.RefreshTokenMiddleware
-	AuthController         *controllers.AuthController
+	Router              *gin.Engine
+	ValidatorMiddleware *middlewares.ValidatorMiddleware
+	AuthController      *controllers.AuthController
 }
 
 type AuthRoutes struct {
-	Router                 *gin.Engine
-	ValidatorMiddleware    *middlewares.ValidatorMiddleware
-	RefreshTokenMiddleware *middlewares.RefreshTokenMiddleware
-	AuthController         *controllers.AuthController
+	Router              *gin.Engine
+	ValidatorMiddleware *middlewares.ValidatorMiddleware
+	AuthController      *controllers.AuthController
 }
 
 func NewAuthRoutes(p AuthRoutesParams) *AuthRoutes {
 	return &AuthRoutes{
-		Router:                 p.Router,
-		ValidatorMiddleware:    p.ValidatorMiddleware,
-		RefreshTokenMiddleware: p.RefreshTokenMiddleware,
-		AuthController:         p.AuthController,
+		Router:              p.Router,
+		ValidatorMiddleware: p.ValidatorMiddleware,
+		AuthController:      p.AuthController,
 	}
 }
 
@@ -40,6 +37,7 @@ func (ar *AuthRoutes) Routes() {
 		auth.POST("/register/university", ar.ValidatorMiddleware.ValidateInput(&requests.UniversityUserRequest{}), ar.AuthController.RegisterUniversityUser)
 		auth.POST("/register/business", ar.ValidatorMiddleware.ValidateInput(&requests.BusinessUserRequest{}), ar.AuthController.RegisterBusinessUser)
 		auth.POST("/login", ar.ValidatorMiddleware.ValidateInput(&requests.LoginRequest{}), ar.AuthController.Login)
-		auth.POST("token/refresh", ar.RefreshTokenMiddleware.ValidateRefreshToken(), ar.AuthController.RefreshToken)
+		auth.POST("/token/refresh", ar.AuthController.RefreshToken)
+		auth.POST("/logout", ar.AuthController.Logout)
 	}
 }
