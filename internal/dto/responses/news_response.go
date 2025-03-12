@@ -1,8 +1,8 @@
-package models
+package responses
 
 import "time"
 
-type News struct {
+type NewsGetAllResponse struct {
 	ID          uint       `gorm:"primaryKey" json:"id,omitempty"`
 	Title       string     `gorm:"size:255;not null" json:"title,omitempty"`
 	Description string     `gorm:"not null" json:"description,omitempty"`
@@ -13,8 +13,4 @@ type News struct {
 	Subtopics   []Subtopic `gorm:"many2many:news_subtopic;" json:"subtopics,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
-}
-
-func (News) TableName() string {
-	return "news"
 }

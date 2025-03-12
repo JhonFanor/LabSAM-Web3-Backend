@@ -40,6 +40,6 @@ func (nr *NewsRoutes) Routes() {
 		news.GET("/get/all", nr.NewsController.GetAllNews)
 		news.GET("/get/:id", nr.NewsController.GetNewsByID)
 		news.PUT("/update/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsUpdateRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.UpdateNews)
-		news.DELETE("/delete/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsUpdateRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.DeleteNews)
+		news.DELETE("/delete/:id", nr.TokenMiddleware.ValidateToken(), nr.NewsController.DeleteNews)
 	}
 }

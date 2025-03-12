@@ -31,19 +31,6 @@ func NewNewsController(p NewsControllerParams) *NewsController {
 	}
 }
 
-// CreateNews godoc
-// @Summary Create a new News entry
-// @Description This endpoint creates a new News record. Requires authentication.
-// @Tags News
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.NewsRequest true "News Information"
-// @Success 201 {object} models.News "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /news/create [post]
 func (n *NewsController) CreateNews(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")
