@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type CompanyService interface {
@@ -23,16 +21,12 @@ type CompanyService interface {
 type companyService struct {
 	repo                   repositories.CompanyRepository
 	companySubtopicService CompanySubtopicService
-	db                     *gorm.DB
-	qm                     *gormmanagers.GormQueryManager
 }
 
-func NewCompanyService(repo repositories.CompanyRepository, companySubtopicService CompanySubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) CompanyService {
+func NewCompanyService(repo repositories.CompanyRepository, companySubtopicService CompanySubtopicService) CompanyService {
 	return &companyService{
 		repo:                   repo,
 		companySubtopicService: companySubtopicService,
-		db:                     db,
-		qm:                     qm,
 	}
 }
 
@@ -88,12 +82,12 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, company)
+	updates := utils.StructToMap(company)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(company)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *companyService) DeleteCompany(id uint, userID uint, role string) error {

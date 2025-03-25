@@ -6,54 +6,58 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type EducationalOfferRepository interface {
 	Create(educationalOffer *models.EducationalOffer) (*models.EducationalOffer, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 	GetByID(id uint) (*models.EducationalOffer, error)
-	Update(educationalOffer *models.EducationalOffer) error
+	Update(educationalOffer *models.EducationalOffer, updates map[string]interface{}) error
 	Delete(id uint) error
 }
 
 type educationalOfferRepository struct {
-	db *gorm.DB
-	qm *gormmanagers.GormQueryManager
+	dbManager *gormmanagers.DBManager
+	qm        *gormmanagers.GormQueryManager
 }
 
-func NewEducationalOfferRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) EducationalOfferRepository {
+func NewEducationalOfferRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) EducationalOfferRepository {
 	return &educationalOfferRepository{
-		db: db,
-		qm: qm,
+		dbManager: dbManager,
+		qm:        qm,
 	}
 }
 
 func (r *educationalOfferRepository) Create(educationalOffer *models.EducationalOffer) (*models.EducationalOffer, error) {
-	if err := r.db.Create(educationalOffer).Error; err != nil {
+	if err := r.dbManager.Create(educationalOffer); err != nil {
 		return nil, err
 	}
 	return educationalOffer, nil
 }
 
 func (r *educationalOfferRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	r.qm.DB = r.qm.DB.Preload("User")
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.EducationalOffer{})
 
 	return paginationInfo, nil
 }
 
 func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer, error) {
+	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+
 	var educationalOffer models.EducationalOffer
-	if err := r.db.First(&educationalOffer, id).Error; err != nil {
+	conditions := map[string]interface{}{"id": id}
+	if err := r.dbManager.Find(&educationalOffer, conditions); err != nil {
 		return nil, err
 	}
 	return &educationalOffer, nil
 }
 
-func (r *educationalOfferRepository) Update(educationalOffer *models.EducationalOffer) error {
-	return r.db.Save(educationalOffer).Error
+func (r *educationalOfferRepository) Update(educationalOffer *models.EducationalOffer, updates map[string]interface{}) error {
+	return r.dbManager.Update(educationalOffer, updates)
 }
 
 func (r *educationalOfferRepository) Delete(id uint) error {
-	return r.db.Delete(&models.EducationalOffer{}, id).Error
+	educationalOffer := models.EducationalOffer{ID: id}
+	return r.dbManager.Delete(&educationalOffer)
 }

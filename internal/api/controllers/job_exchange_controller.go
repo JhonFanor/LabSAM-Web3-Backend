@@ -31,19 +31,6 @@ func NewJobExchangeController(p JobExchangeControllerParams) *JobExchangeControl
 	}
 }
 
-// CreateJobExchange godoc
-// @Summary Create a new Job Exchange entry
-// @Description This endpoint creates a new Job Exchange record. Requires authentication.
-// @Tags JobExchange
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.JobExchangeRequest true "Job Exchange Information"
-// @Success 201 {object} models.JobExchange "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /job-exchange/create [post]
 func (j *JobExchangeController) CreateJobExchange(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")

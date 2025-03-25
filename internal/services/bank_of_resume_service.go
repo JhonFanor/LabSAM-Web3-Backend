@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type BankOfResumeService interface {
@@ -23,16 +21,12 @@ type BankOfResumeService interface {
 type bankOfResumeService struct {
 	repo                        repositories.BankOfResumeRepository
 	bankOfResumeSubtopicService BankOfResumeSubtopicService
-	db                          *gorm.DB
-	qm                          *gormmanagers.GormQueryManager
 }
 
-func NewBankOfResumeService(repo repositories.BankOfResumeRepository, bankOfResumeSubtopicService BankOfResumeSubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) BankOfResumeService {
+func NewBankOfResumeService(repo repositories.BankOfResumeRepository, bankOfResumeSubtopicService BankOfResumeSubtopicService) BankOfResumeService {
 	return &bankOfResumeService{
 		repo:                        repo,
 		bankOfResumeSubtopicService: bankOfResumeSubtopicService,
-		db:                          db,
-		qm:                          qm,
 	}
 }
 
@@ -88,12 +82,12 @@ func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResu
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, bankOfResume)
+	updates := utils.StructToMap(bankOfResume)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(bankOfResume)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *bankOfResumeService) DeleteBankOfResume(id uint, userID uint, role string) error {

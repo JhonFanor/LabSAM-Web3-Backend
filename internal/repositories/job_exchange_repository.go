@@ -6,54 +6,58 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type JobExchangeRepository interface {
 	Create(jobExchange *models.JobExchange) (*models.JobExchange, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 	GetByID(id uint) (*models.JobExchange, error)
-	Update(jobExchange *models.JobExchange) error
+	Update(jobExchange *models.JobExchange, updates map[string]interface{}) error
 	Delete(id uint) error
 }
 
 type jobExchangeRepository struct {
-	db *gorm.DB
-	qm *gormmanagers.GormQueryManager
+	dbManager *gormmanagers.DBManager
+	qm        *gormmanagers.GormQueryManager
 }
 
-func NewJobExchangeRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) JobExchangeRepository {
+func NewJobExchangeRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) JobExchangeRepository {
 	return &jobExchangeRepository{
-		db: db,
-		qm: qm,
+		dbManager: dbManager,
+		qm:        qm,
 	}
 }
 
 func (r *jobExchangeRepository) Create(jobExchange *models.JobExchange) (*models.JobExchange, error) {
-	if err := r.db.Create(jobExchange).Error; err != nil {
+	if err := r.dbManager.Create(jobExchange); err != nil {
 		return nil, err
 	}
 	return jobExchange, nil
 }
 
 func (r *jobExchangeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	r.qm.DB = r.qm.DB.Preload("User")
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.JobExchange{})
 
 	return paginationInfo, nil
 }
 
 func (r *jobExchangeRepository) GetByID(id uint) (*models.JobExchange, error) {
+	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+
 	var jobExchange models.JobExchange
-	if err := r.db.First(&jobExchange, id).Error; err != nil {
+	conditions := map[string]interface{}{"id": id}
+	if err := r.dbManager.Find(&jobExchange, conditions); err != nil {
 		return nil, err
 	}
 	return &jobExchange, nil
 }
 
-func (r *jobExchangeRepository) Update(jobExchange *models.JobExchange) error {
-	return r.db.Save(jobExchange).Error
+func (r *jobExchangeRepository) Update(jobExchange *models.JobExchange, updates map[string]interface{}) error {
+	return r.dbManager.Update(jobExchange, updates)
 }
 
 func (r *jobExchangeRepository) Delete(id uint) error {
-	return r.db.Delete(&models.JobExchange{}, id).Error
+	jobExchange := models.JobExchange{ID: id}
+	return r.dbManager.Delete(&jobExchange)
 }

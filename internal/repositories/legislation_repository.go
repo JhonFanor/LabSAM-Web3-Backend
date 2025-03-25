@@ -6,54 +6,58 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type LegislationRepository interface {
 	Create(legislation *models.Legislation) (*models.Legislation, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 	GetByID(id uint) (*models.Legislation, error)
-	Update(legislation *models.Legislation) error
+	Update(legislation *models.Legislation, updates map[string]interface{}) error
 	Delete(id uint) error
 }
 
 type legislationRepository struct {
-	db *gorm.DB
-	qm *gormmanagers.GormQueryManager
+	dbManager *gormmanagers.DBManager
+	qm        *gormmanagers.GormQueryManager
 }
 
-func NewLegislationRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) LegislationRepository {
+func NewLegislationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) LegislationRepository {
 	return &legislationRepository{
-		db: db,
-		qm: qm,
+		dbManager: dbManager,
+		qm:        qm,
 	}
 }
 
 func (r *legislationRepository) Create(legislation *models.Legislation) (*models.Legislation, error) {
-	if err := r.db.Create(legislation).Error; err != nil {
+	if err := r.dbManager.Create(legislation); err != nil {
 		return nil, err
 	}
 	return legislation, nil
 }
 
 func (r *legislationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	r.qm.DB = r.qm.DB.Preload("User")
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.Legislation{})
 
 	return paginationInfo, nil
 }
 
 func (r *legislationRepository) GetByID(id uint) (*models.Legislation, error) {
+	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+
 	var legislation models.Legislation
-	if err := r.db.First(&legislation, id).Error; err != nil {
+	conditions := map[string]interface{}{"id": id}
+	if err := r.dbManager.Find(&legislation, conditions); err != nil {
 		return nil, err
 	}
 	return &legislation, nil
 }
 
-func (r *legislationRepository) Update(legislation *models.Legislation) error {
-	return r.db.Save(legislation).Error
+func (r *legislationRepository) Update(legislation *models.Legislation, updates map[string]interface{}) error {
+	return r.dbManager.Update(legislation, updates)
 }
 
 func (r *legislationRepository) Delete(id uint) error {
-	return r.db.Delete(&models.Legislation{}, id).Error
+	legislation := models.Legislation{ID: id}
+	return r.dbManager.Delete(&legislation)
 }

@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type EventService interface {
@@ -23,16 +21,12 @@ type EventService interface {
 type eventService struct {
 	repo                 repositories.EventRepository
 	eventSubtopicService EventSubtopicService
-	db                   *gorm.DB
-	qm                   *gormmanagers.GormQueryManager
 }
 
-func NewEventService(repo repositories.EventRepository, eventSubtopicService EventSubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) EventService {
+func NewEventService(repo repositories.EventRepository, eventSubtopicService EventSubtopicService) EventService {
 	return &eventService{
 		repo:                 repo,
 		eventSubtopicService: eventSubtopicService,
-		db:                   db,
-		qm:                   qm,
 	}
 }
 
@@ -88,12 +82,12 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, event)
+	updates := utils.StructToMap(event)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(event)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *eventService) DeleteEvent(id uint, userID uint, role string) error {

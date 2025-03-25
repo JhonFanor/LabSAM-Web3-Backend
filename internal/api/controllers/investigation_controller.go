@@ -31,19 +31,6 @@ func NewInvestigationController(p InvestigationControllerParams) *InvestigationC
 	}
 }
 
-// CreateInvestigation godoc
-// @Summary Create a new Investigation entry
-// @Description This endpoint creates a new Investigation record. Requires authentication.
-// @Tags Investigation
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.InvestigationRequest true "Investigation Information"
-// @Success 201 {object} models.Investigation "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /investigation/create [post]
 func (i *InvestigationController) CreateInvestigation(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")

@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type LegislationService interface {
@@ -23,16 +21,12 @@ type LegislationService interface {
 type legislationService struct {
 	repo                       repositories.LegislationRepository
 	legislationSubtopicService LegislationSubtopicService
-	db                         *gorm.DB
-	qm                         *gormmanagers.GormQueryManager
 }
 
-func NewLegislationService(repo repositories.LegislationRepository, legislationSubtopicService LegislationSubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) LegislationService {
+func NewLegislationService(repo repositories.LegislationRepository, legislationSubtopicService LegislationSubtopicService) LegislationService {
 	return &legislationService{
 		repo:                       repo,
 		legislationSubtopicService: legislationSubtopicService,
-		db:                         db,
-		qm:                         qm,
 	}
 }
 
@@ -88,12 +82,12 @@ func (s *legislationService) UpdateLegislation(legislation *models.Legislation, 
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, legislation)
+	updates := utils.StructToMap(legislation)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(legislation)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *legislationService) DeleteLegislation(id uint, userID uint, role string) error {

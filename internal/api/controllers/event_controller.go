@@ -31,19 +31,6 @@ func NewEventController(p EventControllerParams) *EventController {
 	}
 }
 
-// CreateEvent godoc
-// @Summary Create a new Event entry
-// @Description This endpoint creates a new Event record. Requires authentication.
-// @Tags Event
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.EventRequest true "Event Information"
-// @Success 201 {object} models.Event "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /event/create [post]
 func (e *EventController) CreateEvent(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")

@@ -6,10 +6,8 @@ import (
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
-	"log"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type NewsService interface {
@@ -23,14 +21,12 @@ type NewsService interface {
 type newsService struct {
 	repo                repositories.NewsRepository
 	newsSubtopicService NewsSubtopicService
-	db                  *gorm.DB
 }
 
-func NewNewsService(repo repositories.NewsRepository, newsSubtopicService NewsSubtopicService, db *gorm.DB) NewsService {
+func NewNewsService(repo repositories.NewsRepository, newsSubtopicService NewsSubtopicService) NewsService {
 	return &newsService{
 		repo:                repo,
 		newsSubtopicService: newsSubtopicService,
-		db:                  db,
 	}
 }
 
@@ -82,19 +78,15 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 		return err
 	}
 
-	// Verifica permisos: Solo el dueño o admin pueden actualizar
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
 
-	log.Print(news)
 	updates := utils.StructToMap(news)
 	if len(updates) == 0 {
-		log.Print(updates)
-		return customerrors.ErrNoUpdates // Error si no hay cambios
+		return customerrors.ErrNoUpdates
 	}
 
-	// Llama al repositorio con el mapa de updates
 	return s.repo.Update(existing, updates)
 }
 

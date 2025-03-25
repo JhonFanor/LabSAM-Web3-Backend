@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type JobExchangeService interface {
@@ -23,16 +21,12 @@ type JobExchangeService interface {
 type jobExchangeService struct {
 	repo                       repositories.JobExchangeRepository
 	jobExchangeSubtopicService JobExchangeSubtopicService
-	db                         *gorm.DB
-	qm                         *gormmanagers.GormQueryManager
 }
 
-func NewJobExchangeService(repo repositories.JobExchangeRepository, jobExchangeSubtopicService JobExchangeSubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) JobExchangeService {
+func NewJobExchangeService(repo repositories.JobExchangeRepository, jobExchangeSubtopicService JobExchangeSubtopicService) JobExchangeService {
 	return &jobExchangeService{
 		repo:                       repo,
 		jobExchangeSubtopicService: jobExchangeSubtopicService,
-		db:                         db,
-		qm:                         qm,
 	}
 }
 
@@ -88,12 +82,12 @@ func (s *jobExchangeService) UpdateJobExchange(jobExchange *models.JobExchange, 
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, jobExchange)
+	updates := utils.StructToMap(jobExchange)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(jobExchange)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *jobExchangeService) DeleteJobExchange(id uint, userID uint, role string) error {

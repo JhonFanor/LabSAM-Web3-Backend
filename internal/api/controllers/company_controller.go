@@ -31,19 +31,6 @@ func NewCompanyController(p CompanyControllerParams) *CompanyController {
 	}
 }
 
-// CreateCompany godoc
-// @Summary Create a new Company entry
-// @Description This endpoint creates a new Company record. Requires authentication.
-// @Tags Company
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.CompanyRequest true "Company Information"
-// @Success 201 {object} models.Company "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /company/create [post]
 func (c *CompanyController) CreateCompany(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")

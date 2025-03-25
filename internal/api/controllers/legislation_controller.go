@@ -31,19 +31,6 @@ func NewLegislationController(p LegislationControllerParams) *LegislationControl
 	}
 }
 
-// CreateLegislation godoc
-// @Summary Create a new Legislation entry
-// @Description This endpoint creates a new Legislation record. Requires authentication.
-// @Tags Legislation
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.LegislationRequest true "Legislation Information"
-// @Success 201 {object} models.Legislation "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /legislation/create [post]
 func (l *LegislationController) CreateLegislation(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")

@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type DocumentationService interface {
@@ -23,16 +21,12 @@ type DocumentationService interface {
 type documentationService struct {
 	repo                         repositories.DocumentationRepository
 	documentationSubtopicService DocumentationSubtopicService
-	db                           *gorm.DB
-	qm                           *gormmanagers.GormQueryManager
 }
 
-func NewDocumentationService(repo repositories.DocumentationRepository, documentationSubtopicService DocumentationSubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) DocumentationService {
+func NewDocumentationService(repo repositories.DocumentationRepository, documentationSubtopicService DocumentationSubtopicService) DocumentationService {
 	return &documentationService{
 		repo:                         repo,
 		documentationSubtopicService: documentationSubtopicService,
-		db:                           db,
-		qm:                           qm,
 	}
 }
 
@@ -87,12 +81,12 @@ func (s *documentationService) UpdateDocumentation(documentation *models.Documen
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, documentation)
+	updates := utils.StructToMap(documentation)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(documentation)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *documentationService) DeleteDocumentation(id uint, userID uint, role string) error {

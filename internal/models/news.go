@@ -10,6 +10,7 @@ type News struct {
 	Link        string     `json:"link,omitempty"`
 	Date        *time.Time `json:"date,omitempty"`
 	UserID      uint       `json:"user_id,omitempty"`
+	User        User       `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Subtopics   []Subtopic `gorm:"many2many:news_subtopic;" json:"subtopics,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`

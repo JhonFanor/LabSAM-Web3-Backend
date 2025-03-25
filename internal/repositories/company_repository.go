@@ -6,54 +6,58 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type CompanyRepository interface {
 	Create(company *models.Company) (*models.Company, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 	GetByID(id uint) (*models.Company, error)
-	Update(company *models.Company) error
+	Update(company *models.Company, updates map[string]interface{}) error
 	Delete(id uint) error
 }
 
 type companyRepository struct {
-	db *gorm.DB
-	qm *gormmanagers.GormQueryManager
+	dbManager *gormmanagers.DBManager
+	qm        *gormmanagers.GormQueryManager
 }
 
-func NewCompanyRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) CompanyRepository {
+func NewCompanyRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) CompanyRepository {
 	return &companyRepository{
-		db: db,
-		qm: qm,
+		dbManager: dbManager,
+		qm:        qm,
 	}
 }
 
 func (r *companyRepository) Create(company *models.Company) (*models.Company, error) {
-	if err := r.db.Create(company).Error; err != nil {
+	if err := r.dbManager.Create(company); err != nil {
 		return nil, err
 	}
 	return company, nil
 }
 
-func (r *companyRepository) GetByID(id uint) (*models.Company, error) {
-	var company models.Company
-	if err := r.db.First(&company, id).Error; err != nil {
-		return nil, err
-	}
-	return &company, nil
-}
-
 func (r *companyRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	r.qm.DB = r.qm.DB.Preload("User")
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.Company{})
 
 	return paginationInfo, nil
 }
 
-func (r *companyRepository) Update(company *models.Company) error {
-	return r.db.Save(company).Error
+func (r *companyRepository) GetByID(id uint) (*models.Company, error) {
+	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+
+	var company models.Company
+	conditions := map[string]interface{}{"id": id}
+	if err := r.dbManager.Find(&company, conditions); err != nil {
+		return nil, err
+	}
+	return &company, nil
+}
+
+func (r *companyRepository) Update(company *models.Company, updates map[string]interface{}) error {
+	return r.dbManager.Update(company, updates)
 }
 
 func (r *companyRepository) Delete(id uint) error {
-	return r.db.Delete(&models.Company{}, id).Error
+	company := models.Company{ID: id}
+	return r.dbManager.Delete(&company)
 }

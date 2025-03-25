@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -31,19 +32,19 @@ func NewNewsController(p NewsControllerParams) *NewsController {
 	}
 }
 
-func (n *NewsController) CreateNews(ctx *gin.Context) {
+func (n *NewsController) CreateNews(c *gin.Context) {
 
-	validatedInput, _ := ctx.Get("input")
+	validatedInput, _ := c.Get("input")
 
 	newsRequest := validatedInput.(*requests.NewsRequest)
 
-	claimsValue, _ := ctx.Get("claims")
+	claimsValue, _ := c.Get("claims")
 
 	claims, _ := claimsValue.(*security.Claims)
 
 	var news models.News
 	if err := mapstructure.Decode(newsRequest, &news); err != nil {
-		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: consts.ErrorMapConst,
 		})
 		return
@@ -51,11 +52,11 @@ func (n *NewsController) CreateNews(ctx *gin.Context) {
 
 	createdNews, err := n.service.CreateNews(&news, claims.UserID, newsRequest.SubtopicIDs)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, createdNews)
+	c.JSON(http.StatusCreated, createdNews)
 }
 
 func (n *NewsController) GetAllNews(c *gin.Context) {
@@ -64,6 +65,12 @@ func (n *NewsController) GetAllNews(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var newsList []responses.NewsGetAllResponse
+	_ = json.Unmarshal(jsonData, &newsList)
+	pagination.Data = newsList
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -80,7 +87,15 @@ func (n *NewsController) GetNewsByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, news)
+	var newsResponse responses.NewGetResponse
+	if err := mapstructure.Decode(news, &newsResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, newsResponse)
 }
 
 func (n *NewsController) UpdateNews(c *gin.Context) {

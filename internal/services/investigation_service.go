@@ -8,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type InvestigationService interface {
@@ -22,14 +21,12 @@ type InvestigationService interface {
 type investigationService struct {
 	repo                         repositories.InvestigationRepository
 	investigationSubtopicService InvestigationSubtopicService
-	db                           *gorm.DB
 }
 
-func NewInvestigationService(repo repositories.InvestigationRepository, investigationSubtopicService InvestigationSubtopicService, db *gorm.DB) InvestigationService {
+func NewInvestigationService(repo repositories.InvestigationRepository, investigationSubtopicService InvestigationSubtopicService) InvestigationService {
 	return &investigationService{
 		repo:                         repo,
 		investigationSubtopicService: investigationSubtopicService,
-		db:                           db,
 	}
 }
 
@@ -85,12 +82,12 @@ func (s *investigationService) UpdateInvestigation(investigation *models.Investi
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, investigation)
+	updates := utils.StructToMap(investigation)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(investigation)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *investigationService) DeleteInvestigation(id uint, userID uint, role string) error {

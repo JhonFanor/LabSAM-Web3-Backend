@@ -31,19 +31,6 @@ func NewEducationalOfferController(p EducationalOfferControllerParams) *Educatio
 	}
 }
 
-// CreateEducationalOffer godoc
-// @Summary Create a new Educational Offer entry
-// @Description This endpoint creates a new Educational Offer record. Requires authentication.
-// @Tags EducationalOffer
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.EducationalOfferRequest true "Educational Offer Information"
-// @Success 201 {object} models.EducationalOffer "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /educational-offer/create [post]
 func (e *EducationalOfferController) CreateEducationalOffer(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")

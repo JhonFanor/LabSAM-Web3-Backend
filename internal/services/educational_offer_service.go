@@ -1,7 +1,6 @@
 package services
 
 import (
-	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
@@ -9,7 +8,6 @@ import (
 	"lamsam-web3-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type EducationalOfferService interface {
@@ -23,16 +21,12 @@ type EducationalOfferService interface {
 type educationalOfferService struct {
 	repo                            repositories.EducationalOfferRepository
 	educationalOfferSubtopicService EducationalOfferSubtopicService
-	db                              *gorm.DB
-	qm                              *gormmanagers.GormQueryManager
 }
 
-func NewEducationalOfferService(repo repositories.EducationalOfferRepository, educationalOfferSubtopicService EducationalOfferSubtopicService, db *gorm.DB, qm *gormmanagers.GormQueryManager) EducationalOfferService {
+func NewEducationalOfferService(repo repositories.EducationalOfferRepository, educationalOfferSubtopicService EducationalOfferSubtopicService) EducationalOfferService {
 	return &educationalOfferService{
 		repo:                            repo,
 		educationalOfferSubtopicService: educationalOfferSubtopicService,
-		db:                              db,
-		qm:                              qm,
 	}
 }
 
@@ -88,12 +82,12 @@ func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *model
 		return customerrors.ErrUnauthorized
 	}
 
-	updates := utils.GetModifiedFields(existing, educationalOffer)
+	updates := utils.StructToMap(educationalOffer)
 	if len(updates) == 0 {
 		return nil
 	}
 
-	return s.repo.Update(educationalOffer)
+	return s.repo.Update(existing, updates)
 }
 
 func (s *educationalOfferService) DeleteEducationalOffer(id uint, userID uint, role string) error {

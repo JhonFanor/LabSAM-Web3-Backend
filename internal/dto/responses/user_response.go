@@ -7,3 +7,8 @@ type UserResponse struct {
 	Avatar   string `json:"avatar"`
 	Role     string `json:"role"`
 }
+
+type UserMinimalResponse struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}

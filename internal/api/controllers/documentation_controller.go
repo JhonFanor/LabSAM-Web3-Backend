@@ -31,19 +31,6 @@ func NewDocumentationController(p DocumentationControllerParams) *DocumentationC
 	}
 }
 
-// CreateDocumentation godoc
-// @Summary Create a new Documentation entry
-// @Description This endpoint creates a new Documentation record. Requires authentication.
-// @Tags Documentation
-// @Accept  json
-// @Produce  json
-// @Param Authorization header string true "Bearer Token"
-// @Param input body requests.DocumentationRequest true "Documentation Information"
-// @Success 201 {object} models.Documentation "Successfully created"
-// @Failure 400 {object} responses.ErrorResponse "Bad request"
-// @Failure 401 {object} responses.ErrorResponse "Unauthorized"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /documentation/create [post]
 func (d *DocumentationController) CreateDocumentation(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")
