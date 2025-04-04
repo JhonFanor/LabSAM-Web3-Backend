@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type JobExchange struct {
+type JobBoard struct {
 	ID          uint   `gorm:"primaryKey"`
 	Title       string `gorm:"size:255;not null"`
 	Company     string `gorm:"size:255"`
@@ -15,6 +15,6 @@ type JobExchange struct {
 	UpdatedAt   time.Time
 }
 
-func (JobExchange) TableName() string {
+func (JobBoard) TableName() string {
 	return "jobs_exchange"
 }

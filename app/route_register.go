@@ -21,8 +21,8 @@ type RoutesRegisterParams struct {
 	EventSubtopicRoutes         *routes.EventSubtopicRoutes
 	InvestigationRoutes         *routes.InvestigationRoutes
 	InvestigationSubtopicRoutes *routes.InvestigationSubtopicRoutes
-	JobExchangeRoutes           *routes.JobExchangeRoutes
-	JobExchangeSubtopicRoutes   *routes.JobExchangeSubtopicRoutes
+	JobBoardRoutes              *routes.JobBoardRoutes
+	JobBoardSubtopicRoutes      *routes.JobBoardSubtopicRoutes
 	LegislationRoutes           *routes.LegislationRoutes
 	LegislationSubtopicRoutes   *routes.LegislationSubtopicRoutes
 	NewsRoutes                  *routes.NewsRoutes
@@ -43,8 +43,8 @@ func RoutesRegister(p RoutesRegisterParams) {
 	p.EducationalOfferSubtopic.Routes()
 	p.EventRoutes.Routes()
 	p.EventSubtopicRoutes.Routes()
-	p.JobExchangeRoutes.Routes()
-	p.JobExchangeSubtopicRoutes.Routes()
+	p.JobBoardRoutes.Routes()
+	p.JobBoardSubtopicRoutes.Routes()
 	p.LegislationRoutes.Routes()
 	p.LegislationSubtopicRoutes.Routes()
 	p.NewsRoutes.Routes()

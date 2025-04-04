@@ -1,6 +1,6 @@
 package requests
 
-type JobExchangeRequest struct {
+type JobBoardRequest struct {
 	Title       string `json:"title" validate:"required"`
 	Company     string `json:"company" validate:"required"`
 	Description string `json:"description" validate:"required"`
@@ -10,7 +10,7 @@ type JobExchangeRequest struct {
 	SubtopicIDs []uint `json:"subtopic_ids" validate:"required"`
 }
 
-type JobExchangeUpdateRequest struct {
+type JobBoardUpdateRequest struct {
 	Title       string `json:"title"`
 	Company     string `json:"company"`
 	Description string `json:"description"`

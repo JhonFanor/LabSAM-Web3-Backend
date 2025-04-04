@@ -14,25 +14,25 @@ import (
 	"go.uber.org/fx"
 )
 
-type JobExchangeSubtopicControllerParams struct {
+type JobBoardSubtopicControllerParams struct {
 	fx.In
-	JobExchangeSubtopicService services.JobExchangeSubtopicService
-	JobExchangeService         services.JobExchangeService
+	JobBoardSubtopicService services.JobBoardSubtopicService
+	JobBoardService         services.JobBoardService
 }
 
-type JobExchangeSubtopicController struct {
-	service            services.JobExchangeSubtopicService
-	jobExchangeService services.JobExchangeService
+type JobBoardSubtopicController struct {
+	service         services.JobBoardSubtopicService
+	jobBoardService services.JobBoardService
 }
 
-func NewJobExchangeSubtopicController(p JobExchangeSubtopicControllerParams) *JobExchangeSubtopicController {
-	return &JobExchangeSubtopicController{
-		service:            p.JobExchangeSubtopicService,
-		jobExchangeService: p.JobExchangeService,
+func NewJobBoardSubtopicController(p JobBoardSubtopicControllerParams) *JobBoardSubtopicController {
+	return &JobBoardSubtopicController{
+		service:         p.JobBoardSubtopicService,
+		jobBoardService: p.JobBoardService,
 	}
 }
 
-func (j *JobExchangeSubtopicController) CreateJobExchangeSubtopic(c *gin.Context) {
+func (j *JobBoardSubtopicController) CreateJobBoardSubtopic(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid ID"})
@@ -40,29 +40,29 @@ func (j *JobExchangeSubtopicController) CreateJobExchangeSubtopic(c *gin.Context
 	}
 
 	validatedInput, _ := c.Get("input")
-	jobExchangeSubtopicRequest := validatedInput.(*requests.JobExchangeSubtopicRequest)
+	jobBoardSubtopicRequest := validatedInput.(*requests.JobBoardSubtopicRequest)
 
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	jobExchange, err := j.jobExchangeService.GetJobExchangeByID(uint(id))
+	jobBoard, err := j.jobBoardService.GetJobBoardByID(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Exchange not found"})
 		return
 	}
 
-	if jobExchange.UserID != claims.UserID && claims.Role != "admin" {
+	if jobBoard.UserID != claims.UserID && claims.Role != "admin" {
 		c.JSON(http.StatusUnauthorized, customerrors.ErrUnauthorized)
 		return
 	}
 
-	for _, subtopicID := range jobExchangeSubtopicRequest.SubtopicIDs {
-		jobExchangeSubtopic := &models.JobExchangeSubtopic{
-			JobExchangeID: uint(id),
-			SubtopicID:    uint(subtopicID),
+	for _, subtopicID := range jobBoardSubtopicRequest.SubtopicIDs {
+		jobBoardSubtopic := &models.JobBoardSubtopic{
+			JobBoardID: uint(id),
+			SubtopicID: uint(subtopicID),
 		}
 
-		_, err := j.service.CreateJobExchangeSubtopic(jobExchangeSubtopic)
+		_, err := j.service.CreateJobBoardSubtopic(jobBoardSubtopic)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 			return
@@ -72,7 +72,7 @@ func (j *JobExchangeSubtopicController) CreateJobExchangeSubtopic(c *gin.Context
 	c.JSON(http.StatusCreated, responses.SuccessResponse{Message: "Successfully assigned subtopics"})
 }
 
-func (j *JobExchangeSubtopicController) DeleteJobExchangeSubtopic(c *gin.Context) {
+func (j *JobBoardSubtopicController) DeleteJobBoardSubtopic(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid ID"})
@@ -80,24 +80,24 @@ func (j *JobExchangeSubtopicController) DeleteJobExchangeSubtopic(c *gin.Context
 	}
 
 	validatedInput, _ := c.Get("input")
-	jobExchangeSubtopicRequest := validatedInput.(*requests.JobExchangeSubtopicRequest)
+	jobBoardSubtopicRequest := validatedInput.(*requests.JobBoardSubtopicRequest)
 
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	jobExchange, err := j.jobExchangeService.GetJobExchangeByID(uint(id))
+	jobBoard, err := j.jobBoardService.GetJobBoardByID(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Exchange not found"})
 		return
 	}
 
-	if jobExchange.UserID != claims.UserID && claims.Role != "admin" {
+	if jobBoard.UserID != claims.UserID && claims.Role != "admin" {
 		c.JSON(http.StatusUnauthorized, customerrors.ErrUnauthorized)
 		return
 	}
 
-	for _, subtopicID := range jobExchangeSubtopicRequest.SubtopicIDs {
-		if err := j.service.DeleteJobExchangeSubtopic(uint(id), subtopicID); err != nil {
+	for _, subtopicID := range jobBoardSubtopicRequest.SubtopicIDs {
+		if err := j.service.DeleteJobBoardSubtopic(uint(id), subtopicID); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 			return
 		}

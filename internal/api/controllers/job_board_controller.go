@@ -16,49 +16,49 @@ import (
 	"go.uber.org/fx"
 )
 
-type JobExchangeControllerParams struct {
+type JobBoardControllerParams struct {
 	fx.In
-	JobExchangeService services.JobExchangeService
+	JobBoardService services.JobBoardService
 }
 
-type JobExchangeController struct {
-	service services.JobExchangeService
+type JobBoardController struct {
+	service services.JobBoardService
 }
 
-func NewJobExchangeController(p JobExchangeControllerParams) *JobExchangeController {
-	return &JobExchangeController{
-		service: p.JobExchangeService,
+func NewJobBoardController(p JobBoardControllerParams) *JobBoardController {
+	return &JobBoardController{
+		service: p.JobBoardService,
 	}
 }
 
-func (j *JobExchangeController) CreateJobExchange(ctx *gin.Context) {
+func (j *JobBoardController) CreateJobBoard(ctx *gin.Context) {
 
 	validatedInput, _ := ctx.Get("input")
 
-	jobExchangeRequest := validatedInput.(*requests.JobExchangeRequest)
+	jobBoardRequest := validatedInput.(*requests.JobBoardRequest)
 
 	claimsValue, _ := ctx.Get("claims")
 
 	claims, _ := claimsValue.(*security.Claims)
 
-	var jobExchange models.JobExchange
-	if err := mapstructure.Decode(jobExchangeRequest, &jobExchange); err != nil {
+	var jobBoard models.JobBoard
+	if err := mapstructure.Decode(jobBoardRequest, &jobBoard); err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: consts.ErrorMapConst,
 		})
 		return
 	}
 
-	createdJobExchange, err := j.service.CreateJobExchange(&jobExchange, claims.UserID, jobExchangeRequest.SubtopicIDs)
+	createdJobBoard, err := j.service.CreateJobBoard(&jobBoard, claims.UserID, jobBoardRequest.SubtopicIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, createdJobExchange)
+	ctx.JSON(http.StatusCreated, createdJobBoard)
 }
 
-func (j *JobExchangeController) GetAllJobsExchange(c *gin.Context) {
+func (j *JobBoardController) GetAllJobsExchange(c *gin.Context) {
 	pagination, err := j.service.GetAllJobsExchange(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
@@ -67,23 +67,23 @@ func (j *JobExchangeController) GetAllJobsExchange(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
-func (j *JobExchangeController) GetJobExchangeByID(c *gin.Context) {
+func (j *JobBoardController) GetJobBoardByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: customerrors.ErrInvalidID.Error()})
 		return
 	}
 
-	jobExchange, err := j.service.GetJobExchangeByID(uint(id))
+	jobBoard, err := j.service.GetJobBoardByID(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Exchange not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, jobExchange)
+	c.JSON(http.StatusOK, jobBoard)
 }
 
-func (j *JobExchangeController) UpdateJobExchange(c *gin.Context) {
+func (j *JobBoardController) UpdateJobBoard(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: customerrors.ErrInvalidID.Error()})
@@ -91,26 +91,26 @@ func (j *JobExchangeController) UpdateJobExchange(c *gin.Context) {
 	}
 
 	validatedInput, _ := c.Get("input")
-	jobExchangeRequest := validatedInput.(*requests.JobExchangeUpdateRequest)
-	var jobExchange models.JobExchange
-	if err := mapstructure.Decode(jobExchangeRequest, &jobExchange); err != nil {
+	jobBoardRequest := validatedInput.(*requests.JobBoardUpdateRequest)
+	var jobBoard models.JobBoard
+	if err := mapstructure.Decode(jobBoardRequest, &jobBoard); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
 		return
 	}
 
-	jobExchange.ID = uint(id)
+	jobBoard.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	if err := j.service.UpdateJobExchange(&jobExchange, claims.UserID, claims.Role); err != nil {
+	if err := j.service.UpdateJobBoard(&jobBoard, claims.UserID, claims.Role); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, jobExchange)
+	c.JSON(http.StatusOK, jobBoard)
 }
 
-func (j *JobExchangeController) DeleteJobExchange(c *gin.Context) {
+func (j *JobBoardController) DeleteJobBoard(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid ID"})
@@ -120,7 +120,7 @@ func (j *JobExchangeController) DeleteJobExchange(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	if err := j.service.DeleteJobExchange(uint(id), claims.UserID, claims.Role); err != nil {
+	if err := j.service.DeleteJobBoard(uint(id), claims.UserID, claims.Role); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
