@@ -36,10 +36,10 @@ func NewDocumentationRoutes(p DocumentationRoutesParams) *DocumentationRoutes {
 func (dr *DocumentationRoutes) Routes() {
 	documentation := dr.Router.Group("/documentation")
 	{
-		documentation.POST("/create", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
-		documentation.GET("/get/all", dr.DocumentationController.GetAllDocumentations)
-		documentation.GET("/get/:id", dr.DocumentationController.GetDocumentationByID)
-		documentation.PUT("/update/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.UpdateDocumentation)
-		documentation.DELETE("/delete/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.DeleteDocumentation)
+		documentation.POST("", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
+		documentation.GET("", dr.DocumentationController.GetAllDocumentations)
+		documentation.GET("/:id", dr.DocumentationController.GetDocumentationByID)
+		documentation.PUT("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.UpdateDocumentation)
+		documentation.DELETE("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.DeleteDocumentation)
 	}
 }

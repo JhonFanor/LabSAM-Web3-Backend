@@ -34,9 +34,9 @@ func NewBankOfResumeSubtopicRoutes(p BankOfResumeSubtopicRoutesParams) *BankOfRe
 }
 
 func (br *BankOfResumeSubtopicRoutes) Routes() {
-	bankOfResumeSubtopic := br.Router.Group("/bank-of-resume-subtopic")
+	bankOfResumeSubtopic := br.Router.Group("/api/bank-of-resume-subtopic")
 	{
-		bankOfResumeSubtopic.POST("/create/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.CreateBankOfResumeSubtopic)
-		bankOfResumeSubtopic.DELETE("/delete/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.DeleteBankOfResumeSubtopic)
+		bankOfResumeSubtopic.POST("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.CreateBankOfResumeSubtopic)
+		bankOfResumeSubtopic.DELETE("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeSubtopicRequest{}), br.TonkenMiddleware.ValidateToken(), br.BankOfResumeSubtopicController.DeleteBankOfResumeSubtopic)
 	}
 }

@@ -34,9 +34,9 @@ func NewCompanySubtopicRoutes(p CompanySubtopicRoutesParams) *CompanySubtopicRou
 }
 
 func (cr *CompanySubtopicRoutes) Routes() {
-	companySubtopic := cr.Router.Group("/company-subtopic")
+	companySubtopic := cr.Router.Group("/api/company-subtopic")
 	{
-		companySubtopic.POST("/create/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanySubtopicRequest{}), cr.TonkenMiddleware.ValidateToken(), cr.CompanySubtopicController.CreateCompanySubtopic)
-		companySubtopic.DELETE("/delete/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanySubtopicRequest{}), cr.TonkenMiddleware.ValidateToken(), cr.CompanySubtopicController.DeleteCompanySubtopic)
+		companySubtopic.POST("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanySubtopicRequest{}), cr.TonkenMiddleware.ValidateToken(), cr.CompanySubtopicController.CreateCompanySubtopic)
+		companySubtopic.DELETE("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanySubtopicRequest{}), cr.TonkenMiddleware.ValidateToken(), cr.CompanySubtopicController.DeleteCompanySubtopic)
 	}
 }

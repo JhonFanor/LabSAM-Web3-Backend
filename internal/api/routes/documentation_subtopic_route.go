@@ -34,9 +34,9 @@ func NewDocumentationSubtopicRoutes(p DocumentationSubtopicRoutesParams) *Docume
 }
 
 func (dr *DocumentationSubtopicRoutes) Routes() {
-	documentationSubtopic := dr.Router.Group("/documentation-subtopic")
+	documentationSubtopic := dr.Router.Group("/api/documentation-subtopic")
 	{
-		documentationSubtopic.POST("/create/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationSubtopicRequest{}), dr.TonkenMiddleware.ValidateToken(), dr.DocumentationSubtopicController.CreateDocumentationSubtopic)
-		documentationSubtopic.DELETE("/delete/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationSubtopicRequest{}), dr.TonkenMiddleware.ValidateToken(), dr.DocumentationSubtopicController.DeleteDocumentationSubtopic)
+		documentationSubtopic.POST("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationSubtopicRequest{}), dr.TonkenMiddleware.ValidateToken(), dr.DocumentationSubtopicController.CreateDocumentationSubtopic)
+		documentationSubtopic.DELETE("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationSubtopicRequest{}), dr.TonkenMiddleware.ValidateToken(), dr.DocumentationSubtopicController.DeleteDocumentationSubtopic)
 	}
 }

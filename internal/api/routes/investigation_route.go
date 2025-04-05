@@ -34,12 +34,12 @@ func NewInvestigationRoutes(p InvestigationRoutesParams) *InvestigationRoutes {
 }
 
 func (ir *InvestigationRoutes) Routes() {
-	investigation := ir.Router.Group("/investigation")
+	investigation := ir.Router.Group("/api/investigation")
 	{
-		investigation.POST("/create", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.CreateInvestigation)
-		investigation.GET("/get/all", ir.InvestigationController.GetAllInvestigations)
-		investigation.GET("/get/:id", ir.InvestigationController.GetInvestigationByID)
-		investigation.PUT("/update/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.UpdateInvestigation)
-		investigation.DELETE("/delete/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.DeleteInvestigation)
+		investigation.POST("", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.CreateInvestigation)
+		investigation.GET("", ir.InvestigationController.GetAllInvestigations)
+		investigation.GET("/:id", ir.InvestigationController.GetInvestigationByID)
+		investigation.PUT("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.UpdateInvestigation)
+		investigation.DELETE("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.DeleteInvestigation)
 	}
 }

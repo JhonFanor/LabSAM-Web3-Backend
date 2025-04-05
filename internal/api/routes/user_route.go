@@ -33,8 +33,8 @@ func NewUserRoutes(p UserRoutesParams) *UserRoutes {
 }
 
 func (ur *UserRoutes) Routes() {
-	user := ur.Router.Group("/user")
+	user := ur.Router.Group("/api/user")
 	{
-		user.GET("/get", ur.TokenMiddleware.ValidateToken(), ur.UserController.GetUserByID)
+		user.GET("", ur.TokenMiddleware.ValidateToken(), ur.UserController.GetUserByID)
 	}
 }

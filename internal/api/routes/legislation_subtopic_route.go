@@ -34,9 +34,9 @@ func NewLegislationSubtopicRoutes(p LegislationSubtopicRoutesParams) *Legislatio
 }
 
 func (lr *LegislationSubtopicRoutes) Routes() {
-	legislationSubtopic := lr.Router.Group("/legislation-subtopic")
+	legislationSubtopic := lr.Router.Group("/api/legislation-subtopic")
 	{
-		legislationSubtopic.POST("/create/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationSubtopicRequest{}), lr.TonkenMiddleware.ValidateToken(), lr.LegislationSubtopicController.CreateLegislationSubtopic)
-		legislationSubtopic.DELETE("/delete/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationSubtopicRequest{}), lr.TonkenMiddleware.ValidateToken(), lr.LegislationSubtopicController.DeleteLegislationSubtopic)
+		legislationSubtopic.POST("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationSubtopicRequest{}), lr.TonkenMiddleware.ValidateToken(), lr.LegislationSubtopicController.CreateLegislationSubtopic)
+		legislationSubtopic.DELETE("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationSubtopicRequest{}), lr.TonkenMiddleware.ValidateToken(), lr.LegislationSubtopicController.DeleteLegislationSubtopic)
 	}
 }

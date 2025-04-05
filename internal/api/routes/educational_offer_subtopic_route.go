@@ -34,9 +34,9 @@ func NewEducationalOfferSubtopicRoutes(p EducationalOfferSubtopicRoutesParams) *
 }
 
 func (er *EducationalOfferSubtopicRoutes) Routes() {
-	educationalOfferSubtopic := er.Router.Group("/educational-offer-subtopic")
+	educationalOfferSubtopic := er.Router.Group("/api/educational-offer-subtopic")
 	{
-		educationalOfferSubtopic.POST("/create/:id", er.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EducationalOfferSubtopicController.CreateEducationalOfferSubtopic)
-		educationalOfferSubtopic.DELETE("/delete/:id", er.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EducationalOfferSubtopicController.DeleteEducationalOfferSubtopic)
+		educationalOfferSubtopic.POST("/:id", er.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EducationalOfferSubtopicController.CreateEducationalOfferSubtopic)
+		educationalOfferSubtopic.DELETE("/:id", er.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EducationalOfferSubtopicController.DeleteEducationalOfferSubtopic)
 	}
 }

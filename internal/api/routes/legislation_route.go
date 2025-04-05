@@ -34,12 +34,12 @@ func NewLegislationRoutes(p LegislationRoutesParams) *LegislationRoutes {
 }
 
 func (lr *LegislationRoutes) Routes() {
-	legislation := lr.Router.Group("/legislation")
+	legislation := lr.Router.Group("/api/legislation")
 	{
-		legislation.POST("/create", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.CreateLegislation)
-		legislation.GET("/get/all", lr.LegislationController.GetAllLegislations)
-		legislation.GET("/get/:id", lr.LegislationController.GetLegislationByID)
-		legislation.PUT("/update/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.UpdateLegislation)
-		legislation.PUT("/delete/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.DeleteLegislation)
+		legislation.POST("", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.CreateLegislation)
+		legislation.GET("", lr.LegislationController.GetAllLegislations)
+		legislation.GET("/:id", lr.LegislationController.GetLegislationByID)
+		legislation.PUT("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.UpdateLegislation)
+		legislation.PUT("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.DeleteLegislation)
 	}
 }

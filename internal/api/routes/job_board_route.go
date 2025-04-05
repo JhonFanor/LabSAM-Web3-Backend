@@ -34,12 +34,12 @@ func NewJobBoardRoutes(p JobBoardRoutesParams) *JobBoardRoutes {
 }
 
 func (jer *JobBoardRoutes) Routes() {
-	jobBoard := jer.Router.Group("/job-exchange")
+	jobBoard := jer.Router.Group("/api/job-exchange")
 	{
-		jobBoard.POST("/create", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.CreateJobBoard)
-		jobBoard.GET("/get/all", jer.JobBoardController.GetAllJobsExchange)
-		jobBoard.GET("/get/:id", jer.JobBoardController.GetJobBoardByID)
-		jobBoard.PUT("/update/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.UpdateJobBoard)
-		jobBoard.DELETE("/delete/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.DeleteJobBoard)
+		jobBoard.POST("", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.CreateJobBoard)
+		jobBoard.GET("", jer.JobBoardController.GetAllJobsExchange)
+		jobBoard.GET("/:id", jer.JobBoardController.GetJobBoardByID)
+		jobBoard.PUT("/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.UpdateJobBoard)
+		jobBoard.DELETE("/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.DeleteJobBoard)
 	}
 }

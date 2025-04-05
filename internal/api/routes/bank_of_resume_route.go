@@ -34,12 +34,12 @@ func NewBankOfResumeRoutes(p BankOfResumeRoutesParams) *BankOfResumeRoutes {
 }
 
 func (br *BankOfResumeRoutes) Routes() {
-	bankOfResume := br.Router.Group("/bank-of-resume")
+	bankOfResume := br.Router.Group("/api/bank-of-resume")
 	{
-		bankOfResume.POST("/create", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
-		bankOfResume.GET("/get/all", br.BankOfResumeController.GetAllBankOfResumes)
-		bankOfResume.GET("/get/:id", br.BankOfResumeController.GetBankOfResumeByID)
-		bankOfResume.PUT("/update/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
-		bankOfResume.DELETE("/delete/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
+		bankOfResume.POST("", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
+		bankOfResume.GET("", br.BankOfResumeController.GetAllBankOfResumes)
+		bankOfResume.GET("/:id", br.BankOfResumeController.GetBankOfResumeByID)
+		bankOfResume.PUT("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
+		bankOfResume.DELETE("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
 	}
 }

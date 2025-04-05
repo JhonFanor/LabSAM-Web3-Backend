@@ -34,9 +34,9 @@ func NewInvestigationSubtopicRoutes(p InvestigationSubtopicRoutesParams) *Invest
 }
 
 func (ir *InvestigationSubtopicRoutes) Routes() {
-	investigationSubtopic := ir.Router.Group("/investigation-subtopic")
+	investigationSubtopic := ir.Router.Group("/api/investigation-subtopic")
 	{
-		investigationSubtopic.POST("/create/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationSubtopicRequest{}), ir.TonkenMiddleware.ValidateToken(), ir.InvestigationSubtopicController.CreateInvestigationSubtopic)
-		investigationSubtopic.DELETE("/delete/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationSubtopicRequest{}), ir.TonkenMiddleware.ValidateToken(), ir.InvestigationSubtopicController.DeleteInvestigationSubtopic)
+		investigationSubtopic.POST("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationSubtopicRequest{}), ir.TonkenMiddleware.ValidateToken(), ir.InvestigationSubtopicController.CreateInvestigationSubtopic)
+		investigationSubtopic.DELETE("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationSubtopicRequest{}), ir.TonkenMiddleware.ValidateToken(), ir.InvestigationSubtopicController.DeleteInvestigationSubtopic)
 	}
 }

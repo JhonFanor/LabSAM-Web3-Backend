@@ -34,12 +34,12 @@ func NewTopicRoutes(p TopicRoutesParams) *TopicRoutes {
 }
 
 func (tr *TopicRoutes) Routes() {
-	topic := tr.Router.Group("/topic")
+	topic := tr.Router.Group("/api/topic")
 	{
-		topic.POST("/create", tr.ValidatorMiddleware.ValidateInput(&requests.TopicRequest{}), tr.TokenMiddleware.ValidateToken(), tr.TopicController.CreateTopic)
-		topic.GET("/get/all", tr.TopicController.GetAllTopics)
-		topic.GET("/get/:id", tr.TopicController.GetTopicByID)
-		topic.PUT("/update/:id", tr.ValidatorMiddleware.ValidateInput(&requests.TopicRequest{}), tr.TokenMiddleware.ValidateToken(), tr.TopicController.UpdateTopic)
-		topic.DELETE("/delete/:id", tr.TokenMiddleware.ValidateToken(), tr.TopicController.DeleteTopic)
+		topic.POST("", tr.ValidatorMiddleware.ValidateInput(&requests.TopicRequest{}), tr.TokenMiddleware.ValidateToken(), tr.TopicController.CreateTopic)
+		topic.GET("", tr.TopicController.GetAllTopics)
+		topic.GET("/:id", tr.TopicController.GetTopicByID)
+		topic.PUT("/:id", tr.ValidatorMiddleware.ValidateInput(&requests.TopicRequest{}), tr.TokenMiddleware.ValidateToken(), tr.TopicController.UpdateTopic)
+		topic.DELETE("/:id", tr.TokenMiddleware.ValidateToken(), tr.TopicController.DeleteTopic)
 	}
 }

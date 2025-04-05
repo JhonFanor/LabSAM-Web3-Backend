@@ -34,12 +34,12 @@ func NewCompanyRoutes(p CompanyRoutesParams) *CompanyRoutes {
 }
 
 func (cr *CompanyRoutes) Routes() {
-	company := cr.Router.Group("/company")
+	company := cr.Router.Group("/api/company")
 	{
-		company.POST("/create", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.CreateCompany)
-		company.GET("/get/all", cr.CompanyController.GetAllCompanies)
-		company.GET("/get/:id", cr.CompanyController.GetCompanyByID)
-		company.PUT("/update/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.UpdateCompany)
-		company.DELETE("/delete/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.DeleteCompany)
+		company.POST("", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.CreateCompany)
+		company.GET("", cr.CompanyController.GetAllCompanies)
+		company.GET("/:id", cr.CompanyController.GetCompanyByID)
+		company.PUT("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.UpdateCompany)
+		company.DELETE("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.DeleteCompany)
 	}
 }

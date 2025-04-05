@@ -31,7 +31,7 @@ func NewAuthRoutes(p AuthRoutesParams) *AuthRoutes {
 }
 
 func (ar *AuthRoutes) Routes() {
-	auth := ar.Router.Group("/auth")
+	auth := ar.Router.Group("/api/auth")
 	{
 		auth.POST("/register/regular", ar.ValidatorMiddleware.ValidateInput(&requests.RegularUserRequest{}), ar.AuthController.RegisterRegularUser)
 		auth.POST("/register/university", ar.ValidatorMiddleware.ValidateInput(&requests.UniversityUserRequest{}), ar.AuthController.RegisterUniversityUser)

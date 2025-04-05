@@ -34,9 +34,9 @@ func NewJobBoardSubtopicRoutes(p JobBoardSubtopicRoutesParams) *JobBoardSubtopic
 }
 
 func (jr *JobBoardSubtopicRoutes) Routes() {
-	jobBoardSubtopic := jr.Router.Group("/job-exchange-subtopic")
+	jobBoardSubtopic := jr.Router.Group("/api/job-exchange-subtopic")
 	{
-		jobBoardSubtopic.POST("/create/:id", jr.ValidatorMiddleware.ValidateInput(&requests.JobBoardSubtopicRequest{}), jr.TonkenMiddleware.ValidateToken(), jr.JobBoardSubtopicController.CreateJobBoardSubtopic)
-		jobBoardSubtopic.DELETE("/delete/:id", jr.ValidatorMiddleware.ValidateInput(&requests.JobBoardSubtopicRequest{}), jr.TonkenMiddleware.ValidateToken(), jr.JobBoardSubtopicController.DeleteJobBoardSubtopic)
+		jobBoardSubtopic.POST("/:id", jr.ValidatorMiddleware.ValidateInput(&requests.JobBoardSubtopicRequest{}), jr.TonkenMiddleware.ValidateToken(), jr.JobBoardSubtopicController.CreateJobBoardSubtopic)
+		jobBoardSubtopic.DELETE("/:id", jr.ValidatorMiddleware.ValidateInput(&requests.JobBoardSubtopicRequest{}), jr.TonkenMiddleware.ValidateToken(), jr.JobBoardSubtopicController.DeleteJobBoardSubtopic)
 	}
 }

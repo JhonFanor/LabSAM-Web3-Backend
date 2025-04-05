@@ -34,9 +34,9 @@ func NewNewsSubtopicRoutes(p NewsSubtopicRoutesParams) *NewsSubtopicRoutes {
 }
 
 func (nr *NewsSubtopicRoutes) Routes() {
-	newsSubtopic := nr.Router.Group("/news-subtopic")
+	newsSubtopic := nr.Router.Group("/api/news-subtopic")
 	{
-		newsSubtopic.POST("/create", nr.ValidatorMiddleware.ValidateInput(&requests.NewsSubtopicRequest{}), nr.TonkenMiddleware.ValidateToken(), nr.NewsSubtopicController.CreateNewsSubtopic)
-		newsSubtopic.DELETE("/delete/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsSubtopicRequest{}), nr.TonkenMiddleware.ValidateToken(), nr.NewsSubtopicController.DeleteNewsSubtopic)
+		newsSubtopic.POST("", nr.ValidatorMiddleware.ValidateInput(&requests.NewsSubtopicRequest{}), nr.TonkenMiddleware.ValidateToken(), nr.NewsSubtopicController.CreateNewsSubtopic)
+		newsSubtopic.DELETE("/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsSubtopicRequest{}), nr.TonkenMiddleware.ValidateToken(), nr.NewsSubtopicController.DeleteNewsSubtopic)
 	}
 }

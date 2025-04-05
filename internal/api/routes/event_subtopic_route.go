@@ -34,9 +34,9 @@ func NewEventSubtopicRoutes(p EventSubtopicRoutesParams) *EventSubtopicRoutes {
 }
 
 func (er *EventSubtopicRoutes) Routes() {
-	eventSubtopic := er.Router.Group("/event-subtopic")
+	eventSubtopic := er.Router.Group("/api/event-subtopic")
 	{
-		eventSubtopic.POST("/create/:id", er.ValidatorMiddleware.ValidateInput(&requests.EventSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EventSubtopicController.CreateEventSubtopic)
-		eventSubtopic.DELETE("/delete/:id", er.ValidatorMiddleware.ValidateInput(&requests.EventSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EventSubtopicController.DeleteEventSubtopic)
+		eventSubtopic.POST("/:id", er.ValidatorMiddleware.ValidateInput(&requests.EventSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EventSubtopicController.CreateEventSubtopic)
+		eventSubtopic.DELETE("/:id", er.ValidatorMiddleware.ValidateInput(&requests.EventSubtopicRequest{}), er.TonkenMiddleware.ValidateToken(), er.EventSubtopicController.DeleteEventSubtopic)
 	}
 }

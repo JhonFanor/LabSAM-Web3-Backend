@@ -34,12 +34,12 @@ func NewEducationalOfferRoutes(p EducationalOfferRoutesParams) *EducationalOffer
 }
 
 func (eor *EducationalOfferRoutes) Routes() {
-	educationalOffer := eor.Router.Group("/educational-offer")
+	educationalOffer := eor.Router.Group("/api/educational-offer")
 	{
-		educationalOffer.POST("/create", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
-		educationalOffer.GET("/get/all", eor.EducationalOfferController.GetAllEducationalOffers)
-		educationalOffer.GET("/get/:id", eor.EducationalOfferController.GetEducationalOfferByID)
-		educationalOffer.PUT("/update/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.UpdateEducationalOffer)
-		educationalOffer.DELETE("/delete/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.DeleteEducationalOffer)
+		educationalOffer.POST("", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
+		educationalOffer.GET("", eor.EducationalOfferController.GetAllEducationalOffers)
+		educationalOffer.GET("/:id", eor.EducationalOfferController.GetEducationalOfferByID)
+		educationalOffer.PUT("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.UpdateEducationalOffer)
+		educationalOffer.DELETE("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.DeleteEducationalOffer)
 	}
 }
