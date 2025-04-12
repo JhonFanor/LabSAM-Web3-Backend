@@ -34,7 +34,7 @@ func NewNewsRoutes(p NewsRoutesParams) *NewsRoutes {
 }
 
 func (nr *NewsRoutes) Routes() {
-	news := nr.Router.Group("/aṕi/news")
+	news := nr.Router.Group("/api/news")
 	{
 		news.POST("", nr.ValidatorMiddleware.ValidateInput(&requests.NewsRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.CreateNews)
 		news.GET("", nr.NewsController.GetAllNews)
