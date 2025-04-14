@@ -18,16 +18,19 @@ import (
 
 type CompanyControllerParams struct {
 	fx.In
-	CompanyService services.CompanyService
+	CompanyService      services.CompanyService
+	LocalitationService services.LocalitationService
 }
 
 type CompanyController struct {
-	service services.CompanyService
+	service             services.CompanyService
+	localitationService services.LocalitationService
 }
 
 func NewCompanyController(p CompanyControllerParams) *CompanyController {
 	return &CompanyController{
-		service: p.CompanyService,
+		service:             p.CompanyService,
+		localitationService: p.LocalitationService,
 	}
 }
 
@@ -47,6 +50,22 @@ func (c *CompanyController) CreateCompany(ctx *gin.Context) {
 			Error: consts.ErrorMapConst,
 		})
 		return
+	}
+
+	if companyRequest.Localiatation != nil {
+		var localitationRequest models.Localitation
+		if err := mapstructure.Decode(companyRequest.Localiatation, &localitationRequest); err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		localitation, err := c.localitationService.AssignLocalitation(&localitationRequest)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		company.LocalitationID = localitation.ID
 	}
 
 	createdCompany, err := c.service.CreateCompany(&company, claims.UserID, companyRequest.SubtopicIDs)
@@ -101,6 +120,22 @@ func (c *CompanyController) UpdateCompany(context *gin.Context) {
 	company.ID = uint(id)
 	claimsValue, _ := context.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
+
+	if companyRequest.Localiatation != nil {
+		var localitationRequest models.Localitation
+		if err := mapstructure.Decode(companyRequest.Localiatation, &localitationRequest); err != nil {
+			context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		localitation, err := c.localitationService.AssignLocalitation(&localitationRequest)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		company.LocalitationID = localitation.ID
+	}
 
 	if err := c.service.UpdateCompany(&company, claims.UserID, claims.Role); err != nil {
 		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})

@@ -20,6 +20,7 @@ type EventService interface {
 
 type eventService struct {
 	repo                 repositories.EventRepository
+	localitationService  LocalitationService
 	eventSubtopicService EventSubtopicService
 }
 
@@ -87,7 +88,13 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 		return nil
 	}
 
-	return s.repo.Update(existing, updates)
+	err = s.repo.Update(existing, updates)
+
+	if err == nil && event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
+		s.localitationService.DeleteLocalitation(existing.LocalitationID)
+	}
+
+	return err
 }
 
 func (s *eventService) DeleteEvent(id uint, userID uint, role string) error {

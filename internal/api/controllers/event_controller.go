@@ -18,16 +18,19 @@ import (
 
 type EventControllerParams struct {
 	fx.In
-	EventService services.EventService
+	EventService        services.EventService
+	LocalitationService services.LocalitationService
 }
 
 type EventController struct {
-	service services.EventService
+	service             services.EventService
+	localitationService services.LocalitationService
 }
 
 func NewEventController(p EventControllerParams) *EventController {
 	return &EventController{
-		service: p.EventService,
+		service:             p.EventService,
+		localitationService: p.LocalitationService,
 	}
 }
 
@@ -47,6 +50,22 @@ func (e *EventController) CreateEvent(ctx *gin.Context) {
 			Error: consts.ErrorMapConst,
 		})
 		return
+	}
+
+	if eventRequest.Localiatation != nil {
+		var localitationRequest models.Localitation
+		if err := mapstructure.Decode(eventRequest.Localiatation, &localitationRequest); err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		localitation, err := e.localitationService.AssignLocalitation(&localitationRequest)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		event.LocalitationID = localitation.ID
 	}
 
 	createdEvent, err := e.service.CreateEvent(&event, claims.UserID, eventRequest.SubtopicIDs)
@@ -101,6 +120,22 @@ func (e *EventController) UpdateEvent(c *gin.Context) {
 	event.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
+
+	if eventRequest.Localiatation != nil {
+		var localitationRequest models.Localitation
+		if err := mapstructure.Decode(eventRequest.Localiatation, &localitationRequest); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		localitation, err := e.localitationService.AssignLocalitation(&localitationRequest)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		event.LocalitationID = localitation.ID
+	}
 
 	if err := e.service.UpdateEvent(&event, claims.UserID, claims.Role); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})

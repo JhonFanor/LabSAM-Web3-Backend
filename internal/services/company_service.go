@@ -20,12 +20,14 @@ type CompanyService interface {
 
 type companyService struct {
 	repo                   repositories.CompanyRepository
+	localitationService    LocalitationService
 	companySubtopicService CompanySubtopicService
 }
 
-func NewCompanyService(repo repositories.CompanyRepository, companySubtopicService CompanySubtopicService) CompanyService {
+func NewCompanyService(repo repositories.CompanyRepository, localitationService LocalitationService, companySubtopicService CompanySubtopicService) CompanyService {
 	return &companyService{
 		repo:                   repo,
+		localitationService:    localitationService,
 		companySubtopicService: companySubtopicService,
 	}
 }
@@ -87,7 +89,13 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 		return nil
 	}
 
-	return s.repo.Update(existing, updates)
+	err = s.repo.Update(existing, updates)
+
+	if err == nil && company.LocalitationID != 0 && company.LocalitationID != existing.LocalitationID {
+		s.localitationService.DeleteLocalitation(existing.LocalitationID)
+	}
+
+	return err
 }
 
 func (s *companyService) DeleteCompany(id uint, userID uint, role string) error {
