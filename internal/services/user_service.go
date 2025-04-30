@@ -15,7 +15,6 @@ type UserService interface {
 	GetUserByID(id uint) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
 	FindUserByEmail(email string) (*models.User, error)
-	FindUserByUsername(username string) (*models.User, error)
 }
 
 type userService struct {
@@ -58,8 +57,4 @@ func (s *userService) GetAllUsers() ([]models.User, error) {
 
 func (s *userService) FindUserByEmail(email string) (*models.User, error) {
 	return s.repo.FindByEmail(email)
-}
-
-func (s *userService) FindUserByUsername(username string) (*models.User, error) {
-	return s.repo.FindByUsername(username)
 }

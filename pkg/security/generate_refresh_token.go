@@ -7,11 +7,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateRefreshToken(username string, config *config.JwtConfig) (string, error) {
+func GenerateRefreshToken(email string, config *config.JwtConfig) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // 24 horas de expiración
 
 	claims := &Claims{
-		Username: username,
+		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

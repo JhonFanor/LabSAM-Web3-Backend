@@ -206,10 +206,8 @@ func (a *AuthController) Login(c *gin.Context) {
 	var user *models.User
 	var err error
 
-	if utils.IsValidEmail(input.UsernameOrEmail) {
-		user, err = a.UserService.FindUserByEmail(input.UsernameOrEmail)
-	} else {
-		user, err = a.UserService.FindUserByUsername(input.UsernameOrEmail)
+	if utils.IsValidEmail(input.Email) {
+		user, err = a.UserService.FindUserByEmail(input.Email)
 	}
 
 	if err != nil {
@@ -229,7 +227,7 @@ func (a *AuthController) Login(c *gin.Context) {
 	role, _ := a.RoleService.GetRoleByID(user.RoleID)
 	permissions, _ := a.PermissionService.GetAllPermissionsByUser(user.ID, user.RoleID)
 
-	accessToken, err := security.GenerateAccessToken(user.ID, user.Username, user.Email, *role, permissions, a.JwtConfig)
+	accessToken, err := security.GenerateAccessToken(user.ID, user.Email, *role, permissions, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: "Could not generate access token",
@@ -237,7 +235,7 @@ func (a *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	refreshToken, err := security.GenerateRefreshToken(user.Username, a.JwtConfig)
+	refreshToken, err := security.GenerateRefreshToken(user.Email, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: "Could not generate refresh token",
@@ -281,7 +279,7 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	user, err := a.UserService.FindUserByUsername(claims.Username)
+	user, err := a.UserService.FindUserByEmail(claims.Email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
 			Error: "User not found",
@@ -292,7 +290,7 @@ func (a *AuthController) RefreshToken(c *gin.Context) {
 	role, _ := a.RoleService.GetRoleByID(user.RoleID)
 	permissions, _ := a.PermissionService.GetAllPermissionsByUser(user.ID, user.RoleID)
 
-	newAccessToken, err := security.GenerateAccessToken(user.ID, user.Username, user.Email, *role, permissions, a.JwtConfig)
+	newAccessToken, err := security.GenerateAccessToken(user.ID, user.Email, *role, permissions, a.JwtConfig)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: "Could not generate new access token",

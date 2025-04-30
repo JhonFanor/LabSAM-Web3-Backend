@@ -44,11 +44,10 @@ func (u *UserController) GetUserByID(c *gin.Context) {
 	}
 
 	userResponse := responses.UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Avatar:   user.Avatar,
-		Role:     role.Name,
+		ID:     user.ID,
+		Email:  user.Email,
+		Avatar: user.Avatar,
+		Role:   role.Name,
 	}
 
 	c.JSON(http.StatusOK, userResponse)

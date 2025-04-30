@@ -8,7 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateAccessToken(userID uint, username string, email string, role models.Role, permissions []models.Permission, config *config.JwtConfig) (string, error) {
+func GenerateAccessToken(userID uint, email string, role models.Role, permissions []models.Permission, config *config.JwtConfig) (string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
 
 	var permissionNames []string
@@ -18,7 +18,6 @@ func GenerateAccessToken(userID uint, username string, email string, role models
 
 	claims := &Claims{
 		UserID:      userID,
-		Username:    username,
 		Email:       email,
 		Role:        role.Name,
 		Permissions: permissionNames,
