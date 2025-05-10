@@ -13,8 +13,8 @@ type NewsRequest struct {
 
 type NewsUpdateRequest struct {
 	Title       string     `json:"title,omitempty"`
-	Description string     `json:"description,omitempty"`
 	Image       string     `json:"image,omitempty"`
+	Description string     `json:"description,omitempty"`
 	Link        string     `json:"link,omitempty"`
 	Date        *time.Time `json:"date,omitempty"`
 }

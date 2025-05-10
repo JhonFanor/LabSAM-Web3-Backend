@@ -5,6 +5,8 @@ import (
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/logging"
+	"lamsam-web3-backend/internal/utils"
+	"log"
 	"reflect"
 	"strings"
 
@@ -13,15 +15,16 @@ import (
 )
 
 type GormQueryManager struct {
-	DB     *gorm.DB
 	Logger logging.Logger
 }
 
-func NewGormQueryManager(db *gorm.DB) *GormQueryManager {
-	return &GormQueryManager{DB: db}
+func NewGormQueryManager(logger logging.Logger) *GormQueryManager {
+	return &GormQueryManager{
+		Logger: logger,
+	}
 }
 
-func (m *GormQueryManager) ApplyPaginationAndFilters(c *gin.Context, model any) *dto.PaginationDTO {
+func (m *GormQueryManager) ApplyPaginationAndFilters(c *gin.Context, db *gorm.DB, model any) *dto.PaginationDTO {
 	page := c.DefaultQuery(consts.PageQueryParam, "1")
 	limit := c.DefaultQuery(consts.LimitQueryParam, "10")
 	sortBy := c.DefaultQuery(consts.SortByQueryParam, "id")
@@ -32,8 +35,8 @@ func (m *GormQueryManager) ApplyPaginationAndFilters(c *gin.Context, model any) 
 	fmt.Sscanf(limit, "%d", &limitInt)
 
 	var totalRecords int64
-	m.DB = applyFilters(m.DB, c, model)
-	m.DB.Model(model).Count(&totalRecords)
+	db = applyFilters(db, c, model)
+	db.Model(model).Count(&totalRecords)
 
 	totalPages := (totalRecords + int64(limitInt) - 1) / int64(limitInt)
 	if pageInt < 1 {
@@ -59,7 +62,8 @@ func (m *GormQueryManager) ApplyPaginationAndFilters(c *gin.Context, model any) 
 	data := dataPtr.Interface()           // Convertimos el puntero a interfaz vacía
 
 	// Ejecutar la consulta con la slice correcta
-	result := m.DB.Order(fmt.Sprintf("%s %s", sortBy, sortOrder)).
+	result := db.Order(fmt.Sprintf("%s %s", sortBy, sortOrder)).
+		Distinct().
 		Limit(limitInt).
 		Offset(offset).
 		Find(data)
@@ -81,21 +85,74 @@ func (m *GormQueryManager) ApplyPaginationAndFilters(c *gin.Context, model any) 
 }
 
 func applyDynamicJoin(relatedModelField string, model interface{}, db *gorm.DB, joinedTables map[string]bool) (*gorm.DB, string, error) {
-	relationParts := strings.SplitN(relatedModelField, consts.RelatedFieldFilterSeparator, 2)
-	if len(relationParts) != 2 {
+	parts := strings.Split(relatedModelField, ".")
+	if len(parts) < 2 {
 		return db, "", fmt.Errorf("relación inválida: %s", relatedModelField)
 	}
 
-	relation := relationParts[0]
-	field := relationParts[1]
+	currentTable := utils.GetTableNameFromModel(model)
 
-	if _, exists := joinedTables[relation]; !exists {
-		db = db.Joins(relation)
-		joinedTables[relation] = true
+	for i := 0; i < len(parts)-1; i++ {
+		parent := currentTable
+		child := parts[i]
+
+		if isManyToMany(db, parent, child) {
+			joinTable := getJoinTableForManyToMany(db, parent, child)
+			childTable := utils.ResolveTableName(child)
+
+			parentForeignKey := getForeignKey(parent, child)
+			childForeignKey := getForeignKey(child, parent)
+			// Ajustar la lógica para el JOIN many-to-many de manera genérica
+			joinClause := fmt.Sprintf(
+				"JOIN %s ON %s.%s = %s.id JOIN %s ON %s.%s = %s.id",
+				joinTable, joinTable, childForeignKey, parent, childTable, joinTable, parentForeignKey, childTable,
+			)
+
+			joinKey := fmt.Sprintf("%s.%s", parent, childTable)
+			if !joinedTables[joinKey] {
+				db = db.Joins(joinClause)
+				joinedTables[joinKey] = true
+			}
+			currentTable = childTable
+		} else {
+			// Si no es una relación many-to-many, hacer un join normal
+			childTable := utils.ResolveTableName(child)
+			joinKey := fmt.Sprintf("%s.%s", parent, childTable)
+
+			if !joinedTables[joinKey] {
+				// Obtener el nombre de la clave foránea genérica
+				foreignKey := getForeignKey(parent, child)
+
+				joinClause := fmt.Sprintf("JOIN %s ON %s.id = %s.%s", childTable, childTable, parent, foreignKey)
+				db = db.Joins(joinClause)
+				joinedTables[joinKey] = true
+			}
+			currentTable = childTable
+		}
 	}
 
-	relationField := fmt.Sprintf("%s.%s", relation, field)
-	return db, relationField, nil
+	finalField := fmt.Sprintf("%s.%s", currentTable, parts[len(parts)-1])
+	return db, finalField, nil
+}
+
+func getForeignKey(parentTable, childTable string) string {
+	return fmt.Sprintf("%s_id", childTable)
+}
+
+func isManyToMany(db *gorm.DB, parentTable string, childTable string) bool {
+	intermediateTable := fmt.Sprintf("%s_%s", parentTable, childTable)
+
+	var count int64
+	db.Raw("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?", intermediateTable).Scan(&count)
+
+	return count > 0
+}
+
+func getJoinTableForManyToMany(db *gorm.DB, parentTable string, childTable string) string {
+	if parentTable < childTable {
+		return fmt.Sprintf("%s_%s", parentTable, childTable)
+	}
+	return fmt.Sprintf("%s_%s", childTable, parentTable)
 }
 
 func applyFilters(db *gorm.DB, c *gin.Context, model interface{}) *gorm.DB {
@@ -103,6 +160,7 @@ func applyFilters(db *gorm.DB, c *gin.Context, model interface{}) *gorm.DB {
 
 	for key, values := range c.Request.URL.Query() {
 		for _, value := range values {
+			log.Println("Filtro recibido:", key, value)
 			db = processFilter(db, key, value, model, joinedTables)
 		}
 	}
@@ -120,6 +178,7 @@ func processFilter(db *gorm.DB, key, value string, model interface{}, joinedTabl
 
 	if strings.Contains(field, consts.RelatedFieldFilterSeparator) {
 		var err error
+		log.Print("entro en el join")
 		db, field, err = applyDynamicJoin(field, model, db, joinedTables)
 		if err != nil {
 			return db

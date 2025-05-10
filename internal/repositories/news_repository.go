@@ -4,8 +4,10 @@ import (
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type NewsRepository interface {
@@ -19,12 +21,14 @@ type NewsRepository interface {
 type newsRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewNewsRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) NewsRepository {
+func NewNewsRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) NewsRepository {
 	return &newsRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +40,13 @@ func (r *newsRepository) Create(news *models.News) (*models.News, error) {
 }
 
 func (r *newsRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.News{})
-
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.News{})
+	log.Print(paginationInfo.Data)
 	return paginationInfo, nil
 }
 
 func (r *newsRepository) GetByID(id uint) (*models.News, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")
 
 	var news models.News
 	conditions := map[string]interface{}{"id": id}

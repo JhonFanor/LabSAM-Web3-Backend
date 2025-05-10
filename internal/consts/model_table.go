@@ -1,0 +1,26 @@
+package consts
+
+var ModelToTable = map[string]string{
+	"bank_of_resume_subtopic":    "bank_of_resume_subtopic",
+	"bank_of_resume":             "bank_of_resumes",
+	"company_subtopic":           "company_subtopic",
+	"company":                    "companies",
+	"documentation_subtopi":      "documentation_subtopi",
+	"documentations":             "documentations",
+	"educational_offer_subtopic": "educational_offer_subtopic",
+	"educational_offer":          "educational_offers",
+	"event_subtopic":             "event_subtopic",
+	"event":                      "event",
+	"investigation_subtopic":     "investigation_subtopic",
+	"investigation":              "investigations",
+	"job_board_subtopic":         "job_board_subtopic",
+	"job_board":                  "jobs_board",
+	"legislation_subtopic":       "legislation_subtopic",
+	"legislation":                "legislations",
+	"news_subtopic":              "news_subtopic",
+	"news":                       "news",
+	"regular_user":               "regulars_users",
+	"subtopic":                   "subtopics",
+	"topic":                      "topics",
+	"user":                       "users",
+}

@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type DocumentationRepository interface {
@@ -19,12 +20,14 @@ type DocumentationRepository interface {
 type documentationRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewDocumentationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) DocumentationRepository {
+func NewDocumentationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) DocumentationRepository {
 	return &documentationRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *documentationRepository) Create(documentation *models.Documentation) (*
 }
 
 func (r *documentationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.Documentation{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.Documentation{})
 
 	return paginationInfo, nil
 }
 
 func (r *documentationRepository) GetByID(id uint) (*models.Documentation, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var documentation models.Documentation
 	conditions := map[string]interface{}{"id": id}

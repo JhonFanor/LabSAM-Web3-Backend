@@ -33,13 +33,10 @@ func NewNewsController(p NewsControllerParams) *NewsController {
 }
 
 func (n *NewsController) CreateNews(c *gin.Context) {
-
 	validatedInput, _ := c.Get("input")
-
 	newsRequest := validatedInput.(*requests.NewsRequest)
 
 	claimsValue, _ := c.Get("claims")
-
 	claims, _ := claimsValue.(*security.Claims)
 
 	var news models.News
@@ -49,6 +46,8 @@ func (n *NewsController) CreateNews(c *gin.Context) {
 		})
 		return
 	}
+
+	news.Date = &newsRequest.Date
 
 	createdNews, err := n.service.CreateNews(&news, claims.UserID, newsRequest.SubtopicIDs)
 	if err != nil {

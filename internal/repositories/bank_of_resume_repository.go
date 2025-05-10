@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BankOfResumeRepository interface {
@@ -19,12 +20,14 @@ type BankOfResumeRepository interface {
 type bankOfResumeRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewBankOfResumeRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) BankOfResumeRepository {
+func NewBankOfResumeRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) BankOfResumeRepository {
 	return &bankOfResumeRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *bankOfResumeRepository) Create(bankOfResume *models.BankOfResume) (*mod
 }
 
 func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.BankOfResume{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.BankOfResume{})
 
 	return paginationInfo, nil
 }
 
 func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var bankOfResume models.BankOfResume
 	conditions := map[string]interface{}{"id": id}

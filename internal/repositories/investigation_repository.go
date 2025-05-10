@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type InvestigationRepository interface {
@@ -19,12 +20,14 @@ type InvestigationRepository interface {
 type investigationRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewInvestigationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) InvestigationRepository {
+func NewInvestigationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) InvestigationRepository {
 	return &investigationRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *investigationRepository) Create(investigation *models.Investigation) (*
 }
 
 func (r *investigationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.Investigation{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.Investigation{})
 
 	return paginationInfo, nil
 }
 
 func (r *investigationRepository) GetByID(id uint) (*models.Investigation, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var investigation models.Investigation
 	conditions := map[string]interface{}{"id": id}

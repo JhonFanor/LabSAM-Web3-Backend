@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type CompanyRepository interface {
@@ -19,12 +20,14 @@ type CompanyRepository interface {
 type companyRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewCompanyRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) CompanyRepository {
+func NewCompanyRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) CompanyRepository {
 	return &companyRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *companyRepository) Create(company *models.Company) (*models.Company, er
 }
 
 func (r *companyRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.Company{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.Company{})
 
 	return paginationInfo, nil
 }
 
 func (r *companyRepository) GetByID(id uint) (*models.Company, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var company models.Company
 	conditions := map[string]interface{}{"id": id}

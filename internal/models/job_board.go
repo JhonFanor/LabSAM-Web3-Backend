@@ -16,5 +16,5 @@ type JobBoard struct {
 }
 
 func (JobBoard) TableName() string {
-	return "jobs_exchange"
+	return "jobs_board"
 }

@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type EducationalOfferRepository interface {
@@ -19,12 +20,14 @@ type EducationalOfferRepository interface {
 type educationalOfferRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewEducationalOfferRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) EducationalOfferRepository {
+func NewEducationalOfferRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) EducationalOfferRepository {
 	return &educationalOfferRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *educationalOfferRepository) Create(educationalOffer *models.Educational
 }
 
 func (r *educationalOfferRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.EducationalOffer{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.EducationalOffer{})
 
 	return paginationInfo, nil
 }
 
 func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var educationalOffer models.EducationalOffer
 	conditions := map[string]interface{}{"id": id}

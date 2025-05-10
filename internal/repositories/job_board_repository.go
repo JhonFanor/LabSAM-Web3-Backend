@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type JobBoardRepository interface {
@@ -19,12 +20,14 @@ type JobBoardRepository interface {
 type jobBoardRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewJobBoardRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) JobBoardRepository {
+func NewJobBoardRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) JobBoardRepository {
 	return &jobBoardRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *jobBoardRepository) Create(jobBoard *models.JobBoard) (*models.JobBoard
 }
 
 func (r *jobBoardRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.JobBoard{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.JobBoard{})
 
 	return paginationInfo, nil
 }
 
 func (r *jobBoardRepository) GetByID(id uint) (*models.JobBoard, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var jobBoard models.JobBoard
 	conditions := map[string]interface{}{"id": id}

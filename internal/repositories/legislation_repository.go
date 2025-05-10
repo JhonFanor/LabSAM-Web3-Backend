@@ -6,6 +6,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type LegislationRepository interface {
@@ -19,12 +20,14 @@ type LegislationRepository interface {
 type legislationRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewLegislationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) LegislationRepository {
+func NewLegislationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) LegislationRepository {
 	return &legislationRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
@@ -36,14 +39,13 @@ func (r *legislationRepository) Create(legislation *models.Legislation) (*models
 }
 
 func (r *legislationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	r.qm.DB = r.qm.DB.Preload("User")
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, &models.Legislation{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.Legislation{})
 
 	return paginationInfo, nil
 }
 
 func (r *legislationRepository) GetByID(id uint) (*models.Legislation, error) {
-	r.dbManager.DB = r.qm.DB.Preload("Subtopics").Preload("User")
+	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var legislation models.Legislation
 	conditions := map[string]interface{}{"id": id}

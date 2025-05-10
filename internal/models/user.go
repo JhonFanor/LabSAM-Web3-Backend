@@ -7,18 +7,18 @@ import (
 )
 
 type User struct {
-	ID             uint           `gorm:"primary_key;auto_increment" json:"id"`
-	Email          string         `gorm:"size:255;not null;unique" json:"email"`
-	Avatar         string         `gorm:"size:255;not null" json:"avatar"`
-	Password       string         `gorm:"size:255;not null" json:"-"`
-	RoleID         uint           `gorm:"not null" json:"-"`
-	Role           Role           `gorm:"foreignkey:RoleID" json:"-"`
-	Permissions    []Permission   `gorm:"many2many:permission_user;" json:"-"`
-	CreatedAt      time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt      time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	RegularUser    RegularUser    `gorm:"foreignkey:UserID" json:"-"`
-	UniversityUser UniversityUser `gorm:"foreignkey:UserID" json:"-"`
-	BusinessUser   BusinessUser   `gorm:"foreignkey:UserID" json:"-"`
+	ID             uint            `json:"id"`
+	Email          string          `json:"email"`
+	Avatar         string          `json:"avatar"`
+	Password       string          `json:"-"`
+	RoleID         uint            `json:"-"`
+	Role           Role            `gorm:"foreignkey:RoleID" json:"-"`
+	Permissions    []Permission    `gorm:"many2many:permission_user;" json:"-"`
+	CreatedAt      time.Time       `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt      time.Time       `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	RegularUser    *RegularUser    `gorm:"foreignkey:UserID" json:"regular_user,omitempty"`
+	UniversityUser *UniversityUser `gorm:"foreignkey:UserID" json:"university_user,omitempty"`
+	BusinessUser   *BusinessUser   `gorm:"foreignkey:UserID" json:"business_user,omitempty"`
 }
 
 func (u *User) VerifyPassword(password string) bool {
