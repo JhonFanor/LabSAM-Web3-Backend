@@ -32,7 +32,7 @@ func NewInvestigationRepository(dbManager *gormmanagers.DBManager, qm *gormmanag
 }
 
 func (r *investigationRepository) Create(investigation *models.Investigation) (*models.Investigation, error) {
-	if err := r.dbManager.Create(investigation); err != nil {
+	if err := r.dbManager.Create(investigation, r.db); err != nil {
 		return nil, err
 	}
 	return investigation, nil
@@ -45,21 +45,19 @@ func (r *investigationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, er
 }
 
 func (r *investigationRepository) GetByID(id uint) (*models.Investigation, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
-
 	var investigation models.Investigation
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&investigation, conditions); err != nil {
+	if err := r.dbManager.Find(&investigation, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &investigation, nil
 }
 
 func (r *investigationRepository) Update(investigation *models.Investigation, updates map[string]interface{}) error {
-	return r.dbManager.Update(investigation, updates)
+	return r.dbManager.Update(investigation, updates, r.db)
 }
 
 func (r *investigationRepository) Delete(id uint) error {
 	investigation := models.Investigation{ID: id}
-	return r.dbManager.Delete(&investigation)
+	return r.dbManager.Delete(&investigation, r.db)
 }

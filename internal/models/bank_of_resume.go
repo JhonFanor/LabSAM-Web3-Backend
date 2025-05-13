@@ -3,13 +3,15 @@ package models
 import "time"
 
 type BankOfResume struct {
-	ID          uint   `gorm:"primaryKey"`
-	Title       string `gorm:"size:255"`
-	Description string `gorm:"not null"`
-	Skills      string `gorm:"not null"`
-	Experience  string
-	Education   string
-	UserID      uint
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID         uint       `json:"id"`
+	Photo      string     `json:"photo"`
+	Title      string     `json:"title"`
+	Summary    string     `json:"summary"`
+	Link       string     `json:"link"`
+	IsApproved bool       `json:"is_approved,omitempty"`
+	UserID     uint       `json:"-"`
+	User       *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Subtopics  []Subtopic `gorm:"many2many:news_subtopic;" json:"subtopics,omitempty"`
+	CreatedAt  *time.Time `json:"created_at,omitempty"`
+	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }

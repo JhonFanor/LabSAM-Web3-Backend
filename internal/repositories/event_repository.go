@@ -32,7 +32,7 @@ func NewEventRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.Gorm
 }
 
 func (r *eventRepository) Create(event *models.Event) (*models.Event, error) {
-	if err := r.dbManager.Create(event); err != nil {
+	if err := r.dbManager.Create(event, r.db); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -45,21 +45,19 @@ func (r *eventRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 }
 
 func (r *eventRepository) GetByID(id uint) (*models.Event, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
-
 	var event models.Event
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&event, conditions); err != nil {
+	if err := r.dbManager.Find(&event, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &event, nil
 }
 
 func (r *eventRepository) Update(event *models.Event, updates map[string]interface{}) error {
-	return r.dbManager.Update(event, updates)
+	return r.dbManager.Update(event, updates, r.db)
 }
 
 func (r *eventRepository) Delete(id uint) error {
 	event := models.Event{ID: id}
-	return r.dbManager.Delete(&event)
+	return r.dbManager.Delete(&event, r.db)
 }

@@ -32,7 +32,7 @@ func NewDocumentationRepository(dbManager *gormmanagers.DBManager, qm *gormmanag
 }
 
 func (r *documentationRepository) Create(documentation *models.Documentation) (*models.Documentation, error) {
-	if err := r.dbManager.Create(documentation); err != nil {
+	if err := r.dbManager.Create(documentation, r.db); err != nil {
 		return nil, err
 	}
 	return documentation, nil
@@ -45,21 +45,20 @@ func (r *documentationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, er
 }
 
 func (r *documentationRepository) GetByID(id uint) (*models.Documentation, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var documentation models.Documentation
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&documentation, conditions); err != nil {
+	if err := r.dbManager.Find(&documentation, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &documentation, nil
 }
 
 func (r *documentationRepository) Update(documentation *models.Documentation, updates map[string]interface{}) error {
-	return r.dbManager.Update(documentation, updates)
+	return r.dbManager.Update(documentation, updates, r.db)
 }
 
 func (r *documentationRepository) Delete(id uint) error {
 	documentation := models.Documentation{ID: id}
-	return r.dbManager.Delete(&documentation)
+	return r.dbManager.Delete(&documentation, r.db)
 }

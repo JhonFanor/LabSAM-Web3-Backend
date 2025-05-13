@@ -46,7 +46,7 @@ func (s *companySubtopicService) CreateCompanySubtopic(companySubtopic *models.C
 }
 
 func (s *companySubtopicService) GetCompanySubtopicByID(companyID uint, subtopicID uint) (*models.CompanySubtopic, error) {
-	if s.db.CreateBatchSize == 0 || subtopicID == 0 {
+	if companyID == 0 || subtopicID == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
 	return s.repo.GetByID(companyID, subtopicID)

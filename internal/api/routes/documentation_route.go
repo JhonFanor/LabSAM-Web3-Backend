@@ -34,7 +34,7 @@ func NewDocumentationRoutes(p DocumentationRoutesParams) *DocumentationRoutes {
 }
 
 func (dr *DocumentationRoutes) Routes() {
-	documentation := dr.Router.Group("/documentation")
+	documentation := dr.Router.Group("/api/documentation")
 	{
 		documentation.POST("", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
 		documentation.GET("", dr.DocumentationController.GetAllDocumentations)

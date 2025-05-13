@@ -8,6 +8,7 @@ import (
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/services"
 	"lamsam-web3-backend/pkg/security"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -66,6 +67,7 @@ func (c *CompanyController) CreateCompany(ctx *gin.Context) {
 		}
 
 		company.LocalitationID = localitation.ID
+		log.Print(localitation.ID)
 	}
 
 	createdCompany, err := c.service.CreateCompany(&company, claims.UserID, companyRequest.SubtopicIDs)

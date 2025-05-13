@@ -32,7 +32,7 @@ func NewCompanyRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.Go
 }
 
 func (r *companyRepository) Create(company *models.Company) (*models.Company, error) {
-	if err := r.dbManager.Create(company); err != nil {
+	if err := r.dbManager.Create(company, r.db); err != nil {
 		return nil, err
 	}
 	return company, nil
@@ -45,21 +45,20 @@ func (r *companyRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 }
 
 func (r *companyRepository) GetByID(id uint) (*models.Company, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
 
 	var company models.Company
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&company, conditions); err != nil {
+	if err := r.dbManager.Find(&company, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &company, nil
 }
 
 func (r *companyRepository) Update(company *models.Company, updates map[string]interface{}) error {
-	return r.dbManager.Update(company, updates)
+	return r.dbManager.Update(company, updates, r.db)
 }
 
 func (r *companyRepository) Delete(id uint) error {
 	company := models.Company{ID: id}
-	return r.dbManager.Delete(&company)
+	return r.dbManager.Delete(&company, r.db)
 }

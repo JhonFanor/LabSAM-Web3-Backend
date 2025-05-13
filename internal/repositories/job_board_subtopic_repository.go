@@ -31,13 +31,13 @@ func (r *jobBoardSubtopicRepository) Create(jobBoardSubtopic *models.JobBoardSub
 
 func (r *jobBoardSubtopicRepository) GetByID(jobBoardID, subtopicID uint) (*models.JobBoardSubtopic, error) {
 	var jobBoardSubtopic models.JobBoardSubtopic
-	if err := r.db.Where("job_exchange_id = ? AND subtopic_id = ?", jobBoardID, subtopicID).First(&jobBoardSubtopic).Error; err != nil {
+	if err := r.db.Where("job_board_id = ? AND subtopic_id = ?", jobBoardID, subtopicID).First(&jobBoardSubtopic).Error; err != nil {
 		return nil, err
 	}
 	return &jobBoardSubtopic, nil
 }
 
 func (r *jobBoardSubtopicRepository) Delete(jobBoardID, subtopicID uint) error {
-	return r.db.Where("job_exchange_id = ? AND subtopic_id = ?", jobBoardID, subtopicID).
+	return r.db.Where("job_board_id = ? AND subtopic_id = ?", jobBoardID, subtopicID).
 		Delete(&models.JobBoardSubtopic{}).Error
 }

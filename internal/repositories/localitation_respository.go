@@ -3,6 +3,8 @@ package repositories
 import (
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/models"
+
+	"gorm.io/gorm"
 )
 
 type LocalitationRepository interface {
@@ -15,17 +17,19 @@ type LocalitationRepository interface {
 type localitationRepository struct {
 	dbManager *gormmanagers.DBManager
 	qm        *gormmanagers.GormQueryManager
+	db        *gorm.DB
 }
 
-func NewLocalitationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager) LocalitationRepository {
+func NewLocalitationRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQueryManager, db *gorm.DB) LocalitationRepository {
 	return &localitationRepository{
 		dbManager: dbManager,
 		qm:        qm,
+		db:        db,
 	}
 }
 
 func (r *localitationRepository) Create(localitation *models.Localitation) (*models.Localitation, error) {
-	if err := r.dbManager.Create(localitation); err != nil {
+	if err := r.dbManager.Create(localitation, r.db); err != nil {
 		return nil, err
 	}
 	return localitation, nil
@@ -39,7 +43,7 @@ func (r *localitationRepository) GetByFields(localitation *models.Localitation) 
 		"longitude": localitation.Longitude,
 	}
 
-	if err := r.dbManager.Find(&localitation, conditions); err != nil {
+	if err := r.dbManager.Find(&localitation, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return localitation, nil
@@ -51,7 +55,7 @@ func (r *localitationRepository) IsInUse(id uint) (bool, error) {
 
 	tables := []string{"events", "companies"}
 	for _, table := range tables {
-		err := r.dbManager.DB.Table(table).Where("localitation_id = ?", id).Count(&count).Error
+		err := r.db.Table(table).Where("localitation_id = ?", id).Count(&count).Error
 		if err != nil {
 			return false, err
 		}
@@ -72,7 +76,7 @@ func (r *localitationRepository) Delete(id uint) error {
 		return nil
 	}
 	localitation := models.Localitation{ID: id}
-	if err := r.dbManager.Delete(&localitation); err != nil {
+	if err := r.dbManager.Delete(&localitation, r.db); err != nil {
 		return err
 	}
 	return nil

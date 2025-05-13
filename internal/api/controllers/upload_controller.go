@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"lamsam-web3-backend/config"
 	"lamsam-web3-backend/internal/services"
 	"net/http"
 	"os"
@@ -15,15 +16,18 @@ import (
 type UploadControllerParams struct {
 	fx.In
 	NewsService services.NewsService
+	Nginx       *config.NginxConfig
 }
 
 type UploadController struct {
 	service services.NewsService
+	nginx   *config.NginxConfig
 }
 
 func NewUploadController(p UploadControllerParams) *UploadController {
 	return &UploadController{
 		service: p.NewsService,
+		nginx:   p.Nginx,
 	}
 }
 
@@ -64,6 +68,8 @@ func (n *UploadController) UploadFile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar archivo"})
 		return
 	}
+
+	fullPath = filepath.Join(n.nginx.NGINX_URL, fullPath)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Archivo subido con éxito", "path": fullPath})
 }

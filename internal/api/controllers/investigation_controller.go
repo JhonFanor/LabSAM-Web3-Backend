@@ -49,6 +49,8 @@ func (i *InvestigationController) CreateInvestigation(ctx *gin.Context) {
 		return
 	}
 
+	investigation.Date = investigationRequest.Date
+
 	createdInvestigation, err := i.service.CreateInvestigation(&investigation, claims.UserID, investigationRequest.SubtopicIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})

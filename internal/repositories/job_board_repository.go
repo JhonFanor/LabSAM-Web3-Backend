@@ -32,7 +32,7 @@ func NewJobBoardRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.G
 }
 
 func (r *jobBoardRepository) Create(jobBoard *models.JobBoard) (*models.JobBoard, error) {
-	if err := r.dbManager.Create(jobBoard); err != nil {
+	if err := r.dbManager.Create(jobBoard, r.db); err != nil {
 		return nil, err
 	}
 	return jobBoard, nil
@@ -45,21 +45,19 @@ func (r *jobBoardRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) 
 }
 
 func (r *jobBoardRepository) GetByID(id uint) (*models.JobBoard, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
-
 	var jobBoard models.JobBoard
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&jobBoard, conditions); err != nil {
+	if err := r.dbManager.Find(&jobBoard, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &jobBoard, nil
 }
 
 func (r *jobBoardRepository) Update(jobBoard *models.JobBoard, updates map[string]interface{}) error {
-	return r.dbManager.Update(jobBoard, updates)
+	return r.dbManager.Update(jobBoard, updates, r.db)
 }
 
 func (r *jobBoardRepository) Delete(id uint) error {
 	jobBoard := models.JobBoard{ID: id}
-	return r.dbManager.Delete(&jobBoard)
+	return r.dbManager.Delete(&jobBoard, r.db)
 }

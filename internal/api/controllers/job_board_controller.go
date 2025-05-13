@@ -58,8 +58,8 @@ func (j *JobBoardController) CreateJobBoard(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, createdJobBoard)
 }
 
-func (j *JobBoardController) GetAllJobsExchange(c *gin.Context) {
-	pagination, err := j.service.GetAllJobsExchange(c)
+func (j *JobBoardController) GetAllJobsBoard(c *gin.Context) {
+	pagination, err := j.service.GetAllJobsBoard(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
@@ -76,7 +76,7 @@ func (j *JobBoardController) GetJobBoardByID(c *gin.Context) {
 
 	jobBoard, err := j.service.GetJobBoardByID(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Exchange not found"})
+		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Board not found"})
 		return
 	}
 

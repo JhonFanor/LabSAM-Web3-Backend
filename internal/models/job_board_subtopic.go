@@ -6,5 +6,5 @@ type JobBoardSubtopic struct {
 }
 
 func (JobBoardSubtopic) TableName() string {
-	return "job_exchange_subtopic"
+	return "job_board_subtopic"
 }

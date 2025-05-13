@@ -44,6 +44,8 @@ func RoutesRegister(p RoutesRegisterParams) {
 	p.EducationalOfferSubtopic.Routes()
 	p.EventRoutes.Routes()
 	p.EventSubtopicRoutes.Routes()
+	p.InvestigationRoutes.Routes()
+	p.InvestigationSubtopicRoutes.Routes()
 	p.JobBoardRoutes.Routes()
 	p.JobBoardSubtopicRoutes.Routes()
 	p.LegislationRoutes.Routes()

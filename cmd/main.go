@@ -19,6 +19,7 @@ func main() {
 			provide.DatabaseProvide,
 			config.NewDatabaseConfig,
 			config.NewJwtConfig,
+			config.NewNginxConfig,
 			gormmanagers.NewDBManager,
 			gormmanagers.NewGormQueryManager,
 		),

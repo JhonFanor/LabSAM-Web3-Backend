@@ -3,14 +3,17 @@ package models
 import "time"
 
 type EducationalOffer struct {
-	ID          uint    `gorm:"primaryKey"`
-	Title       string  `gorm:"size:255;not null"`
-	Institution string  `gorm:"size:255;not null"`
-	Duration    string  `gorm:"size:100"`
-	Cost        float64 `gorm:"not null"`
-	Description string  `gorm:"not null"`
-	Website     string  `gorm:"size:500"`
-	UserID      uint
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          uint       `json:"id"`
+	Title       string     `json:"title"`
+	Institution string     `json:"institution"`
+	Duration    string     `json:"duration"`
+	Cost        float64    `json:"cost"`
+	Description string     `json:"description"`
+	Link        string     `json:"link"`
+	IsApproved  bool       `json:"is_approved,omitempty"`
+	UserID      uint       `json:"-"`
+	User        *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Subtopics   []Subtopic `gorm:"many2many:news_subtopic;" json:"subtopics,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }

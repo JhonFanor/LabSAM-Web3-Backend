@@ -32,7 +32,7 @@ func NewEducationalOfferRepository(dbManager *gormmanagers.DBManager, qm *gormma
 }
 
 func (r *educationalOfferRepository) Create(educationalOffer *models.EducationalOffer) (*models.EducationalOffer, error) {
-	if err := r.dbManager.Create(educationalOffer); err != nil {
+	if err := r.dbManager.Create(educationalOffer, r.db); err != nil {
 		return nil, err
 	}
 	return educationalOffer, nil
@@ -45,21 +45,19 @@ func (r *educationalOfferRepository) GetAll(c *gin.Context) (*dto.PaginationDTO,
 }
 
 func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
-
 	var educationalOffer models.EducationalOffer
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&educationalOffer, conditions); err != nil {
+	if err := r.dbManager.Find(&educationalOffer, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &educationalOffer, nil
 }
 
 func (r *educationalOfferRepository) Update(educationalOffer *models.EducationalOffer, updates map[string]interface{}) error {
-	return r.dbManager.Update(educationalOffer, updates)
+	return r.dbManager.Update(educationalOffer, updates, r.db)
 }
 
 func (r *educationalOfferRepository) Delete(id uint) error {
 	educationalOffer := models.EducationalOffer{ID: id}
-	return r.dbManager.Delete(&educationalOffer)
+	return r.dbManager.Delete(&educationalOffer, r.db)
 }

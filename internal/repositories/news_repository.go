@@ -4,7 +4,6 @@ import (
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -33,7 +32,7 @@ func NewNewsRepository(dbManager *gormmanagers.DBManager, qm *gormmanagers.GormQ
 }
 
 func (r *newsRepository) Create(news *models.News) (*models.News, error) {
-	if err := r.dbManager.Create(news); err != nil {
+	if err := r.dbManager.Create(news, r.db); err != nil {
 		return nil, err
 	}
 	return news, nil
@@ -41,26 +40,23 @@ func (r *newsRepository) Create(news *models.News) (*models.News, error) {
 
 func (r *newsRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.News{})
-	log.Print(paginationInfo.Data)
 	return paginationInfo, nil
 }
 
 func (r *newsRepository) GetByID(id uint) (*models.News, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")
-
 	var news models.News
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&news, conditions); err != nil {
+	if err := r.dbManager.Find(&news, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &news, nil
 }
 
 func (r *newsRepository) Update(news *models.News, updates map[string]interface{}) error {
-	return r.dbManager.Update(news, updates)
+	return r.dbManager.Update(news, updates, r.db)
 }
 
 func (r *newsRepository) Delete(id uint) error {
 	news := models.News{ID: id}
-	return r.dbManager.Delete(&news)
+	return r.dbManager.Delete(&news, r.db)
 }

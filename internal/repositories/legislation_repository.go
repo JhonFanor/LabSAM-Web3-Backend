@@ -32,7 +32,7 @@ func NewLegislationRepository(dbManager *gormmanagers.DBManager, qm *gormmanager
 }
 
 func (r *legislationRepository) Create(legislation *models.Legislation) (*models.Legislation, error) {
-	if err := r.dbManager.Create(legislation); err != nil {
+	if err := r.dbManager.Create(legislation, r.db); err != nil {
 		return nil, err
 	}
 	return legislation, nil
@@ -45,21 +45,19 @@ func (r *legislationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, erro
 }
 
 func (r *legislationRepository) GetByID(id uint) (*models.Legislation, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
-
 	var legislation models.Legislation
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&legislation, conditions); err != nil {
+	if err := r.dbManager.Find(&legislation, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &legislation, nil
 }
 
 func (r *legislationRepository) Update(legislation *models.Legislation, updates map[string]interface{}) error {
-	return r.dbManager.Update(legislation, updates)
+	return r.dbManager.Update(legislation, updates, r.db)
 }
 
 func (r *legislationRepository) Delete(id uint) error {
 	legislation := models.Legislation{ID: id}
-	return r.dbManager.Delete(&legislation)
+	return r.dbManager.Delete(&legislation, r.db)
 }

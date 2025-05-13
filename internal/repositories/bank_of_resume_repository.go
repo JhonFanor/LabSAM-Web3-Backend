@@ -32,7 +32,7 @@ func NewBankOfResumeRepository(dbManager *gormmanagers.DBManager, qm *gormmanage
 }
 
 func (r *bankOfResumeRepository) Create(bankOfResume *models.BankOfResume) (*models.BankOfResume, error) {
-	if err := r.dbManager.Create(bankOfResume); err != nil {
+	if err := r.dbManager.Create(bankOfResume, r.db); err != nil {
 		return nil, err
 	}
 	return bankOfResume, nil
@@ -45,21 +45,19 @@ func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, err
 }
 
 func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) {
-	r.dbManager.DB = r.dbManager.DB.Preload("Subtopics").Preload("User")
-
 	var bankOfResume models.BankOfResume
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&bankOfResume, conditions); err != nil {
+	if err := r.dbManager.Find(&bankOfResume, conditions, r.db); err != nil {
 		return nil, err
 	}
 	return &bankOfResume, nil
 }
 
 func (r *bankOfResumeRepository) Update(bankOfResume *models.BankOfResume, updates map[string]interface{}) error {
-	return r.dbManager.Update(bankOfResume, updates)
+	return r.dbManager.Update(bankOfResume, updates, r.db)
 }
 
 func (r *bankOfResumeRepository) Delete(id uint) error {
 	bankOfResume := models.BankOfResume{ID: id}
-	return r.dbManager.Delete(&bankOfResume)
+	return r.dbManager.Delete(&bankOfResume, r.db)
 }

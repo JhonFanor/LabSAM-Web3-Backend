@@ -34,10 +34,10 @@ func NewJobBoardRoutes(p JobBoardRoutesParams) *JobBoardRoutes {
 }
 
 func (jer *JobBoardRoutes) Routes() {
-	jobBoard := jer.Router.Group("/api/job-exchange")
+	jobBoard := jer.Router.Group("/api/job-board")
 	{
 		jobBoard.POST("", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.CreateJobBoard)
-		jobBoard.GET("", jer.JobBoardController.GetAllJobsExchange)
+		jobBoard.GET("", jer.JobBoardController.GetAllJobsBoard)
 		jobBoard.GET("/:id", jer.JobBoardController.GetJobBoardByID)
 		jobBoard.PUT("/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.UpdateJobBoard)
 		jobBoard.DELETE("/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.DeleteJobBoard)

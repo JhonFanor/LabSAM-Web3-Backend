@@ -12,7 +12,7 @@ import (
 
 type JobBoardService interface {
 	CreateJobBoard(jobBoard *models.JobBoard, userID uint, subtopicIDs []uint) (*models.JobBoard, error)
-	GetAllJobsExchange(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllJobsBoard(c *gin.Context) (*dto.PaginationDTO, error)
 	GetJobBoardByID(id uint) (*models.JobBoard, error)
 	UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error
 	DeleteJobBoard(id uint, userID uint, role string) error
@@ -57,7 +57,7 @@ func (s *jobBoardService) CreateJobBoard(jobBoard *models.JobBoard, userID uint,
 	return createdJobBoard, nil
 }
 
-func (s *jobBoardService) GetAllJobsExchange(c *gin.Context) (*dto.PaginationDTO, error) {
+func (s *jobBoardService) GetAllJobsBoard(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
 }
 
