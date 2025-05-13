@@ -3,7 +3,8 @@ package requests
 type EducationalOfferRequest struct {
 	Title       string  `json:"title" validate:"required"`
 	Institution string  `json:"institution" validate:"required"`
-	Duration    string  `json:"duration" validate:"required"`
+	StartDate   string  `json:"start_date" validate:"required"`
+	EndDate     string  `json:"end_date" validate:"required"`
 	Cost        float64 `json:"cost" validate:"required"`
 	Description string  `json:"description" validate:"required"`
 	Link        string  `json:"link" validate:"required"`
@@ -13,7 +14,8 @@ type EducationalOfferRequest struct {
 type EducationalUpdateOfferRequest struct {
 	Title       string  `json:"title"`
 	Institution string  `json:"institution"`
-	Duration    string  `json:"duration"`
+	StartDate   string  `json:"start_date"`
+	EndDate     string  `json:"end_date"`
 	Cost        float64 `json:"cost"`
 	Description string  `json:"description"`
 	Website     string  `json:"website"`

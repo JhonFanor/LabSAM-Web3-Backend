@@ -5,6 +5,7 @@ import "time"
 type Event struct {
 	ID             uint          `json:"id"`
 	Title          string        `json:"title"`
+	Image          string        `json:"image"`
 	Description    string        `json:"description"`
 	Link           string        `json:"link"`
 	Date           time.Time     `json:"date"`

@@ -3,8 +3,8 @@ package requests
 type CompanyRequest struct {
 	Name          string               `json:"name" validate:"required"`
 	Industry      string               `json:"industry" validate:"required"`
-	Website       string               `json:"website" validate:"required"`
-	Email         string               `json:"email" validate:"required"`
+	Website       string               `json:"website"`
+	Email         string               `json:"email"`
 	Localiatation *LocalitationRequest `json:"localitation"`
 	SubtopicIDs   []uint               `json:"subtopic_ids" validate:"required"`
 }

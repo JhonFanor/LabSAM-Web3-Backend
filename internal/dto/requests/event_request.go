@@ -4,6 +4,7 @@ import "time"
 
 type EventRequest struct {
 	Title         string               `json:"title" validate:"required"`
+	Image         string               `json:"image" validate:"required"`
 	Description   string               `json:"description" validate:"required"`
 	Link          string               `json:"link" validate:"required"`
 	Date          time.Time            `json:"date" validate:"required"`
@@ -13,6 +14,7 @@ type EventRequest struct {
 
 type EventUpdateRequest struct {
 	Title         string               `json:"title"`
+	Image         string               `json:"image"`
 	Description   string               `json:"description"`
 	Link          string               `json:"link"`
 	Date          time.Time            `json:"date"`
