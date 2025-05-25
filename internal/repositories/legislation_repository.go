@@ -39,7 +39,7 @@ func (r *legislationRepository) Create(legislation *models.Legislation) (*models
 }
 
 func (r *legislationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.Legislation{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.Legislation{})
 
 	return paginationInfo, nil
 }
@@ -47,7 +47,7 @@ func (r *legislationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, erro
 func (r *legislationRepository) GetByID(id uint) (*models.Legislation, error) {
 	var legislation models.Legislation
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&legislation, conditions, r.db); err != nil {
+	if err := r.dbManager.Find(&legislation, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &legislation, nil

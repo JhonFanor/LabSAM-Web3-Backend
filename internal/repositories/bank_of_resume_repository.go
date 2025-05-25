@@ -39,7 +39,7 @@ func (r *bankOfResumeRepository) Create(bankOfResume *models.BankOfResume) (*mod
 }
 
 func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.BankOfResume{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.BankOfResume{})
 
 	return paginationInfo, nil
 }
@@ -47,7 +47,7 @@ func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, err
 func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) {
 	var bankOfResume models.BankOfResume
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&bankOfResume, conditions, r.db); err != nil {
+	if err := r.dbManager.Find(&bankOfResume, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &bankOfResume, nil

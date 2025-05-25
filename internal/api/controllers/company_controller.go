@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -8,7 +9,6 @@ import (
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/services"
 	"lamsam-web3-backend/pkg/security"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -53,6 +53,8 @@ func (c *CompanyController) CreateCompany(ctx *gin.Context) {
 		return
 	}
 
+	company.LocalitationID = nil
+
 	if companyRequest.Localiatation != nil {
 		var localitationRequest models.Localitation
 		if err := mapstructure.Decode(companyRequest.Localiatation, &localitationRequest); err != nil {
@@ -66,8 +68,7 @@ func (c *CompanyController) CreateCompany(ctx *gin.Context) {
 			return
 		}
 
-		company.LocalitationID = localitation.ID
-		log.Print(localitation.ID)
+		company.LocalitationID = &localitation.ID
 	}
 
 	createdCompany, err := c.service.CreateCompany(&company, claims.UserID, companyRequest.SubtopicIDs)
@@ -85,6 +86,12 @@ func (c *CompanyController) GetAllCompanies(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.CompanyGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	context.JSON(http.StatusOK, pagination)
 }
 
@@ -101,7 +108,15 @@ func (c *CompanyController) GetCompanyByID(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, company)
+	var companyResponse responses.CompanyGetResponse
+	if err := mapstructure.Decode(company, &companyResponse); err != nil {
+		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	context.JSON(http.StatusOK, companyResponse)
 }
 
 func (c *CompanyController) UpdateCompany(context *gin.Context) {
@@ -136,7 +151,7 @@ func (c *CompanyController) UpdateCompany(context *gin.Context) {
 			return
 		}
 
-		company.LocalitationID = localitation.ID
+		company.LocalitationID = &localitation.ID
 	}
 
 	if err := c.service.UpdateCompany(&company, claims.UserID, claims.Role); err != nil {

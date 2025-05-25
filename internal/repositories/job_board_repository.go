@@ -39,7 +39,7 @@ func (r *jobBoardRepository) Create(jobBoard *models.JobBoard) (*models.JobBoard
 }
 
 func (r *jobBoardRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.JobBoard{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.JobBoard{})
 
 	return paginationInfo, nil
 }
@@ -47,7 +47,7 @@ func (r *jobBoardRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) 
 func (r *jobBoardRepository) GetByID(id uint) (*models.JobBoard, error) {
 	var jobBoard models.JobBoard
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&jobBoard, conditions, r.db); err != nil {
+	if err := r.dbManager.Find(&jobBoard, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &jobBoard, nil

@@ -12,7 +12,7 @@ type NewsGetAllResponse struct {
 	User  UserMinimalResponse `json:"user"`
 }
 
-type NewGetResponse struct {
+type NewsGetResponse struct {
 	ID          uint                      `json:"id"`
 	Title       string                    `json:"title"`
 	Description string                    `json:"description"`

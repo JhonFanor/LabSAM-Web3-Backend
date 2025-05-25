@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -64,6 +65,12 @@ func (l *LegislationController) GetAllLegislations(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.LegislationGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -80,7 +87,15 @@ func (l *LegislationController) GetLegislationByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, legislation)
+	var legislationResponse responses.LegislationGetResponse
+	if err := mapstructure.Decode(legislation, &legislationResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, legislationResponse)
 }
 
 func (l *LegislationController) UpdateLegislation(c *gin.Context) {

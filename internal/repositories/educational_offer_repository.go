@@ -39,7 +39,7 @@ func (r *educationalOfferRepository) Create(educationalOffer *models.Educational
 }
 
 func (r *educationalOfferRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
-	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Where("is_approved = ?", true), &models.EducationalOffer{})
+	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.EducationalOffer{})
 
 	return paginationInfo, nil
 }
@@ -47,7 +47,7 @@ func (r *educationalOfferRepository) GetAll(c *gin.Context) (*dto.PaginationDTO,
 func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer, error) {
 	var educationalOffer models.EducationalOffer
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&educationalOffer, conditions, r.db); err != nil {
+	if err := r.dbManager.Find(&educationalOffer, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true)); err != nil {
 		return nil, err
 	}
 	return &educationalOffer, nil

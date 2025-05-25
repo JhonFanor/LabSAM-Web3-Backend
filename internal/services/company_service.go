@@ -91,8 +91,8 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 
 	err = s.repo.Update(existing, updates)
 
-	if err == nil && company.LocalitationID != 0 && company.LocalitationID != existing.LocalitationID {
-		s.localitationService.DeleteLocalitation(existing.LocalitationID)
+	if err == nil && company.LocalitationID != nil && existing.LocalitationID != nil && *company.LocalitationID != *existing.LocalitationID {
+		s.localitationService.DeleteLocalitation(*existing.LocalitationID)
 	}
 
 	return err

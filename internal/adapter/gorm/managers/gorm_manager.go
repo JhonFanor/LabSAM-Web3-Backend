@@ -30,7 +30,7 @@ func (m *DBManager) Find(model interface{}, conditions map[string]interface{}, d
 	if err := db.Where(conditions).First(model).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			m.Logger.LogWarn("Record not found", conditions)
-			return nil
+			return err
 		}
 		m.Logger.LogError("Error finding record", err)
 		return err

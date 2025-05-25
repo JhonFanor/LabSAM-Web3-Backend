@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -64,6 +65,12 @@ func (j *JobBoardController) GetAllJobsBoard(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.JobBoardGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -80,7 +87,15 @@ func (j *JobBoardController) GetJobBoardByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, jobBoard)
+	var jobBoardResponse responses.JobBoardGetResponse
+	if err := mapstructure.Decode(jobBoard, &jobBoardResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, jobBoardResponse)
 }
 
 func (j *JobBoardController) UpdateJobBoard(c *gin.Context) {

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -66,6 +67,12 @@ func (i *InvestigationController) GetAllInvestigations(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.InvestigationGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -82,7 +89,15 @@ func (i *InvestigationController) GetInvestigationByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, investigation)
+	var investigationResponse responses.InvestigationGetResponse
+	if err := mapstructure.Decode(investigation, &investigationResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, investigationResponse)
 }
 
 func (i *InvestigationController) UpdateInvestigation(c *gin.Context) {

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -52,6 +53,8 @@ func (e *EventController) CreateEvent(ctx *gin.Context) {
 		return
 	}
 
+	event.Date = eventRequest.Date
+
 	if eventRequest.Localiatation != nil {
 		var localitationRequest models.Localitation
 		if err := mapstructure.Decode(eventRequest.Localiatation, &localitationRequest); err != nil {
@@ -83,6 +86,12 @@ func (e *EventController) GetAllEvents(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.EventGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -99,7 +108,15 @@ func (e *EventController) GetEventByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, event)
+	var eventResponse responses.EventGetResponse
+	if err := mapstructure.Decode(event, &eventResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, eventResponse)
 }
 
 func (e *EventController) UpdateEvent(c *gin.Context) {

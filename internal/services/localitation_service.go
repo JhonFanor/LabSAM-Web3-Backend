@@ -29,6 +29,7 @@ func NewLocalitationService(repo repositories.LocalitationRepository) Localitati
 func (s *localitationService) AssignLocalitation(localitation *models.Localitation) (*models.Localitation, error) {
 	found, err := s.GetLocalitationByFields(localitation)
 	if err == nil {
+		print("entro aquiiiii------------------------------1", found, "este es el error")
 		return found, nil
 	}
 

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -49,6 +50,9 @@ func (e *EducationalOfferController) CreateEducationalOffer(ctx *gin.Context) {
 		return
 	}
 
+	educationalOffer.StartDate = educationalOfferRequest.StartDate
+	educationalOffer.EndDate = educationalOfferRequest.EndDate
+
 	createdEducationalOffer, err := e.service.CreateEducationalOffer(&educationalOffer, claims.UserID, educationalOfferRequest.SubtopicIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
@@ -64,6 +68,12 @@ func (e *EducationalOfferController) GetAllEducationalOffers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.EducationalOfferGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -80,7 +90,15 @@ func (e *EducationalOfferController) GetEducationalOfferByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, educationalOffer)
+	var educationalOfferResponse responses.EducationalOfferGetResponse
+	if err := mapstructure.Decode(educationalOffer, &educationalOfferResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, educationalOfferResponse)
 }
 
 func (e *EducationalOfferController) UpdateEducationalOffer(c *gin.Context) {

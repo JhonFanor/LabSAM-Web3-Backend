@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -64,6 +65,12 @@ func (d *DocumentationController) GetAllDocumentations(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.DocumentationGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
 	c.JSON(http.StatusOK, pagination)
 }
 
@@ -80,7 +87,15 @@ func (d *DocumentationController) GetDocumentationByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, documentation)
+	var documentationResponse responses.DocumentationGetResponse
+	if err := mapstructure.Decode(documentation, &documentationResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, documentationResponse)
 }
 
 func (d *DocumentationController) UpdateDocumentation(c *gin.Context) {

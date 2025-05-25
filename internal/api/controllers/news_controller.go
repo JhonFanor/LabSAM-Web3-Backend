@@ -66,9 +66,9 @@ func (n *NewsController) GetAllNews(c *gin.Context) {
 	}
 
 	jsonData, _ := json.Marshal(pagination.Data)
-	var newsList []responses.NewsGetAllResponse
-	_ = json.Unmarshal(jsonData, &newsList)
-	pagination.Data = newsList
+	var list []responses.NewsGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
 
 	c.JSON(http.StatusOK, pagination)
 }
@@ -86,7 +86,7 @@ func (n *NewsController) GetNewsByID(c *gin.Context) {
 		return
 	}
 
-	var newsResponse responses.NewGetResponse
+	var newsResponse responses.NewsGetResponse
 	if err := mapstructure.Decode(news, &newsResponse); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
 			Error: consts.ErrorMapConst,
