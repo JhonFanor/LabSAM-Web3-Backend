@@ -8,11 +8,11 @@ type BankOfResumeGetAllResponse struct {
 }
 
 type BankOfResumeGetResponse struct {
-	ID        uint                      `json:"id,omitempty"`
+	ID        uint                      `json:"id"`
 	Photo     string                    `json:"photo"`
 	Title     string                    `json:"title"`
 	Summary   string                    `json:"summary"`
 	Link      string                    `json:"link"`
-	User      UserMinimalResponse       `json:"user,omitempty"`
-	Subtopics []SubtopicMinimalResponse `json:"subtopics,omitempty"`
+	User      UserMinimalResponse       `json:"user"`
+	Subtopics []SubtopicMinimalResponse `json:"subtopics"`
 }

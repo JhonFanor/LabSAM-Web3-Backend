@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,6 @@ func NewUploadController(p UploadControllerParams) *UploadController {
 }
 
 func (n *UploadController) UploadFile(c *gin.Context) {
-
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Archivo no encontrado"})
@@ -55,13 +55,15 @@ func (n *UploadController) UploadFile(c *gin.Context) {
 		}
 	}
 
-	fullPath := filepath.Join(uploadPath, file.Filename)
+	filename := file.Filename
+	fullPath := filepath.Join(uploadPath, filename)
 
 	if _, err := os.Stat(fullPath); err == nil {
-		ext := filepath.Ext(file.Filename)
-		base := file.Filename[:len(file.Filename)-len(ext)]
+		ext := filepath.Ext(filename)
+		base := filename[:len(filename)-len(ext)]
 		newFilename := fmt.Sprintf("%s_%d%s", base, time.Now().Unix(), ext)
 		fullPath = filepath.Join(uploadPath, newFilename)
+		filename = newFilename
 	}
 
 	if err := c.SaveUploadedFile(file, fullPath); err != nil {
@@ -69,9 +71,12 @@ func (n *UploadController) UploadFile(c *gin.Context) {
 		return
 	}
 
-	fullPath = filepath.Join(n.nginx.NGINX_URL, fullPath)
+	publicURL := fmt.Sprintf("%s/uploads/%s/%s", strings.TrimRight(n.nginx.NGINX_URL, "/"), folder, filename)
 
-	c.JSON(http.StatusOK, gin.H{"message": "Archivo subido con éxito", "path": fullPath})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Archivo subido con éxito",
+		"path":    publicURL,
+	})
 }
 
 func (n *UploadController) DeleteFile(c *gin.Context) {

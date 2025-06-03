@@ -1,5 +1,3 @@
-version: "3.8"  # asegúrate de usar al menos 3.4 para 'condition: service_healthy'
-
 services:
   app:
     build:
