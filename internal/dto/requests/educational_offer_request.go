@@ -5,7 +5,7 @@ type EducationalOfferRequest struct {
 	Institution string  `json:"institution" validate:"required"`
 	StartDate   string  `json:"start_date" validate:"required"`
 	EndDate     string  `json:"end_date" validate:"required"`
-	Cost        float64 `json:"cost" validate:"required"`
+	Cost        float64 `json:"cost"`
 	Description string  `json:"description" validate:"required"`
 	Link        string  `json:"link" validate:"required"`
 	SubtopicIDs []uint  `json:"subtopic_ids" validate:"required"`
