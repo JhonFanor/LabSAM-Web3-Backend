@@ -71,7 +71,7 @@ func (s *bankOfResumeService) GetBankOfResumeByID(id uint, userID uint, role str
 		return nil, err
 	}
 
-	if bank.IsApproved {
+	if bank.IsApproved != nil && *bank.IsApproved {
 		return bank, nil
 	}
 
@@ -95,6 +95,8 @@ func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResu
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	bankOfResume.IsApproved = nil
 
 	updates := utils.StructToMap(bankOfResume)
 	if len(updates) == 0 {

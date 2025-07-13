@@ -71,7 +71,7 @@ func (s *investigationService) GetInvestigationByID(id uint, userID uint, role s
 		return nil, err
 	}
 
-	if investigation.IsApproved {
+	if investigation.IsApproved != nil && *investigation.IsApproved {
 		return investigation, nil
 	}
 
@@ -95,6 +95,8 @@ func (s *investigationService) UpdateInvestigation(investigation *models.Investi
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	investigation.IsApproved = nil
 
 	updates := utils.StructToMap(investigation)
 	if len(updates) == 0 {

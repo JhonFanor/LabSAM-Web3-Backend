@@ -71,7 +71,7 @@ func (s *jobBoardService) GetJobBoardByID(id uint, userID uint, role string) (*m
 		return nil, err
 	}
 
-	if existing.IsApproved {
+	if existing.IsApproved != nil && *existing.IsApproved {
 		return existing, nil
 	}
 
@@ -95,6 +95,8 @@ func (s *jobBoardService) UpdateJobBoard(jobBoard *models.JobBoard, userID uint,
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	jobBoard.IsApproved = nil
 
 	updates := utils.StructToMap(jobBoard)
 	if len(updates) == 0 {

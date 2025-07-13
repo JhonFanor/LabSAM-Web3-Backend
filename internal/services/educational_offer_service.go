@@ -71,7 +71,7 @@ func (s *educationalOfferService) GetEducationalOfferByID(id uint, userID uint, 
 		return nil, err
 	}
 
-	if educationalOffer.IsApproved {
+	if educationalOffer.IsApproved != nil && *educationalOffer.IsApproved {
 		return educationalOffer, nil
 	}
 
@@ -95,6 +95,8 @@ func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *model
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	educationalOffer.IsApproved = nil
 
 	updates := utils.StructToMap(educationalOffer)
 	if len(updates) == 0 {

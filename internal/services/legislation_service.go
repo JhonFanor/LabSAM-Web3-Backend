@@ -71,7 +71,7 @@ func (s *legislationService) GetLegislationByID(id uint, userID uint, role strin
 		return nil, err
 	}
 
-	if legislation.IsApproved {
+	if legislation.IsApproved != nil && *legislation.IsApproved {
 		return legislation, nil
 	}
 
@@ -95,6 +95,8 @@ func (s *legislationService) UpdateLegislation(legislation *models.Legislation, 
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	legislation.IsApproved = nil
 
 	updates := utils.StructToMap(legislation)
 	if len(updates) == 0 {

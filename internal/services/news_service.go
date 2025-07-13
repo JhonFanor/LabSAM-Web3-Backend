@@ -71,7 +71,7 @@ func (s *newsService) GetNewsByID(id uint, userID uint, role string) (*models.Ne
 		return nil, err
 	}
 
-	if news.IsApproved {
+	if news.IsApproved != nil && *news.IsApproved {
 		return news, nil
 	}
 
@@ -95,6 +95,8 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	news.IsApproved = nil
 
 	updates := utils.StructToMap(news)
 	if len(updates) == 0 {

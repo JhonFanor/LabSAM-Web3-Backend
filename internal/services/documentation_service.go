@@ -70,7 +70,7 @@ func (s *documentationService) GetDocumentationByID(id uint, userID uint, role s
 		return nil, err
 	}
 
-	if documentation.IsApproved {
+	if documentation.IsApproved != nil && *documentation.IsApproved {
 		return documentation, nil
 	}
 
@@ -94,6 +94,8 @@ func (s *documentationService) UpdateDocumentation(documentation *models.Documen
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	documentation.IsApproved = nil
 
 	updates := utils.StructToMap(documentation)
 	if len(updates) == 0 {

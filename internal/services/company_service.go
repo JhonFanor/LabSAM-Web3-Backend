@@ -73,7 +73,7 @@ func (s *companyService) GetCompanyByID(id uint, userID uint, role string) (*mod
 		return nil, err
 	}
 
-	if company.IsApproved {
+	if company.IsApproved != nil && *company.IsApproved {
 		return company, nil
 	}
 
@@ -93,6 +93,8 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 	if err != nil {
 		return err
 	}
+
+	company.IsApproved = nil
 
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized

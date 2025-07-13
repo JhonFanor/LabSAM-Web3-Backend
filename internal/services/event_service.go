@@ -72,7 +72,7 @@ func (s *eventService) GetEventByID(id uint, userID uint, role string) (*models.
 		return nil, err
 	}
 
-	if event.IsApproved {
+	if event.IsApproved != nil && *event.IsApproved {
 		return event, nil
 	}
 
@@ -96,6 +96,8 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 	if existing.UserID != userID && role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
+
+	event.IsApproved = nil
 
 	updates := utils.StructToMap(event)
 	if len(updates) == 0 {

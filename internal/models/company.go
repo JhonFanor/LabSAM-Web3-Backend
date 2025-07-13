@@ -8,7 +8,7 @@ type Company struct {
 	Industry       string        `json:"industry"`
 	Website        string        `json:"website"`
 	Email          string        `json:"email"`
-	IsApproved     bool          `json:"is_approved,omitempty"`
+	IsApproved     *bool         `json:"is_approved,omitempty"`
 	UserID         uint          `json:"-"`
 	LocalitationID *uint         `json:"-"`
 	User           *User         `gorm:"foreignKey:UserID" json:"user,omitempty"`
