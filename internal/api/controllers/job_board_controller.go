@@ -81,7 +81,10 @@ func (j *JobBoardController) GetJobBoardByID(c *gin.Context) {
 		return
 	}
 
-	jobBoard, err := j.service.GetJobBoardByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	jobBoard, err := j.service.GetJobBoardByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Board not found"})
 		return

@@ -68,7 +68,7 @@ func (e *EventController) CreateEvent(ctx *gin.Context) {
 			return
 		}
 
-		event.LocalitationID = localitation.ID
+		event.LocalitationID = &localitation.ID
 	}
 
 	createdEvent, err := e.service.CreateEvent(&event, claims.UserID, eventRequest.SubtopicIDs)
@@ -102,7 +102,10 @@ func (e *EventController) GetEventByID(c *gin.Context) {
 		return
 	}
 
-	event, err := e.service.GetEventByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	event, err := e.service.GetEventByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Event not found"})
 		return
@@ -151,7 +154,7 @@ func (e *EventController) UpdateEvent(c *gin.Context) {
 			return
 		}
 
-		event.LocalitationID = localitation.ID
+		event.LocalitationID = &localitation.ID
 	}
 
 	if err := e.service.UpdateEvent(&event, claims.UserID, claims.Role); err != nil {

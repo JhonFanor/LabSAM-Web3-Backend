@@ -38,7 +38,7 @@ func (eor *EducationalOfferRoutes) Routes() {
 	{
 		educationalOffer.POST("", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
 		educationalOffer.GET("", eor.EducationalOfferController.GetAllEducationalOffers)
-		educationalOffer.GET("/:id", eor.EducationalOfferController.GetEducationalOfferByID)
+		educationalOffer.GET("/:id", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetEducationalOfferByID)
 		educationalOffer.PUT("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.UpdateEducationalOffer)
 		educationalOffer.DELETE("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.DeleteEducationalOffer)
 	}

@@ -81,7 +81,10 @@ func (l *LegislationController) GetLegislationByID(c *gin.Context) {
 		return
 	}
 
-	legislation, err := l.service.GetLegislationByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	legislation, err := l.service.GetLegislationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Legislation not found"})
 		return

@@ -13,7 +13,7 @@ import (
 type NewsService interface {
 	CreateNews(news *models.News, userID uint, subtopicIDs []uint) (*models.News, error)
 	GetAllNews(c *gin.Context) (*dto.PaginationDTO, error)
-	GetNewsByID(id uint) (*models.News, error)
+	GetNewsByID(id uint, userID uint, role string) (*models.News, error)
 	UpdateNews(news *models.News, userID uint, role string) error
 	DeleteNews(id uint, userID uint, role string) error
 }
@@ -61,11 +61,25 @@ func (s *newsService) GetAllNews(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
 }
 
-func (s *newsService) GetNewsByID(id uint) (*models.News, error) {
+func (s *newsService) GetNewsByID(id uint, userID uint, role string) (*models.News, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	news, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if news.IsApproved {
+		return news, nil
+	}
+
+	if news.UserID != userID && role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *newsService) UpdateNews(news *models.News, userID uint, role string) error {
@@ -73,7 +87,7 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetNewsByID(news.ID)
+	existing, err := s.GetNewsByID(news.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -95,7 +109,7 @@ func (s *newsService) DeleteNews(id uint, userID uint, role string) error {
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetNewsByID(id)
+	existing, err := s.GetNewsByID(id, userID, role)
 	if err != nil {
 		return err
 	}

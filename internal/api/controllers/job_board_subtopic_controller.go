@@ -45,7 +45,7 @@ func (j *JobBoardSubtopicController) CreateJobBoardSubtopic(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	jobBoard, err := j.jobBoardService.GetJobBoardByID(uint(id))
+	jobBoard, err := j.jobBoardService.GetJobBoardByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Exchange not found"})
 		return
@@ -85,7 +85,7 @@ func (j *JobBoardSubtopicController) DeleteJobBoardSubtopic(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	jobBoard, err := j.jobBoardService.GetJobBoardByID(uint(id))
+	jobBoard, err := j.jobBoardService.GetJobBoardByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Job Exchange not found"})
 		return

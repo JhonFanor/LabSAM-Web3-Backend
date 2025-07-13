@@ -13,7 +13,7 @@ import (
 type BankOfResumeService interface {
 	CreateBankOfResume(bankOfResume *models.BankOfResume, userID uint, subtopicIDs []uint) (*models.BankOfResume, error)
 	GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error)
-	GetBankOfResumeByID(id uint) (*models.BankOfResume, error)
+	GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error)
 	UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error
 	DeleteBankOfResume(id uint, userId uint, role string) error
 }
@@ -61,11 +61,25 @@ func (s *bankOfResumeService) GetAllBankOfResumes(c *gin.Context) (*dto.Paginati
 	return s.repo.GetAll(c)
 }
 
-func (s *bankOfResumeService) GetBankOfResumeByID(id uint) (*models.BankOfResume, error) {
+func (s *bankOfResumeService) GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	bank, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if bank.IsApproved {
+		return bank, nil
+	}
+
+	if userID == bank.UserID || role == "admin" {
+		return bank, nil
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error {
@@ -73,7 +87,7 @@ func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResu
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetBankOfResumeByID(bankOfResume.ID)
+	existing, err := s.GetBankOfResumeByID(bankOfResume.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -95,7 +109,7 @@ func (s *bankOfResumeService) DeleteBankOfResume(id uint, userID uint, role stri
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetBankOfResumeByID(id)
+	existing, err := s.GetBankOfResumeByID(id, userID, role)
 	if err != nil {
 		return err
 	}

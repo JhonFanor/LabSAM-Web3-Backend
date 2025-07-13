@@ -80,7 +80,10 @@ func (n *NewsController) GetNewsByID(c *gin.Context) {
 		return
 	}
 
-	news, err := n.service.GetNewsByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	news, err := n.service.GetNewsByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "News not found"})
 		return

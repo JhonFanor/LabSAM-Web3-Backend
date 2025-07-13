@@ -84,7 +84,10 @@ func (e *EducationalOfferController) GetEducationalOfferByID(c *gin.Context) {
 		return
 	}
 
-	educationalOffer, err := e.service.GetEducationalOfferByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	educationalOffer, err := e.service.GetEducationalOfferByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Educational Offer not found"})
 		return

@@ -13,7 +13,7 @@ import (
 type JobBoardService interface {
 	CreateJobBoard(jobBoard *models.JobBoard, userID uint, subtopicIDs []uint) (*models.JobBoard, error)
 	GetAllJobsBoard(c *gin.Context) (*dto.PaginationDTO, error)
-	GetJobBoardByID(id uint) (*models.JobBoard, error)
+	GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error)
 	UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error
 	DeleteJobBoard(id uint, userID uint, role string) error
 }
@@ -61,11 +61,25 @@ func (s *jobBoardService) GetAllJobsBoard(c *gin.Context) (*dto.PaginationDTO, e
 	return s.repo.GetAll(c)
 }
 
-func (s *jobBoardService) GetJobBoardByID(id uint) (*models.JobBoard, error) {
+func (s *jobBoardService) GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if existing.IsApproved {
+		return existing, nil
+	}
+
+	if existing.UserID == userID || role == "admin" {
+		return existing, nil
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *jobBoardService) UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error {
@@ -73,7 +87,7 @@ func (s *jobBoardService) UpdateJobBoard(jobBoard *models.JobBoard, userID uint,
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetJobBoardByID(jobBoard.ID)
+	existing, err := s.GetJobBoardByID(jobBoard.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -95,7 +109,7 @@ func (s *jobBoardService) DeleteJobBoard(id uint, userID uint, role string) erro
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetJobBoardByID(id)
+	existing, err := s.GetJobBoardByID(id, userID, role)
 	if err != nil {
 		return err
 	}

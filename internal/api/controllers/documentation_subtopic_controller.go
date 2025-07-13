@@ -45,7 +45,7 @@ func (d *DocumentationSubtopicController) CreateDocumentationSubtopic(c *gin.Con
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	documentation, err := d.documentationService.GetDocumentationByID(uint(id))
+	documentation, err := d.documentationService.GetDocumentationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Documentation not found"})
 		return
@@ -85,7 +85,7 @@ func (d *DocumentationSubtopicController) DeleteDocumentationSubtopic(c *gin.Con
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	documentation, err := d.documentationService.GetDocumentationByID(uint(id))
+	documentation, err := d.documentationService.GetDocumentationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Documentation not found"})
 		return

@@ -45,7 +45,7 @@ func (n *NewsSubtopicController) CreateNewsSubtopic(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	news, err := n.newsService.GetNewsByID(uint(id))
+	news, err := n.newsService.GetNewsByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "News not found"})
 		return
@@ -85,7 +85,7 @@ func (n *NewsSubtopicController) DeleteNewsSubtopic(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	news, err := n.newsService.GetNewsByID(uint(id))
+	news, err := n.newsService.GetNewsByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "News not found"})
 		return

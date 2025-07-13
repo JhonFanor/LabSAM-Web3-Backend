@@ -45,7 +45,7 @@ func (i *InvestigationSubtopicController) CreateInvestigationSubtopic(c *gin.Con
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	investigation, err := i.investigationService.GetInvestigationByID(uint(id))
+	investigation, err := i.investigationService.GetInvestigationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Investigation not found"})
 		return
@@ -85,7 +85,7 @@ func (i *InvestigationSubtopicController) DeleteInvestigationSubtopic(c *gin.Con
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	investigation, err := i.investigationService.GetInvestigationByID(uint(id))
+	investigation, err := i.investigationService.GetInvestigationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Investigation not found"})
 		return

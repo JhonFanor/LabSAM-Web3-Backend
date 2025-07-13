@@ -13,7 +13,7 @@ import (
 type DocumentationService interface {
 	CreateDocumentation(documentation *models.Documentation, userID uint, subtopicIDs []uint) (*models.Documentation, error)
 	GetAllDocumentations(c *gin.Context) (*dto.PaginationDTO, error)
-	GetDocumentationByID(id uint) (*models.Documentation, error)
+	GetDocumentationByID(id uint, userID uint, role string) (*models.Documentation, error)
 	UpdateDocumentation(documentation *models.Documentation, userID uint, role string) error
 	DeleteDocumentation(id uint, userID uint, role string) error
 }
@@ -60,11 +60,25 @@ func (s *documentationService) GetAllDocumentations(c *gin.Context) (*dto.Pagina
 	return s.repo.GetAll(c)
 }
 
-func (s *documentationService) GetDocumentationByID(id uint) (*models.Documentation, error) {
+func (s *documentationService) GetDocumentationByID(id uint, userID uint, role string) (*models.Documentation, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	documentation, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if documentation.IsApproved {
+		return documentation, nil
+	}
+
+	if documentation.UserID != userID && role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+
+	return nil, customerrors.ErrInvalidID
 }
 
 func (s *documentationService) UpdateDocumentation(documentation *models.Documentation, userID uint, role string) error {
@@ -72,7 +86,7 @@ func (s *documentationService) UpdateDocumentation(documentation *models.Documen
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetDocumentationByID(documentation.ID)
+	existing, err := s.GetDocumentationByID(documentation.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -94,7 +108,7 @@ func (s *documentationService) DeleteDocumentation(id uint, userID uint, role st
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetDocumentationByID(id)
+	existing, err := s.GetDocumentationByID(id, userID, role)
 	if err != nil {
 		return err
 	}

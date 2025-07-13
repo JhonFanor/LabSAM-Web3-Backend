@@ -13,7 +13,7 @@ import (
 type LegislationService interface {
 	CreateLegislation(legislation *models.Legislation, userID uint, subtopicIDs []uint) (*models.Legislation, error)
 	GetAllLegislations(c *gin.Context) (*dto.PaginationDTO, error)
-	GetLegislationByID(id uint) (*models.Legislation, error)
+	GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error)
 	UpdateLegislation(legislation *models.Legislation, userID uint, role string) error
 	DeleteLegislation(id uint, userID uint, role string) error
 }
@@ -61,11 +61,25 @@ func (s *legislationService) GetAllLegislations(c *gin.Context) (*dto.Pagination
 	return s.repo.GetAll(c)
 }
 
-func (s *legislationService) GetLegislationByID(id uint) (*models.Legislation, error) {
+func (s *legislationService) GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	legislation, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if legislation.IsApproved {
+		return legislation, nil
+	}
+
+	if userID == legislation.UserID || role == "admin" {
+		return legislation, nil
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *legislationService) UpdateLegislation(legislation *models.Legislation, userID uint, role string) error {
@@ -73,7 +87,7 @@ func (s *legislationService) UpdateLegislation(legislation *models.Legislation, 
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetLegislationByID(legislation.ID)
+	existing, err := s.GetLegislationByID(legislation.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -95,7 +109,7 @@ func (s *legislationService) DeleteLegislation(id uint, userID uint, role string
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetLegislationByID(id)
+	existing, err := s.GetLegislationByID(id, userID, role)
 	if err != nil {
 		return err
 	}

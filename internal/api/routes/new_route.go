@@ -38,7 +38,7 @@ func (nr *NewsRoutes) Routes() {
 	{
 		news.POST("", nr.ValidatorMiddleware.ValidateInput(&requests.NewsRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.CreateNews)
 		news.GET("", nr.NewsController.GetAllNews)
-		news.GET("/:id", nr.NewsController.GetNewsByID)
+		news.GET("/:id", nr.TokenMiddleware.ValidateToken(), nr.NewsController.GetNewsByID)
 		news.PUT("/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsUpdateRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.UpdateNews)
 		news.DELETE("/:id", nr.TokenMiddleware.ValidateToken(), nr.NewsController.DeleteNews)
 	}

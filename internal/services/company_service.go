@@ -13,7 +13,7 @@ import (
 type CompanyService interface {
 	CreateCompany(company *models.Company, userID uint, subtopicIDs []uint) (*models.Company, error)
 	GetAllCompanies(c *gin.Context) (*dto.PaginationDTO, error)
-	GetCompanyByID(id uint) (*models.Company, error)
+	GetCompanyByID(id uint, userID uint, role string) (*models.Company, error)
 	UpdateCompany(company *models.Company, userID uint, role string) error
 	DeleteCompany(id uint, userID uint, role string) error
 }
@@ -63,11 +63,25 @@ func (s *companyService) GetAllCompanies(c *gin.Context) (*dto.PaginationDTO, er
 	return s.repo.GetAll(c)
 }
 
-func (s *companyService) GetCompanyByID(id uint) (*models.Company, error) {
+func (s *companyService) GetCompanyByID(id uint, userID uint, role string) (*models.Company, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	company, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if company.IsApproved {
+		return company, nil
+	}
+
+	if company.UserID != userID && role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *companyService) UpdateCompany(company *models.Company, userID uint, role string) error {
@@ -75,7 +89,7 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetCompanyByID(company.ID)
+	existing, err := s.GetCompanyByID(company.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -103,7 +117,7 @@ func (s *companyService) DeleteCompany(id uint, userID uint, role string) error 
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetCompanyByID(id)
+	existing, err := s.GetCompanyByID(id, userID, role)
 	if err != nil {
 		return err
 	}

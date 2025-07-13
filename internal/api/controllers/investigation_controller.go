@@ -83,7 +83,10 @@ func (i *InvestigationController) GetInvestigationByID(c *gin.Context) {
 		return
 	}
 
-	investigation, err := i.service.GetInvestigationByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	investigation, err := i.service.GetInvestigationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Investigation not found"})
 		return

@@ -13,7 +13,7 @@ import (
 type InvestigationService interface {
 	CreateInvestigation(investigation *models.Investigation, userID uint, subtopicIDs []uint) (*models.Investigation, error)
 	GetAllInvestigations(c *gin.Context) (*dto.PaginationDTO, error)
-	GetInvestigationByID(id uint) (*models.Investigation, error)
+	GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error)
 	UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error
 	DeleteInvestigation(id uint, userID uint, role string) error
 }
@@ -61,11 +61,25 @@ func (s *investigationService) GetAllInvestigations(c *gin.Context) (*dto.Pagina
 	return s.repo.GetAll(c)
 }
 
-func (s *investigationService) GetInvestigationByID(id uint) (*models.Investigation, error) {
+func (s *investigationService) GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	investigation, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if investigation.IsApproved {
+		return investigation, nil
+	}
+
+	if userID == investigation.UserID || role == "admin" {
+		return investigation, nil
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *investigationService) UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error {
@@ -73,7 +87,7 @@ func (s *investigationService) UpdateInvestigation(investigation *models.Investi
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetInvestigationByID(investigation.ID)
+	existing, err := s.GetInvestigationByID(investigation.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -95,7 +109,7 @@ func (s *investigationService) DeleteInvestigation(id uint, userID uint, role st
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetInvestigationByID(id)
+	existing, err := s.GetInvestigationByID(id, userID, role)
 	if err != nil {
 		return err
 	}

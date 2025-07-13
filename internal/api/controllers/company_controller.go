@@ -102,7 +102,10 @@ func (c *CompanyController) GetCompanyByID(context *gin.Context) {
 		return
 	}
 
-	company, err := c.service.GetCompanyByID(uint(id))
+	claimsValue, _ := context.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	company, err := c.service.GetCompanyByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		context.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Company not found"})
 		return

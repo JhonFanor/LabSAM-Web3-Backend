@@ -38,7 +38,7 @@ func (ir *InvestigationRoutes) Routes() {
 	{
 		investigation.POST("", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.CreateInvestigation)
 		investigation.GET("", ir.InvestigationController.GetAllInvestigations)
-		investigation.GET("/:id", ir.InvestigationController.GetInvestigationByID)
+		investigation.GET("/:id", ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.GetInvestigationByID)
 		investigation.PUT("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.UpdateInvestigation)
 		investigation.DELETE("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.DeleteInvestigation)
 	}

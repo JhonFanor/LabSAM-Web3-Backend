@@ -45,7 +45,7 @@ func (c *CompanySubtopicController) CreateCompanySubtopic(context *gin.Context) 
 	claimsValue, _ := context.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	company, err := c.companyService.GetCompanyByID(uint(id))
+	company, err := c.companyService.GetCompanyByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		context.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Company not found"})
 		return
@@ -85,7 +85,7 @@ func (c *CompanySubtopicController) DeleteCompanySubtopic(context *gin.Context) 
 	claimsValue, _ := context.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	company, err := c.companyService.GetCompanyByID(uint(id))
+	company, err := c.companyService.GetCompanyByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		context.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Company not found"})
 		return

@@ -45,7 +45,7 @@ func (l *LegislationSubtopicController) CreateLegislationSubtopic(c *gin.Context
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	legislation, err := l.legislationService.GetLegislationByID(uint(id))
+	legislation, err := l.legislationService.GetLegislationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Legislation not found"})
 		return
@@ -85,7 +85,7 @@ func (l *LegislationSubtopicController) DeleteLegislationSubtopic(c *gin.Context
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	legislation, err := l.legislationService.GetLegislationByID(uint(id))
+	legislation, err := l.legislationService.GetLegislationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Legislation not found"})
 		return

@@ -79,7 +79,10 @@ func (b *BankOfResumeController) GetBankOfResumeByID(c *gin.Context) {
 		return
 	}
 
-	bankOfResume, err := b.service.GetBankOfResumeByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	bankOfResume, err := b.service.GetBankOfResumeByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Bank Of Resume not found"})
 		return

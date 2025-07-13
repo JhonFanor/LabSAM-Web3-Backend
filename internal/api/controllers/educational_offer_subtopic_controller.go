@@ -45,7 +45,7 @@ func (e *EducationalOfferSubtopicController) CreateEducationalOfferSubtopic(c *g
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	educationalOffer, err := e.educationalOfferService.GetEducationalOfferByID(uint(id))
+	educationalOffer, err := e.educationalOfferService.GetEducationalOfferByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Educational Offer not found"})
 		return
@@ -85,7 +85,7 @@ func (e *EducationalOfferSubtopicController) DeleteEducationalOfferSubtopic(c *g
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	educationalOffer, err := e.educationalOfferService.GetEducationalOfferByID(uint(id))
+	educationalOffer, err := e.educationalOfferService.GetEducationalOfferByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Educational Offer not found"})
 		return

@@ -13,7 +13,7 @@ import (
 type EducationalOfferService interface {
 	CreateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, subtopicIDs []uint) (*models.EducationalOffer, error)
 	GetAllEducationalOffers(c *gin.Context) (*dto.PaginationDTO, error)
-	GetEducationalOfferByID(id uint) (*models.EducationalOffer, error)
+	GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error)
 	UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error
 	DeleteEducationalOffer(id uint, userID uint, role string) error
 }
@@ -61,11 +61,25 @@ func (s *educationalOfferService) GetAllEducationalOffers(c *gin.Context) (*dto.
 	return s.repo.GetAll(c)
 }
 
-func (s *educationalOfferService) GetEducationalOfferByID(id uint) (*models.EducationalOffer, error) {
+func (s *educationalOfferService) GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	educationalOffer, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if educationalOffer.IsApproved {
+		return educationalOffer, nil
+	}
+
+	if educationalOffer.UserID != userID && role != "admin" {
+		return educationalOffer, nil
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error {
@@ -73,7 +87,7 @@ func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *model
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetEducationalOfferByID(educationalOffer.ID)
+	existing, err := s.GetEducationalOfferByID(educationalOffer.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -95,7 +109,7 @@ func (s *educationalOfferService) DeleteEducationalOffer(id uint, userID uint, r
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetEducationalOfferByID(id)
+	existing, err := s.GetEducationalOfferByID(id, userID, role)
 	if err != nil {
 		return err
 	}

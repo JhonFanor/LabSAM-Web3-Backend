@@ -62,7 +62,7 @@ func (b *BankOfResumeSubtopicController) CreateBankOfResumeSubtopic(c *gin.Conte
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	bankOfResume, err := b.bankOfResumeService.GetBankOfResumeByID(uint(id))
+	bankOfResume, err := b.bankOfResumeService.GetBankOfResumeByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Bank Of Resume not found"})
 		return
@@ -116,7 +116,7 @@ func (b *BankOfResumeSubtopicController) DeleteBankOfResumeSubtopic(c *gin.Conte
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	bankOfResume, err := b.bankOfResumeService.GetBankOfResumeByID(uint(id))
+	bankOfResume, err := b.bankOfResumeService.GetBankOfResumeByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Bank Of Resume not found"})
 		return

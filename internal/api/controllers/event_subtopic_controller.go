@@ -45,7 +45,7 @@ func (e *EventSubtopicController) CreateEventSubtopic(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	event, err := e.eventService.GetEventByID(uint(id))
+	event, err := e.eventService.GetEventByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Event not found"})
 		return
@@ -85,7 +85,7 @@ func (e *EventSubtopicController) DeleteEventSubtopic(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
 
-	event, err := e.eventService.GetEventByID(uint(id))
+	event, err := e.eventService.GetEventByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Event not found"})
 		return

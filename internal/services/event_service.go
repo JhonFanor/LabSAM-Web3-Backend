@@ -13,7 +13,7 @@ import (
 type EventService interface {
 	CreateEvent(event *models.Event, userID uint, subtopicIDs []uint) (*models.Event, error)
 	GetAllEvents(c *gin.Context) (*dto.PaginationDTO, error)
-	GetEventByID(id uint) (*models.Event, error)
+	GetEventByID(id uint, userID uint, role string) (*models.Event, error)
 	UpdateEvent(event *models.Event, userID uint, role string) error
 	DeleteEvent(id uint, userID uint, role string) error
 }
@@ -62,11 +62,25 @@ func (s *eventService) GetAllEvents(c *gin.Context) (*dto.PaginationDTO, error) 
 	return s.repo.GetAll(c)
 }
 
-func (s *eventService) GetEventByID(id uint) (*models.Event, error) {
+func (s *eventService) GetEventByID(id uint, userID uint, role string) (*models.Event, error) {
 	if id == 0 {
 		return nil, customerrors.ErrInvalidID
 	}
-	return s.repo.GetByID(id)
+
+	event, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if event.IsApproved {
+		return event, nil
+	}
+
+	if event.UserID == 0 || event.UserID == id || role == "admin" {
+		return event, nil
+	}
+
+	return nil, customerrors.ErrForbidden
 }
 
 func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string) error {
@@ -74,7 +88,7 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 		return customerrors.ErrInvalidData
 	}
 
-	existing, err := s.GetEventByID(event.ID)
+	existing, err := s.GetEventByID(event.ID, userID, role)
 	if err != nil {
 		return err
 	}
@@ -90,8 +104,8 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 
 	err = s.repo.Update(existing, updates)
 
-	if err == nil && event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
-		s.localitationService.DeleteLocalitation(existing.LocalitationID)
+	if err == nil && *event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
+		s.localitationService.DeleteLocalitation(*existing.LocalitationID)
 	}
 
 	return err
@@ -102,7 +116,7 @@ func (s *eventService) DeleteEvent(id uint, userID uint, role string) error {
 		return customerrors.ErrInvalidID
 	}
 
-	existing, err := s.GetEventByID(id)
+	existing, err := s.GetEventByID(id, userID, role)
 	if err != nil {
 		return err
 	}

@@ -81,7 +81,10 @@ func (d *DocumentationController) GetDocumentationByID(c *gin.Context) {
 		return
 	}
 
-	documentation, err := d.service.GetDocumentationByID(uint(id))
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	documentation, err := d.service.GetDocumentationByID(uint(id), claims.UserID, claims.Role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Documentation not found"})
 		return

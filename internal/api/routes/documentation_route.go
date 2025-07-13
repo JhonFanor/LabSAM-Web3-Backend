@@ -38,7 +38,7 @@ func (dr *DocumentationRoutes) Routes() {
 	{
 		documentation.POST("", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
 		documentation.GET("", dr.DocumentationController.GetAllDocumentations)
-		documentation.GET("/:id", dr.DocumentationController.GetDocumentationByID)
+		documentation.GET("/:id", dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.GetDocumentationByID)
 		documentation.PUT("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.UpdateDocumentation)
 		documentation.DELETE("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.DeleteDocumentation)
 	}

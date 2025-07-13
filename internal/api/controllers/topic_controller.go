@@ -64,7 +64,16 @@ func (t *TopicController) GetAllTopics(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, topics)
+
+	var topicsResponse []responses.TopicGetAllResponse
+	if err := mapstructure.Decode(topics, &topicsResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, topicsResponse)
 }
 
 func (b *TopicController) GetTopicByID(c *gin.Context) {
