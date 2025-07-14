@@ -38,4 +38,9 @@ func (ur *UploadRoutes) Routes() {
 		upload.POST("/file", ur.UploadController.UploadFile)
 		upload.DELETE("/:id", ur.UploadController.DeleteFile)
 	}
+
+	download := ur.Router.Group("/api/download")
+	{
+		download.GET("/:folder/:filename", ur.UploadController.DownloadFile)
+	}
 }

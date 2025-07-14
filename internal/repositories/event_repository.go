@@ -47,7 +47,7 @@ func (r *eventRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 func (r *eventRepository) GetByID(id uint) (*models.Event, error) {
 	var event models.Event
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&event, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("Localitation")); err != nil {
+	if err := r.dbManager.Find(&event, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("Localitation")); err != nil {
 		return nil, err
 	}
 	return &event, nil

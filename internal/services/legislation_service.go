@@ -75,11 +75,11 @@ func (s *legislationService) GetLegislationByID(id uint, userID uint, role strin
 		return legislation, nil
 	}
 
-	if userID == legislation.UserID || role == "admin" {
+	if legislation.UserID == userID || role == "admin" {
 		return legislation, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *legislationService) UpdateLegislation(legislation *models.Legislation, userID uint, role string) error {

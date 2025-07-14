@@ -48,7 +48,7 @@ func (r *companyRepository) GetByID(id uint) (*models.Company, error) {
 
 	var company models.Company
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&company, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("Localitation")); err != nil {
+	if err := r.dbManager.Find(&company, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("Localitation")); err != nil {
 		return nil, err
 	}
 	return &company, nil

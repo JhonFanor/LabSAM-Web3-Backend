@@ -66,20 +66,20 @@ func (s *jobBoardService) GetJobBoardByID(id uint, userID uint, role string) (*m
 		return nil, customerrors.ErrInvalidID
 	}
 
-	existing, err := s.repo.GetByID(id)
+	jobBoard, err := s.repo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	if existing.IsApproved != nil && *existing.IsApproved {
-		return existing, nil
+	if jobBoard.IsApproved != nil && *jobBoard.IsApproved {
+		return jobBoard, nil
 	}
 
-	if existing.UserID == userID || role == "admin" {
-		return existing, nil
+	if jobBoard.UserID == userID || role == "admin" {
+		return jobBoard, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *jobBoardService) UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error {

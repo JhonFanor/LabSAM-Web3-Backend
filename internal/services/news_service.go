@@ -75,11 +75,11 @@ func (s *newsService) GetNewsByID(id uint, userID uint, role string) (*models.Ne
 		return news, nil
 	}
 
-	if news.UserID != userID && role != "admin" {
-		return nil, customerrors.ErrUnauthorized
+	if news.UserID == userID || role == "admin" {
+		return news, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *newsService) UpdateNews(news *models.News, userID uint, role string) error {

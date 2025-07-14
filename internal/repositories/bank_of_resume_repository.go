@@ -47,7 +47,7 @@ func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, err
 func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) {
 	var bankOfResume models.BankOfResume
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&bankOfResume, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+	if err := r.dbManager.Find(&bankOfResume, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &bankOfResume, nil

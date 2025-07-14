@@ -98,3 +98,25 @@ func (n *UploadController) DeleteFile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Archivo eliminado con éxito"})
 }
+
+func (n *UploadController) DownloadFile(c *gin.Context) {
+	folder := c.Param("folder")
+	filename := c.Param("filename")
+
+	if folder == "" || filename == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Faltan parámetros en la ruta"})
+		return
+	}
+
+	filePath := filepath.Join("/uploads", folder, filename)
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "El archivo no existe"})
+		return
+	}
+
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Header("Content-Type", "application/octet-stream")
+	c.File(filePath)
+}

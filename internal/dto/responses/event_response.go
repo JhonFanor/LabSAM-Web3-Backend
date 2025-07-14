@@ -18,6 +18,6 @@ type EventGetResponse struct {
 	Link         string                    `json:"link"`
 	Date         time.Time                 `json:"date"`
 	User         UserMinimalResponse       `json:"user"`
-	Localitation LocalitationResponse      `json:"localitation"`
+	Localitation *LocalitationResponse     `json:"localitation,omitempty"`
 	Subtopics    []SubtopicMinimalResponse `json:"subtopics"`
 }

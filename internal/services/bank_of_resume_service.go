@@ -79,7 +79,7 @@ func (s *bankOfResumeService) GetBankOfResumeByID(id uint, userID uint, role str
 		return bank, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error {

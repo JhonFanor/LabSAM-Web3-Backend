@@ -76,11 +76,11 @@ func (s *eventService) GetEventByID(id uint, userID uint, role string) (*models.
 		return event, nil
 	}
 
-	if event.UserID == 0 || event.UserID == id || role == "admin" {
+	if event.UserID == id || role == "admin" {
 		return event, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string) error {

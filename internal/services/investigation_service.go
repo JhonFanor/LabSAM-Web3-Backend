@@ -75,11 +75,11 @@ func (s *investigationService) GetInvestigationByID(id uint, userID uint, role s
 		return investigation, nil
 	}
 
-	if userID == investigation.UserID || role == "admin" {
+	if investigation.UserID == userID || role == "admin" {
 		return investigation, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *investigationService) UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error {

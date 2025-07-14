@@ -75,11 +75,11 @@ func (s *educationalOfferService) GetEducationalOfferByID(id uint, userID uint, 
 		return educationalOffer, nil
 	}
 
-	if educationalOffer.UserID != userID && role != "admin" {
+	if educationalOffer.UserID == userID || role == "admin" {
 		return educationalOffer, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error {

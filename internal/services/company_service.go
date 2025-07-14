@@ -77,11 +77,11 @@ func (s *companyService) GetCompanyByID(id uint, userID uint, role string) (*mod
 		return company, nil
 	}
 
-	if company.UserID != userID && role != "admin" {
-		return nil, customerrors.ErrUnauthorized
+	if company.UserID == userID || role == "admin" {
+		return company, nil
 	}
 
-	return nil, customerrors.ErrForbidden
+	return nil, customerrors.ErrUnauthorized
 }
 
 func (s *companyService) UpdateCompany(company *models.Company, userID uint, role string) error {

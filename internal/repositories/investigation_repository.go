@@ -47,7 +47,7 @@ func (r *investigationRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, er
 func (r *investigationRepository) GetByID(id uint) (*models.Investigation, error) {
 	var investigation models.Investigation
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&investigation, conditions, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+	if err := r.dbManager.Find(&investigation, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &investigation, nil
