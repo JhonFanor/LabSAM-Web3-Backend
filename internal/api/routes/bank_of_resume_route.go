@@ -38,7 +38,7 @@ func (br *BankOfResumeRoutes) Routes() {
 	{
 		bankOfResume.POST("", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
 		bankOfResume.GET("", br.BankOfResumeController.GetAllBankOfResumes)
-		bankOfResume.GET("/:id", br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.GetBankOfResumeByID)
+		bankOfResume.GET("/:id", br.BankOfResumeController.GetBankOfResumeByID)
 		bankOfResume.PUT("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
 		bankOfResume.DELETE("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
 	}

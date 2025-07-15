@@ -49,7 +49,7 @@ func (vm *ValidatorMiddleware) ValidateInput(inputType interface{}) gin.HandlerF
 			return
 		}
 
-		c.Set("input", input) // Guarda la instancia corregida
+		c.Set("input", input)
 		c.Next()
 	}
 }

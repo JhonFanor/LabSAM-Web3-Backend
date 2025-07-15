@@ -38,7 +38,7 @@ func (er *EventRoutes) Routes() {
 	{
 		event.POST("", er.ValidatorMiddleware.ValidateInput(&requests.EventRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.CreateEvent)
 		event.GET("", er.EventController.GetAllEvents)
-		event.GET("/:id", er.TokenMiddleware.ValidateToken(), er.EventController.GetEventByID)
+		event.GET("/:id", er.EventController.GetEventByID)
 		event.PUT("/:id", er.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.UpdateEvent)
 		event.DELETE("/:id", er.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.DeleteEvent)
 	}

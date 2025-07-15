@@ -102,10 +102,17 @@ func (e *EventController) GetEventByID(c *gin.Context) {
 		return
 	}
 
-	claimsValue, _ := c.Get("claims")
-	claims, _ := claimsValue.(*security.Claims)
+	var userID uint
+	var role string
 
-	event, err := e.service.GetEventByID(uint(id), claims.UserID, claims.Role)
+	if claimsValue, exists := c.Get("claims"); exists {
+		if claims, ok := claimsValue.(*security.Claims); ok {
+			userID = claims.UserID
+			role = claims.Role
+		}
+	}
+
+	event, err := e.service.GetEventByID(uint(id), userID, role)
 	if err != nil {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Event not found"})
 		return

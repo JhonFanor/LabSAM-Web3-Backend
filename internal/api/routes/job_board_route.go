@@ -38,7 +38,7 @@ func (jer *JobBoardRoutes) Routes() {
 	{
 		jobBoard.POST("", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.CreateJobBoard)
 		jobBoard.GET("", jer.JobBoardController.GetAllJobsBoard)
-		jobBoard.GET("/:id", jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.GetJobBoardByID)
+		jobBoard.GET("/:id", jer.JobBoardController.GetJobBoardByID)
 		jobBoard.PUT("/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.UpdateJobBoard)
 		jobBoard.DELETE("/:id", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardUpdateRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.DeleteJobBoard)
 	}
