@@ -23,6 +23,7 @@ type JobBoardGetResponse struct {
 	Type        string                    `json:"type"`
 	SalaryRange string                    `json:"salary_range"`
 	Link        string                    `json:"link"`
+	IsApproved  *bool                     `json:"is_approved"`
 	User        UserMinimalResponse       `json:"user"`
 	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
 }

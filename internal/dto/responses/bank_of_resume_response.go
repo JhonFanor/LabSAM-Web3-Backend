@@ -16,11 +16,12 @@ type BankOfResumeGetAllByUserIDResponse struct {
 }
 
 type BankOfResumeGetResponse struct {
-	ID        uint                      `json:"id"`
-	Photo     string                    `json:"photo"`
-	Title     string                    `json:"title"`
-	Summary   string                    `json:"summary"`
-	Link      string                    `json:"link"`
-	User      UserMinimalResponse       `json:"user"`
-	Subtopics []SubtopicMinimalResponse `json:"subtopics"`
+	ID         uint                      `json:"id"`
+	Photo      string                    `json:"photo"`
+	Title      string                    `json:"title"`
+	Summary    string                    `json:"summary"`
+	Link       string                    `json:"link"`
+	IsApproved *bool                     `json:"is_approved"`
+	User       UserMinimalResponse       `json:"user"`
+	Subtopics  []SubtopicMinimalResponse `json:"subtopics"`
 }

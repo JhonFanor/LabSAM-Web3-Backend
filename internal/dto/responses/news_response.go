@@ -28,6 +28,7 @@ type NewsGetResponse struct {
 	Image       string                    `json:"image"`
 	Link        string                    `json:"link"`
 	Date        *time.Time                `json:"date"`
+	IsApproved  *bool                     `json:"is_approved"`
 	User        UserMinimalResponse       `json:"user"`
 	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
 }

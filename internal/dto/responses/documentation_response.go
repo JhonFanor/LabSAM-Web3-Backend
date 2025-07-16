@@ -18,6 +18,7 @@ type DocumentationGetResponse struct {
 	Title       string                    `json:"title"`
 	Description string                    `json:"description"`
 	Link        string                    `json:"link"`
+	IsApproved  *bool                     `json:"is_approved"`
 	User        UserMinimalResponse       `json:"user"`
 	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
 }

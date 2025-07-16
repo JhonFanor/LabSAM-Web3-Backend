@@ -19,7 +19,8 @@ type CompanyGetResponse struct {
 	Industry     string                    `json:"industry"`
 	Website      string                    `json:"website"`
 	Email        string                    `json:"email"`
+	IsApproved   *bool                     `json:"is_approved"`
 	User         UserMinimalResponse       `json:"user"`
-	Localitation LocalitationResponse      `json:"localitation"`
+	Localitation *LocalitationResponse     `json:"localitation"`
 	Subtopics    []SubtopicMinimalResponse `json:"subtopics"`
 }

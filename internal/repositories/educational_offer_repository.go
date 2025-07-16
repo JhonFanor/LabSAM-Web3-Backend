@@ -94,7 +94,7 @@ func (r *educationalOfferRepository) CountNotApproved() (int64, error) {
 func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer, error) {
 	var educationalOffer models.EducationalOffer
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&educationalOffer, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true)); err != nil {
+	if err := r.dbManager.Find(&educationalOffer, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
 		return nil, err
 	}
 	return &educationalOffer, nil

@@ -95,8 +95,8 @@ func (s *documentationService) GetDocumentationByID(id uint, userID uint, role s
 		return documentation, nil
 	}
 
-	if documentation.UserID != userID && role != "admin" {
-		return nil, customerrors.ErrUnauthorized
+	if documentation.UserID == userID || role == "admin" {
+		return documentation, nil
 	}
 
 	return nil, customerrors.ErrInvalidID

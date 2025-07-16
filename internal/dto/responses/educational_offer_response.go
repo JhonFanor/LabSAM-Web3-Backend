@@ -30,6 +30,7 @@ type EducationalOfferGetResponse struct {
 	Cost        float64                   `json:"cost"`
 	Description string                    `json:"description"`
 	Link        string                    `json:"link"`
+	IsApproved  *bool                     `json:"is_approved"`
 	User        UserMinimalResponse       `json:"user"`
 	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
 }

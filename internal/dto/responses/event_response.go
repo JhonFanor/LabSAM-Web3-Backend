@@ -27,6 +27,7 @@ type EventGetResponse struct {
 	Link         string                    `json:"link"`
 	Date         time.Time                 `json:"date"`
 	User         UserMinimalResponse       `json:"user"`
+	IsApproved   *bool                     `json:"is_approved"`
 	Localitation *LocalitationResponse     `json:"localitation,omitempty"`
 	Subtopics    []SubtopicMinimalResponse `json:"subtopics"`
 }

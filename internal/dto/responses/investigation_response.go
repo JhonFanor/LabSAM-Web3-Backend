@@ -21,6 +21,7 @@ type InvestigationGetResponse struct {
 	Description string                    `json:"description"`
 	Date        time.Time                 `json:"date"`
 	Link        string                    `json:"link"`
+	IsApproved  *bool                     `json:"is_approved"`
 	User        UserMinimalResponse       `json:"user"`
 	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
 }

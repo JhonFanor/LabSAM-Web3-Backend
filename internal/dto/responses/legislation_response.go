@@ -19,5 +19,6 @@ type LegislationGetResponse struct {
 	Description string                    `json:"description"`
 	Link        string                    `json:"link"`
 	User        UserMinimalResponse       `json:"user"`
+	IsApproved  *bool                     `json:"is_approved"`
 	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
 }
