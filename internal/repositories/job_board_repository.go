@@ -12,6 +12,9 @@ import (
 type JobBoardRepository interface {
 	Create(jobBoard *models.JobBoard) (*models.JobBoard, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error)
+	CountNotApproved() (int64, error)
 	GetByID(id uint) (*models.JobBoard, error)
 	Update(jobBoard *models.JobBoard, updates map[string]interface{}) error
 	Delete(id uint) error
@@ -42,6 +45,46 @@ func (r *jobBoardRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) 
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.JobBoard{})
 
 	return paginationInfo, nil
+}
+
+func (r *jobBoardRepository) GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("user_id = ?", userID),
+		&models.JobBoard{},
+	), nil
+}
+
+func (r *jobBoardRepository) GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error) {
+	return r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("is_approved IS NULL"),
+		&models.JobBoard{},
+	), nil
+}
+
+func (r *jobBoardRepository) CountNotApproved() (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&models.JobBoard{}).
+		Where("is_approved IS NULL").
+		Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r *jobBoardRepository) GetByID(id uint) (*models.JobBoard, error) {

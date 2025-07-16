@@ -13,6 +13,9 @@ import (
 type EducationalOfferService interface {
 	CreateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, subtopicIDs []uint) (*models.EducationalOffer, error)
 	GetAllEducationalOffers(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllEducationalOffersByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllEducationalOffersNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountEducationalOffersNotApproved(role string) (int64, error)
 	GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error)
 	UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error
 	DeleteEducationalOffer(id uint, userID uint, role string) error
@@ -59,6 +62,24 @@ func (s *educationalOfferService) CreateEducationalOffer(educationalOffer *model
 
 func (s *educationalOfferService) GetAllEducationalOffers(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *educationalOfferService) GetAllEducationalOffersByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *educationalOfferService) GetAllEducationalOffersNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *educationalOfferService) CountEducationalOffersNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *educationalOfferService) GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error) {

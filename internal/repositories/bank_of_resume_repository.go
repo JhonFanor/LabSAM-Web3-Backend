@@ -12,6 +12,9 @@ import (
 type BankOfResumeRepository interface {
 	Create(bankOfResume *models.BankOfResume) (*models.BankOfResume, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error)
+	CountNotApproved() (int64, error)
 	GetByID(id uint) (*models.BankOfResume, error)
 	Update(bankOfResume *models.BankOfResume, updates map[string]interface{}) error
 	Delete(id uint) error
@@ -42,6 +45,50 @@ func (r *bankOfResumeRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, err
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.BankOfResume{})
 
 	return paginationInfo, nil
+}
+
+func (r *bankOfResumeRepository) GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("user_id = ?", userID),
+		&models.BankOfResume{},
+	)
+
+	return paginationInfo, nil
+}
+
+func (r *bankOfResumeRepository) GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("is_approved IS NULL"),
+		&models.BankOfResume{},
+	)
+
+	return paginationInfo, nil
+}
+
+func (r *bankOfResumeRepository) CountNotApproved() (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&models.BankOfResume{}).
+		Where("is_approved IS NULL").
+		Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) {

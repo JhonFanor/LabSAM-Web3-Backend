@@ -77,6 +77,55 @@ func (e *EducationalOfferController) GetAllEducationalOffers(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
+func (e *EducationalOfferController) GetAllEducationalOffersByUserID(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := e.service.GetAllEducationalOffersByUserID(c, claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.EducationalOfferGetAllByUserIDResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (e *EducationalOfferController) GetAllEducationalOffersNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := e.service.GetAllEducationalOffersNotApproved(c, claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.EducationalOfferGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (e *EducationalOfferController) CountEducationalOffersNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	count, err := e.service.CountEducationalOffersNotApproved(claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
+}
+
 func (e *EducationalOfferController) GetEducationalOfferByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

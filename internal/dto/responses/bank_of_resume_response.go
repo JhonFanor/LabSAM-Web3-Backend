@@ -7,6 +7,14 @@ type BankOfResumeGetAllResponse struct {
 	User  UserMinimalResponse `json:"user"`
 }
 
+type BankOfResumeGetAllByUserIDResponse struct {
+	ID         uint                `json:"id"`
+	Photo      string              `json:"photo"`
+	Title      string              `json:"title"`
+	IsApproved *bool               `json:"is_approved"`
+	User       UserMinimalResponse `json:"user"`
+}
+
 type BankOfResumeGetResponse struct {
 	ID        uint                      `json:"id"`
 	Photo     string                    `json:"photo"`

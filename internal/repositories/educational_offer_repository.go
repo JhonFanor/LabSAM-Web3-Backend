@@ -12,6 +12,9 @@ import (
 type EducationalOfferRepository interface {
 	Create(educationalOffer *models.EducationalOffer) (*models.EducationalOffer, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error)
+	CountNotApproved() (int64, error)
 	GetByID(id uint) (*models.EducationalOffer, error)
 	Update(educationalOffer *models.EducationalOffer, updates map[string]interface{}) error
 	Delete(id uint) error
@@ -42,6 +45,50 @@ func (r *educationalOfferRepository) GetAll(c *gin.Context) (*dto.PaginationDTO,
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.EducationalOffer{})
 
 	return paginationInfo, nil
+}
+
+func (r *educationalOfferRepository) GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("user_id = ?", userID),
+		&models.EducationalOffer{},
+	)
+
+	return paginationInfo, nil
+}
+
+func (r *educationalOfferRepository) GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("is_approved IS NULL"),
+		&models.EducationalOffer{},
+	)
+
+	return paginationInfo, nil
+}
+
+func (r *educationalOfferRepository) CountNotApproved() (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&models.EducationalOffer{}).
+		Where("is_approved IS NULL").
+		Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer, error) {

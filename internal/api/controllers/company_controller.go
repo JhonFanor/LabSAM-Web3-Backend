@@ -95,6 +95,55 @@ func (c *CompanyController) GetAllCompanies(context *gin.Context) {
 	context.JSON(http.StatusOK, pagination)
 }
 
+func (c *CompanyController) GetAllCompaniesByUserID(context *gin.Context) {
+	claimsValue, _ := context.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := c.service.GetAllCompaniesByUserID(context, claims.UserID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.CompanyGetAllByUserIDResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	context.JSON(http.StatusOK, pagination)
+}
+
+func (c *CompanyController) GetAllCompaniesNotApproved(context *gin.Context) {
+	claimsValue, _ := context.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := c.service.GetAllCompaniesNotApproved(context, claims.Role)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.CompanyGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	context.JSON(http.StatusOK, pagination)
+}
+
+func (c *CompanyController) CountCompaniesNotApproved(context *gin.Context) {
+	claimsValue, _ := context.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	count, err := c.service.CountCompaniesNotApproved(claims.Role)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, responses.CountResponse{Count: count})
+}
+
 func (c *CompanyController) GetCompanyByID(context *gin.Context) {
 	id, err := strconv.Atoi(context.Param("id"))
 	if err != nil {

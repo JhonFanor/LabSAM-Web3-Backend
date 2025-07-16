@@ -76,6 +76,55 @@ func (i *InvestigationController) GetAllInvestigations(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
+func (i *InvestigationController) GetAllInvestigationsByUserID(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := i.service.GetAllInvestigationsByUserID(c, claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.InvestigationGetAllByUserIDResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (i *InvestigationController) GetAllInvestigationsNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := i.service.GetAllInvestigationsNotApproved(c, claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.InvestigationGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (i *InvestigationController) CountInvestigationsNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	count, err := i.service.CountInvestigationsNotApproved(claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
+}
+
 func (i *InvestigationController) GetInvestigationByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

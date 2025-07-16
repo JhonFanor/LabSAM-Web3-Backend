@@ -74,6 +74,55 @@ func (j *JobBoardController) GetAllJobsBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
+func (j *JobBoardController) GetAllJobsBoardByUserID(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := j.service.GetAllJobsBoardByUserID(c, claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.JobBoardGetAllByUserIDResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (j *JobBoardController) GetAllJobsBoardNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := j.service.GetAllJobsBoardNotApproved(c, claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.JobBoardGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (j *JobBoardController) CountJobsBoardNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	count, err := j.service.CountJobsBoardNotApproved(claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
+}
+
 func (j *JobBoardController) GetJobBoardByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

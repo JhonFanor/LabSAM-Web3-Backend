@@ -42,6 +42,11 @@ func (b *BankOfResumeController) CreateBankOfResume(c *gin.Context) {
 
 	claims, _ := claimsValue.(*security.Claims)
 
+	if claims.Role != "regular" {
+		c.JSON(http.StatusForbidden, responses.ErrorResponse{Error: customerrors.ErrUnauthorized.Error()})
+		return
+	}
+
 	var bankOfResume models.BankOfResume
 	if err := mapstructure.Decode(bankOfResumeRequest, &bankOfResume); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
@@ -70,6 +75,55 @@ func (b *BankOfResumeController) GetAllBankOfResumes(c *gin.Context) {
 	pagination.Data = list
 
 	c.JSON(http.StatusOK, pagination)
+}
+
+func (b *BankOfResumeController) GetAllBankOfResumesByUserID(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := b.service.GetAllBankOfResumesByUserID(c, claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.BankOfResumeGetAllByUserIDResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (b *BankOfResumeController) GetAllBankOfResumesNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := b.service.GetAllBankOfResumesNotApproved(c, claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.BankOfResumeGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (b *BankOfResumeController) CountBankOfResumesNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	count, err := b.service.CountBankOfResumesNotApproved(claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
 func (b *BankOfResumeController) GetBankOfResumeByID(c *gin.Context) {

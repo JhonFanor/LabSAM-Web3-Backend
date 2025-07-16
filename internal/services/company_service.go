@@ -13,6 +13,9 @@ import (
 type CompanyService interface {
 	CreateCompany(company *models.Company, userID uint, subtopicIDs []uint) (*models.Company, error)
 	GetAllCompanies(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllCompaniesByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllCompaniesNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountCompaniesNotApproved(role string) (int64, error)
 	GetCompanyByID(id uint, userID uint, role string) (*models.Company, error)
 	UpdateCompany(company *models.Company, userID uint, role string) error
 	DeleteCompany(id uint, userID uint, role string) error
@@ -61,6 +64,24 @@ func (s *companyService) CreateCompany(company *models.Company, userID uint, sub
 
 func (s *companyService) GetAllCompanies(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *companyService) GetAllCompaniesByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *companyService) GetAllCompaniesNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *companyService) CountCompaniesNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *companyService) GetCompanyByID(id uint, userID uint, role string) (*models.Company, error) {

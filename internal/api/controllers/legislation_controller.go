@@ -74,6 +74,55 @@ func (l *LegislationController) GetAllLegislations(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
+func (l *LegislationController) GetAllLegislationsByUserID(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := l.service.GetAllLegislationsByUserID(c, claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.BankOfResumeGetAllByUserIDResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (l *LegislationController) GetAllLegislationsNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	pagination, err := l.service.GetAllLegislationsNotApproved(c, claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	jsonData, _ := json.Marshal(pagination.Data)
+	var list []responses.LegislationGetAllResponse
+	_ = json.Unmarshal(jsonData, &list)
+	pagination.Data = list
+
+	c.JSON(http.StatusOK, pagination)
+}
+
+func (l *LegislationController) CountLegislationsNotApproved(c *gin.Context) {
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+
+	count, err := l.service.CountLegislationsNotApproved(claims.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
+}
+
 func (l *LegislationController) GetLegislationByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

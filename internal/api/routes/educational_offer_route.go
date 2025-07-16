@@ -38,7 +38,10 @@ func (eor *EducationalOfferRoutes) Routes() {
 	{
 		educationalOffer.POST("", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
 		educationalOffer.GET("", eor.EducationalOfferController.GetAllEducationalOffers)
-		educationalOffer.GET("/:id", eor.EducationalOfferController.GetEducationalOfferByID)
+		educationalOffer.GET("/user/me", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetAllEducationalOffersByUserID)
+		educationalOffer.GET("/admin/not-approved", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetAllEducationalOffersNotApproved)
+		educationalOffer.GET("/admin/not-approved/count", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CountEducationalOffersNotApproved)
+		educationalOffer.GET("/:id", eor.TokenMiddleware.ValidateOptionalToken(), eor.EducationalOfferController.GetEducationalOfferByID)
 		educationalOffer.PUT("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.UpdateEducationalOffer)
 		educationalOffer.DELETE("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.DeleteEducationalOffer)
 	}

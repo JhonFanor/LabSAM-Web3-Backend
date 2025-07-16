@@ -7,6 +7,14 @@ type JobBoardGetAllResponse struct {
 	User    UserMinimalResponse `json:"user"`
 }
 
+type JobBoardGetAllByUserIDResponse struct {
+	ID         uint                `json:"id"`
+	Title      string              `json:"title"`
+	Company    string              `json:"company"`
+	IsApproved *bool               `json:"is_approved"`
+	User       UserMinimalResponse `json:"user"`
+}
+
 type JobBoardGetResponse struct {
 	ID          uint                      `json:"id"`
 	Title       string                    `json:"title"`

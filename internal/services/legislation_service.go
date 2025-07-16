@@ -13,6 +13,9 @@ import (
 type LegislationService interface {
 	CreateLegislation(legislation *models.Legislation, userID uint, subtopicIDs []uint) (*models.Legislation, error)
 	GetAllLegislations(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllLegislationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllLegislationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountLegislationsNotApproved(role string) (int64, error)
 	GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error)
 	UpdateLegislation(legislation *models.Legislation, userID uint, role string) error
 	DeleteLegislation(id uint, userID uint, role string) error
@@ -59,6 +62,24 @@ func (s *legislationService) CreateLegislation(legislation *models.Legislation, 
 
 func (s *legislationService) GetAllLegislations(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *legislationService) GetAllLegislationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *legislationService) GetAllLegislationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *legislationService) CountLegislationsNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *legislationService) GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error) {

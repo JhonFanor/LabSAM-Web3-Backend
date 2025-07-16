@@ -49,3 +49,31 @@ func (tm *TokenMiddleware) ValidateToken() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func (tm *TokenMiddleware) ValidateOptionalToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+
+		tokenParts := strings.Split(authHeader, " ")
+		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+			c.Next()
+			return
+		}
+
+		tokenString := tokenParts[1]
+
+		claims, err := validations.ValidateAccessToken(tokenString, tm.Config)
+		if err != nil {
+			c.Next()
+			return
+		}
+
+		c.Set("claims", claims)
+		c.Next()
+	}
+}

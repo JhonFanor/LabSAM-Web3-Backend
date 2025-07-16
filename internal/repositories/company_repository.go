@@ -12,6 +12,9 @@ import (
 type CompanyRepository interface {
 	Create(company *models.Company) (*models.Company, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error)
+	CountNotApproved() (int64, error)
 	GetByID(id uint) (*models.Company, error)
 	Update(company *models.Company, updates map[string]interface{}) error
 	Delete(id uint) error
@@ -42,6 +45,50 @@ func (r *companyRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 	paginationInfo := r.qm.ApplyPaginationAndFilters(c, r.db.Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Where("is_approved = ?", true), &models.Company{})
 
 	return paginationInfo, nil
+}
+
+func (r *companyRepository) GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("user_id = ?", userID),
+		&models.Company{},
+	)
+
+	return paginationInfo, nil
+}
+
+func (r *companyRepository) GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.
+			Preload("User").
+			Preload("User.RegularUser").
+			Preload("User.UniversityUser").
+			Preload("User.BusinessUser").
+			Where("is_approved IS NULL"),
+		&models.Company{},
+	)
+
+	return paginationInfo, nil
+}
+
+func (r *companyRepository) CountNotApproved() (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&models.Company{}).
+		Where("is_approved IS NULL").
+		Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r *companyRepository) GetByID(id uint) (*models.Company, error) {

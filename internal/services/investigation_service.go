@@ -13,6 +13,9 @@ import (
 type InvestigationService interface {
 	CreateInvestigation(investigation *models.Investigation, userID uint, subtopicIDs []uint) (*models.Investigation, error)
 	GetAllInvestigations(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllInvestigationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllInvestigationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountInvestigationsNotApproved(role string) (int64, error)
 	GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error)
 	UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error
 	DeleteInvestigation(id uint, userID uint, role string) error
@@ -59,6 +62,24 @@ func (s *investigationService) CreateInvestigation(investigation *models.Investi
 
 func (s *investigationService) GetAllInvestigations(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *investigationService) GetAllInvestigationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *investigationService) GetAllInvestigationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *investigationService) CountInvestigationsNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *investigationService) GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error) {

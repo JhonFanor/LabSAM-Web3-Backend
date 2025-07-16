@@ -38,7 +38,10 @@ func (br *BankOfResumeRoutes) Routes() {
 	{
 		bankOfResume.POST("", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
 		bankOfResume.GET("", br.BankOfResumeController.GetAllBankOfResumes)
-		bankOfResume.GET("/:id", br.BankOfResumeController.GetBankOfResumeByID)
+		bankOfResume.GET("/user/me", br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.GetAllBankOfResumesByUserID)
+		bankOfResume.GET("/admin/not-approved", br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.GetAllBankOfResumesNotApproved)
+		bankOfResume.GET("/admin/not-approved/count", br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CountBankOfResumesNotApproved)
+		bankOfResume.GET("/:id", br.TokenMiddleware.ValidateOptionalToken(), br.BankOfResumeController.GetBankOfResumeByID)
 		bankOfResume.PUT("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.UpdateBankOfResume)
 		bankOfResume.DELETE("/:id", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.DeleteBankOfResume)
 	}

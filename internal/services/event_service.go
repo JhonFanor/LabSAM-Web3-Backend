@@ -13,6 +13,9 @@ import (
 type EventService interface {
 	CreateEvent(event *models.Event, userID uint, subtopicIDs []uint) (*models.Event, error)
 	GetAllEvents(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllEventsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllEventsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountEventsNotApproved(role string) (int64, error)
 	GetEventByID(id uint, userID uint, role string) (*models.Event, error)
 	UpdateEvent(event *models.Event, userID uint, role string) error
 	DeleteEvent(id uint, userID uint, role string) error
@@ -60,6 +63,24 @@ func (s *eventService) CreateEvent(event *models.Event, userID uint, subtopicIDs
 
 func (s *eventService) GetAllEvents(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *eventService) GetAllEventsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *eventService) GetAllEventsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *eventService) CountEventsNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *eventService) GetEventByID(id uint, userID uint, role string) (*models.Event, error) {

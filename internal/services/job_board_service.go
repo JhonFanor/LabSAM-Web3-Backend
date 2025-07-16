@@ -13,6 +13,9 @@ import (
 type JobBoardService interface {
 	CreateJobBoard(jobBoard *models.JobBoard, userID uint, subtopicIDs []uint) (*models.JobBoard, error)
 	GetAllJobsBoard(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllJobsBoardByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllJobsBoardNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountJobsBoardNotApproved(role string) (int64, error)
 	GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error)
 	UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error
 	DeleteJobBoard(id uint, userID uint, role string) error
@@ -59,6 +62,24 @@ func (s *jobBoardService) CreateJobBoard(jobBoard *models.JobBoard, userID uint,
 
 func (s *jobBoardService) GetAllJobsBoard(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *jobBoardService) GetAllJobsBoardByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *jobBoardService) GetAllJobsBoardNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *jobBoardService) CountJobsBoardNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *jobBoardService) GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error) {

@@ -8,6 +8,13 @@ type InvestigationGetAllResponse struct {
 	User  UserMinimalResponse `json:"user"`
 }
 
+type InvestigationGetAllByUserIDResponse struct {
+	ID         uint                `json:"id"`
+	Title      string              `json:"title"`
+	IsApproved *bool               `json:"is_approved"`
+	User       UserMinimalResponse `json:"user"`
+}
+
 type InvestigationGetResponse struct {
 	ID          uint                      `json:"id"`
 	Title       string                    `json:"title"`

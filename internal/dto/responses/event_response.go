@@ -10,6 +10,15 @@ type EventGetAllResponse struct {
 	User  UserMinimalResponse `json:"user"`
 }
 
+type EventGetAllByUserIDResponse struct {
+	ID         uint                `json:"id"`
+	Title      string              `json:"title"`
+	Image      string              `json:"image"`
+	Date       time.Time           `json:"date"`
+	IsApproved *bool               `json:"is_approved"`
+	User       UserMinimalResponse `json:"user"`
+}
+
 type EventGetResponse struct {
 	ID           uint                      `json:"id"`
 	Title        string                    `json:"title"`

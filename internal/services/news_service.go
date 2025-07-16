@@ -13,6 +13,9 @@ import (
 type NewsService interface {
 	CreateNews(news *models.News, userID uint, subtopicIDs []uint) (*models.News, error)
 	GetAllNews(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllNewsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllNewsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountNewsNotApproved(role string) (int64, error)
 	GetNewsByID(id uint, userID uint, role string) (*models.News, error)
 	UpdateNews(news *models.News, userID uint, role string) error
 	DeleteNews(id uint, userID uint, role string) error
@@ -59,6 +62,24 @@ func (s *newsService) CreateNews(news *models.News, userID uint, subtopicIDs []u
 
 func (s *newsService) GetAllNews(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *newsService) GetAllNewsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *newsService) GetAllNewsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *newsService) CountNewsNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *newsService) GetNewsByID(id uint, userID uint, role string) (*models.News, error) {

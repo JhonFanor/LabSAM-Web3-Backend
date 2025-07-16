@@ -13,6 +13,9 @@ import (
 type BankOfResumeService interface {
 	CreateBankOfResume(bankOfResume *models.BankOfResume, userID uint, subtopicIDs []uint) (*models.BankOfResume, error)
 	GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error)
+	GetAllBankOfResumesByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
+	GetAllBankOfResumesNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
+	CountBankOfResumesNotApproved(role string) (int64, error)
 	GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error)
 	UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error
 	DeleteBankOfResume(id uint, userId uint, role string) error
@@ -59,6 +62,24 @@ func (s *bankOfResumeService) CreateBankOfResume(bankOfResume *models.BankOfResu
 
 func (s *bankOfResumeService) GetAllBankOfResumes(c *gin.Context) (*dto.PaginationDTO, error) {
 	return s.repo.GetAll(c)
+}
+
+func (s *bankOfResumeService) GetAllBankOfResumesByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error) {
+	return s.repo.GetAllByUserID(c, userID)
+}
+
+func (s *bankOfResumeService) GetAllBankOfResumesNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error) {
+	if role != "admin" {
+		return nil, customerrors.ErrUnauthorized
+	}
+	return s.repo.GetAllNotApproved(c)
+}
+
+func (s *bankOfResumeService) CountBankOfResumesNotApproved(role string) (int64, error) {
+	if role != "admin" {
+		return 0, customerrors.ErrUnauthorized
+	}
+	return s.repo.CountNotApproved()
 }
 
 func (s *bankOfResumeService) GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error) {
