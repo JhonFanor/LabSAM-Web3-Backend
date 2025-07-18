@@ -44,6 +44,6 @@ func (cr *CompanyRoutes) Routes() {
 		company.GET("/:id", cr.TokenMiddleware.ValidateOptionalToken(), cr.CompanyController.GetCompanyByID)
 		company.PUT("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.UpdateCompany)
 		company.PUT("/:id/approval", cr.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.SetCompanyApproval)
-		company.DELETE("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.DeleteCompany)
+		company.DELETE("/:id", cr.TokenMiddleware.ValidateToken(), cr.CompanyController.DeleteCompany)
 	}
 }

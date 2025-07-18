@@ -8,7 +8,7 @@ type Event struct {
 	Image          string        `json:"image"`
 	Description    string        `json:"description"`
 	Link           string        `json:"link"`
-	Date           time.Time     `json:"date"`
+	Date           *time.Time    `json:"date"`
 	IsApproved     *bool         `json:"is_approved,omitempty"`
 	UserID         uint          `json:"-"`
 	LocalitationID *uint         `json:"-"`

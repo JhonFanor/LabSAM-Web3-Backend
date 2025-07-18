@@ -129,7 +129,7 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 	existing.User = nil
 	err = s.repo.Update(existing, updates)
 
-	if err == nil && *event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
+	if err == nil && event.LocalitationID != nil && *event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
 		s.localitationService.DeleteLocalitation(*existing.LocalitationID)
 	}
 

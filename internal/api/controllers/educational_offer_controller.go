@@ -175,6 +175,9 @@ func (e *EducationalOfferController) UpdateEducationalOffer(c *gin.Context) {
 		return
 	}
 
+	educationalOffer.StartDate = educationalOfferRequest.StartDate
+	educationalOffer.EndDate = educationalOfferRequest.EndDate
+
 	educationalOffer.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)

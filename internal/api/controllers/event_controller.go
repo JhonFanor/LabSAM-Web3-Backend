@@ -193,6 +193,8 @@ func (e *EventController) UpdateEvent(c *gin.Context) {
 		return
 	}
 
+	event.Date = eventRequest.Date
+
 	event.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)

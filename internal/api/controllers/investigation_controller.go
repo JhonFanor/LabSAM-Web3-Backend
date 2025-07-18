@@ -174,6 +174,8 @@ func (i *InvestigationController) UpdateInvestigation(c *gin.Context) {
 		return
 	}
 
+	investigation.Date = investigationRequest.Date
+
 	investigation.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)

@@ -19,7 +19,7 @@ type InvestigationGetResponse struct {
 	ID          uint                  `json:"id"`
 	Title       string                `json:"title"`
 	Description string                `json:"description"`
-	Date        time.Time             `json:"date"`
+	Date        *time.Time            `json:"date"`
 	Link        string                `json:"link"`
 	IsApproved  *bool                 `json:"is_approved"`
 	User        UserMinimalResponse   `json:"user"`

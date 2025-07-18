@@ -6,8 +6,8 @@ type EducationalOffer struct {
 	ID          uint       `json:"id"`
 	Title       string     `json:"title"`
 	Institution string     `json:"institution"`
-	StartDate   string     `json:"start_date"`
-	EndDate     string     `json:"end_date"`
+	StartDate   *time.Time `json:"start_date"`
+	EndDate     *time.Time `json:"end_date"`
 	Cost        float64    `json:"cost"`
 	Description string     `json:"description"`
 	Link        string     `json:"link"`

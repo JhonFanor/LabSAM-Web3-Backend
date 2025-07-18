@@ -44,6 +44,6 @@ func (lr *LegislationRoutes) Routes() {
 		legislation.GET("/:id", lr.TokenMiddleware.ValidateOptionalToken(), lr.LegislationController.GetLegislationByID)
 		legislation.PUT("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.UpdateLegislation)
 		legislation.PUT("/:id/approval", lr.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.SetLegislationApproval)
-		legislation.DELETE("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.DeleteLegislation)
+		legislation.DELETE("/:id", lr.TokenMiddleware.ValidateToken(), lr.LegislationController.DeleteLegislation)
 	}
 }

@@ -42,8 +42,8 @@ func (er *EventRoutes) Routes() {
 		event.GET("/admin/not-approved", er.TokenMiddleware.ValidateToken(), er.EventController.GetAllEventsNotApproved)
 		event.GET("/admin/not-approved/count", er.TokenMiddleware.ValidateToken(), er.EventController.CountEventsNotApproved)
 		event.GET("/:id", er.TokenMiddleware.ValidateOptionalToken(), er.EventController.GetEventByID)
-		event.PUT("/:id", er.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.UpdateEvent)
+		event.PUT("/:id", er.ValidatorMiddleware.ValidateInput(&requests.EventUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.UpdateEvent)
 		event.PUT("/:id/approval", er.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.SetEventApproval)
-		event.DELETE("/:id", er.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.DeleteEvent)
+		event.DELETE("/:id", er.TokenMiddleware.ValidateToken(), er.EventController.DeleteEvent)
 	}
 }
