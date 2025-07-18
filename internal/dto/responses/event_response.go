@@ -20,14 +20,14 @@ type EventGetAllByUserIDResponse struct {
 }
 
 type EventGetResponse struct {
-	ID           uint                      `json:"id"`
-	Title        string                    `json:"title"`
-	Image        string                    `json:"image"`
-	Description  string                    `json:"description"`
-	Link         string                    `json:"link"`
-	Date         time.Time                 `json:"date"`
-	User         UserMinimalResponse       `json:"user"`
-	IsApproved   *bool                     `json:"is_approved"`
-	Localitation *LocalitationResponse     `json:"localitation,omitempty"`
-	Subtopics    []SubtopicMinimalResponse `json:"subtopics"`
+	ID           uint                  `json:"id"`
+	Title        string                `json:"title"`
+	Image        string                `json:"image"`
+	Description  string                `json:"description"`
+	Link         string                `json:"link"`
+	Date         time.Time             `json:"date"`
+	User         UserMinimalResponse   `json:"user"`
+	IsApproved   *bool                 `json:"is_approved"`
+	Localitation *LocalitationResponse `json:"localitation,omitempty"`
+	Subtopics    []SubtopicGetResponse `json:"subtopics"`
 }

@@ -18,6 +18,7 @@ type EducationalOfferService interface {
 	CountEducationalOffersNotApproved(role string) (int64, error)
 	GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error)
 	UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error
+	SetEducationalOfferApproval(id uint, approved bool, role string) error
 	DeleteEducationalOffer(id uint, userID uint, role string) error
 }
 
@@ -124,6 +125,30 @@ func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *model
 		return nil
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *educationalOfferService) SetEducationalOfferApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

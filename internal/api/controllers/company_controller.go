@@ -221,6 +221,33 @@ func (c *CompanyController) UpdateCompany(context *gin.Context) {
 	context.JSON(http.StatusOK, company)
 }
 
+func (c *CompanyController) SetCompanyApproval(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: customerrors.ErrInvalidID.Error()})
+		return
+	}
+
+	validatedInput, _ := ctx.Get("input")
+	req := validatedInput.(*requests.ApprovalRequest)
+
+	claimsValue, _ := ctx.Get("claims")
+	claims := claimsValue.(*security.Claims)
+
+	err = c.service.SetCompanyApproval(uint(id), req.Approved, claims.Role)
+	if err != nil {
+		if err == customerrors.ErrUnauthorized {
+			ctx.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, responses.SuccessResponse{Message: "Approval status updated"})
+}
+
 func (c *CompanyController) DeleteCompany(context *gin.Context) {
 	id, err := strconv.Atoi(context.Param("id"))
 	if err != nil {

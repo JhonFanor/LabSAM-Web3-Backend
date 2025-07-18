@@ -18,6 +18,7 @@ type NewsService interface {
 	CountNewsNotApproved(role string) (int64, error)
 	GetNewsByID(id uint, userID uint, role string) (*models.News, error)
 	UpdateNews(news *models.News, userID uint, role string) error
+	SetNewsApproval(id uint, approved bool, role string) error
 	DeleteNews(id uint, userID uint, role string) error
 }
 
@@ -124,6 +125,30 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 		return customerrors.ErrNoUpdates
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *newsService) SetNewsApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

@@ -1,21 +1,47 @@
 package utils
 
 import (
-	"encoding/json"
+	"reflect"
 )
 
 func StructToMap(input interface{}) map[string]interface{} {
-	var result map[string]interface{}
+	result := make(map[string]interface{})
+	val := reflect.ValueOf(input)
+	typ := reflect.TypeOf(input)
 
-	data, _ := json.Marshal(input)
-	json.Unmarshal(data, &result)
-
-	cleanedResult := make(map[string]interface{})
-	for key, value := range result {
-		if value != nil {
-			cleanedResult[key] = value
-		}
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+		typ = typ.Elem()
 	}
 
-	return cleanedResult
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		typeField := typ.Field(i)
+
+		if !field.CanInterface() {
+			continue
+		}
+
+		jsonTag := typeField.Tag.Get("json")
+		if jsonTag == "" || jsonTag == "-" {
+			continue
+		}
+
+		if jsonTag == "is_approved" {
+			result[jsonTag] = field.Interface()
+			continue
+		}
+
+		if isZeroValue(field) {
+			continue
+		}
+
+		result[jsonTag] = field.Interface()
+	}
+
+	return result
+}
+
+func isZeroValue(v reflect.Value) bool {
+	return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()).Interface())
 }

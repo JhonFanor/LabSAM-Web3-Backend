@@ -14,11 +14,11 @@ type LegislationGetAllByUserIDResponse struct {
 }
 
 type LegislationGetResponse struct {
-	ID          uint                      `json:"id"`
-	Title       string                    `json:"title"`
-	Description string                    `json:"description"`
-	Link        string                    `json:"link"`
-	User        UserMinimalResponse       `json:"user"`
-	IsApproved  *bool                     `json:"is_approved"`
-	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
+	ID          uint                  `json:"id"`
+	Title       string                `json:"title"`
+	Description string                `json:"description"`
+	Link        string                `json:"link"`
+	User        UserMinimalResponse   `json:"user"`
+	IsApproved  *bool                 `json:"is_approved"`
+	Subtopics   []SubtopicGetResponse `json:"subtopics"`
 }

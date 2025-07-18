@@ -18,6 +18,7 @@ type CompanyService interface {
 	CountCompaniesNotApproved(role string) (int64, error)
 	GetCompanyByID(id uint, userID uint, role string) (*models.Company, error)
 	UpdateCompany(company *models.Company, userID uint, role string) error
+	SetCompanyApproval(id uint, approved bool, role string) error
 	DeleteCompany(id uint, userID uint, role string) error
 }
 
@@ -126,6 +127,7 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 		return nil
 	}
 
+	existing.User = nil
 	err = s.repo.Update(existing, updates)
 
 	if err == nil && company.LocalitationID != nil && existing.LocalitationID != nil && *company.LocalitationID != *existing.LocalitationID {
@@ -133,6 +135,29 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 	}
 
 	return err
+}
+
+func (s *companyService) SetCompanyApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
+	return s.repo.Update(existing, updates)
 }
 
 func (s *companyService) DeleteCompany(id uint, userID uint, role string) error {

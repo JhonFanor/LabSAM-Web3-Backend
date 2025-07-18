@@ -14,11 +14,11 @@ type DocumentationGetAllByUserIDResponse struct {
 }
 
 type DocumentationGetResponse struct {
-	ID          uint                      `json:"id"`
-	Title       string                    `json:"title"`
-	Description string                    `json:"description"`
-	Link        string                    `json:"link"`
-	IsApproved  *bool                     `json:"is_approved"`
-	User        UserMinimalResponse       `json:"user"`
-	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
+	ID          uint                  `json:"id"`
+	Title       string                `json:"title"`
+	Description string                `json:"description"`
+	Link        string                `json:"link"`
+	IsApproved  *bool                 `json:"is_approved"`
+	User        UserMinimalResponse   `json:"user"`
+	Subtopics   []SubtopicGetResponse `json:"subtopics"`
 }

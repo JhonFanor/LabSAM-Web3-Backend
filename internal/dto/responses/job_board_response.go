@@ -16,14 +16,14 @@ type JobBoardGetAllByUserIDResponse struct {
 }
 
 type JobBoardGetResponse struct {
-	ID          uint                      `json:"id"`
-	Title       string                    `json:"title"`
-	Company     string                    `json:"company"`
-	Description string                    `json:"description"`
-	Type        string                    `json:"type"`
-	SalaryRange string                    `json:"salary_range"`
-	Link        string                    `json:"link"`
-	IsApproved  *bool                     `json:"is_approved"`
-	User        UserMinimalResponse       `json:"user"`
-	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
+	ID          uint                  `json:"id"`
+	Title       string                `json:"title"`
+	Company     string                `json:"company"`
+	Description string                `json:"description"`
+	Type        string                `json:"type"`
+	SalaryRange string                `json:"salary_range"`
+	Link        string                `json:"link"`
+	IsApproved  *bool                 `json:"is_approved"`
+	User        UserMinimalResponse   `json:"user"`
+	Subtopics   []SubtopicGetResponse `json:"subtopics"`
 }

@@ -18,6 +18,7 @@ type LegislationService interface {
 	CountLegislationsNotApproved(role string) (int64, error)
 	GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error)
 	UpdateLegislation(legislation *models.Legislation, userID uint, role string) error
+	SetLegislationApproval(id uint, approved bool, role string) error
 	DeleteLegislation(id uint, userID uint, role string) error
 }
 
@@ -124,6 +125,30 @@ func (s *legislationService) UpdateLegislation(legislation *models.Legislation, 
 		return nil
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *legislationService) SetLegislationApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

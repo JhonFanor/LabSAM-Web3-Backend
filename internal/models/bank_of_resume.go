@@ -8,7 +8,7 @@ type BankOfResume struct {
 	Title      string     `json:"title"`
 	Summary    string     `json:"summary"`
 	Link       string     `json:"link"`
-	IsApproved *bool      `json:"is_approved,omitempty"`
+	IsApproved *bool      `json:"is_approved"`
 	UserID     uint       `json:"-"`
 	User       *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Subtopics  []Subtopic `gorm:"many2many:bank_of_resume_subtopic;" json:"subtopics,omitempty"`

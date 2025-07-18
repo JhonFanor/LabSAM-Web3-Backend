@@ -22,15 +22,15 @@ type EducationalOfferGetAllByUserIDResponse struct {
 }
 
 type EducationalOfferGetResponse struct {
-	ID          uint                      `json:"id"`
-	Title       string                    `json:"title"`
-	Institution string                    `json:"institution"`
-	StartDate   string                    `json:"start_date"`
-	EndDate     string                    `json:"end_date"`
-	Cost        float64                   `json:"cost"`
-	Description string                    `json:"description"`
-	Link        string                    `json:"link"`
-	IsApproved  *bool                     `json:"is_approved"`
-	User        UserMinimalResponse       `json:"user"`
-	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
+	ID          uint                  `json:"id"`
+	Title       string                `json:"title"`
+	Institution string                `json:"institution"`
+	StartDate   string                `json:"start_date"`
+	EndDate     string                `json:"end_date"`
+	Cost        float64               `json:"cost"`
+	Description string                `json:"description"`
+	Link        string                `json:"link"`
+	IsApproved  *bool                 `json:"is_approved"`
+	User        UserMinimalResponse   `json:"user"`
+	Subtopics   []SubtopicGetResponse `json:"subtopics"`
 }

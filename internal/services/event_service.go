@@ -18,6 +18,7 @@ type EventService interface {
 	CountEventsNotApproved(role string) (int64, error)
 	GetEventByID(id uint, userID uint, role string) (*models.Event, error)
 	UpdateEvent(event *models.Event, userID uint, role string) error
+	SetEventApproval(id uint, approved bool, role string) error
 	DeleteEvent(id uint, userID uint, role string) error
 }
 
@@ -125,6 +126,7 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 		return nil
 	}
 
+	existing.User = nil
 	err = s.repo.Update(existing, updates)
 
 	if err == nil && *event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
@@ -132,6 +134,29 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 	}
 
 	return err
+}
+
+func (s *eventService) SetEventApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
+	return s.repo.Update(existing, updates)
 }
 
 func (s *eventService) DeleteEvent(id uint, userID uint, role string) error {

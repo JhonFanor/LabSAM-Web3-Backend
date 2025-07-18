@@ -18,6 +18,7 @@ type JobBoardService interface {
 	CountJobsBoardNotApproved(role string) (int64, error)
 	GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error)
 	UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error
+	SetJobBoardApproval(id uint, approved bool, role string) error
 	DeleteJobBoard(id uint, userID uint, role string) error
 }
 
@@ -124,6 +125,30 @@ func (s *jobBoardService) UpdateJobBoard(jobBoard *models.JobBoard, userID uint,
 		return nil
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *jobBoardService) SetJobBoardApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

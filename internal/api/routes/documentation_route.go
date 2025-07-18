@@ -43,6 +43,7 @@ func (dr *DocumentationRoutes) Routes() {
 		documentation.GET("/admin/not-approved/count", dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CountDocumentationsNotApproved)
 		documentation.GET("/:id", dr.TokenMiddleware.ValidateOptionalToken(), dr.DocumentationController.GetDocumentationByID)
 		documentation.PUT("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.UpdateDocumentation)
+		documentation.PUT("/:id/approval", dr.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.SetDocumentationApproval)
 		documentation.DELETE("/:id", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationUpdateRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.DeleteDocumentation)
 	}
 }

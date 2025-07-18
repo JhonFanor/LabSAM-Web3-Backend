@@ -18,6 +18,7 @@ type InvestigationService interface {
 	CountInvestigationsNotApproved(role string) (int64, error)
 	GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error)
 	UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error
+	SetInvestigationApproval(id uint, approved bool, role string) error
 	DeleteInvestigation(id uint, userID uint, role string) error
 }
 
@@ -124,6 +125,30 @@ func (s *investigationService) UpdateInvestigation(investigation *models.Investi
 		return nil
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *investigationService) SetInvestigationApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

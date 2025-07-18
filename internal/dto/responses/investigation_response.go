@@ -16,12 +16,12 @@ type InvestigationGetAllByUserIDResponse struct {
 }
 
 type InvestigationGetResponse struct {
-	ID          uint                      `json:"id"`
-	Title       string                    `json:"title"`
-	Description string                    `json:"description"`
-	Date        time.Time                 `json:"date"`
-	Link        string                    `json:"link"`
-	IsApproved  *bool                     `json:"is_approved"`
-	User        UserMinimalResponse       `json:"user"`
-	Subtopics   []SubtopicMinimalResponse `json:"subtopics"`
+	ID          uint                  `json:"id"`
+	Title       string                `json:"title"`
+	Description string                `json:"description"`
+	Date        time.Time             `json:"date"`
+	Link        string                `json:"link"`
+	IsApproved  *bool                 `json:"is_approved"`
+	User        UserMinimalResponse   `json:"user"`
+	Subtopics   []SubtopicGetResponse `json:"subtopics"`
 }

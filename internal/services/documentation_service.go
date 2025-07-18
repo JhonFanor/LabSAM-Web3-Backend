@@ -18,6 +18,7 @@ type DocumentationService interface {
 	CountDocumentationsNotApproved(role string) (int64, error)
 	GetDocumentationByID(id uint, userID uint, role string) (*models.Documentation, error)
 	UpdateDocumentation(documentation *models.Documentation, userID uint, role string) error
+	SetDocumentationApproval(id uint, approved bool, role string) error
 	DeleteDocumentation(id uint, userID uint, role string) error
 }
 
@@ -123,6 +124,30 @@ func (s *documentationService) UpdateDocumentation(documentation *models.Documen
 		return nil
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *documentationService) SetDocumentationApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

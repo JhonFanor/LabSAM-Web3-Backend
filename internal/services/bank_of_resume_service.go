@@ -18,6 +18,7 @@ type BankOfResumeService interface {
 	CountBankOfResumesNotApproved(role string) (int64, error)
 	GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error)
 	UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error
+	SetBankOfResumeApproval(id uint, approved bool, role string) error
 	DeleteBankOfResume(id uint, userId uint, role string) error
 }
 
@@ -124,6 +125,30 @@ func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResu
 		return nil
 	}
 
+	existing.User = nil
+	return s.repo.Update(existing, updates)
+}
+
+func (s *bankOfResumeService) SetBankOfResumeApproval(id uint, approved bool, role string) error {
+	if role != "admin" {
+		return customerrors.ErrUnauthorized
+	}
+
+	if id == 0 {
+		return customerrors.ErrInvalidID
+	}
+
+	existing, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	isApproved := approved
+	updates := map[string]interface{}{
+		"is_approved": &isApproved,
+	}
+
+	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 

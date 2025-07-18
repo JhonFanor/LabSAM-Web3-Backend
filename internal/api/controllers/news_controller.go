@@ -183,6 +183,33 @@ func (n *NewsController) UpdateNews(c *gin.Context) {
 	c.JSON(http.StatusOK, news)
 }
 
+func (n *NewsController) SetNewsApproval(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: customerrors.ErrInvalidID.Error()})
+		return
+	}
+
+	validatedInput, _ := c.Get("input")
+	req := validatedInput.(*requests.ApprovalRequest)
+
+	claimsValue, _ := c.Get("claims")
+	claims := claimsValue.(*security.Claims)
+
+	err = n.service.SetNewsApproval(uint(id), req.Approved, claims.Role)
+	if err != nil {
+		if err == customerrors.ErrUnauthorized {
+			c.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.SuccessResponse{Message: "Approval status updated"})
+}
+
 func (b *NewsController) DeleteNews(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
