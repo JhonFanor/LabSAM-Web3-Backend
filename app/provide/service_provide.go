@@ -30,6 +30,7 @@ func ServiceProvide() fx.Option {
 			services.NewLocalitationService,
 			services.NewNewsService,
 			services.NewNewsSubtopicService,
+			services.NewNotificationService,
 			services.NewPermissionRoleService,
 			services.NewPermissionService,
 			services.NewPermissionUserService,

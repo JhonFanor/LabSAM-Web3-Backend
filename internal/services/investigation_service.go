@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,19 +19,23 @@ type InvestigationService interface {
 	CountInvestigationsNotApproved(role string) (int64, error)
 	GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error)
 	UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error
-	SetInvestigationApproval(id uint, approved bool, role string) error
+	SetInvestigationApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteInvestigation(id uint, userID uint, role string) error
 }
 
 type investigationService struct {
 	repo                         repositories.InvestigationRepository
 	investigationSubtopicService InvestigationSubtopicService
+	adminNotificationObserver    *observers.AdminNotificationObserver
+	userNotificationObserver     *observers.UserNotificationObserver
 }
 
-func NewInvestigationService(repo repositories.InvestigationRepository, investigationSubtopicService InvestigationSubtopicService) InvestigationService {
+func NewInvestigationService(repo repositories.InvestigationRepository, investigationSubtopicService InvestigationSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) InvestigationService {
 	return &investigationService{
 		repo:                         repo,
 		investigationSubtopicService: investigationSubtopicService,
+		adminNotificationObserver:    adminNotificationObserver,
+		userNotificationObserver:     userNotificationObserver,
 	}
 }
 
@@ -57,6 +62,15 @@ func (s *investigationService) CreateInvestigation(investigation *models.Investi
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva investigación.",
+		Action:       "created",
+		ResourceID:   int(createdInvestigation.ID),
+		ResourceType: "investigation",
+	})
 
 	return createdInvestigation, nil
 }
@@ -125,11 +139,23 @@ func (s *investigationService) UpdateInvestigation(investigation *models.Investi
 		return nil
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una hoja de vida.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "bank_of_resume",
+		})
+
+	}
+
 	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 
-func (s *investigationService) SetInvestigationApproval(id uint, approved bool, role string) error {
+func (s *investigationService) SetInvestigationApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -147,6 +173,29 @@ func (s *investigationService) SetInvestigationApproval(id uint, approved bool, 
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo tú hoja de vida."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo tú hoja de vida."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "bank_of_resume",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)

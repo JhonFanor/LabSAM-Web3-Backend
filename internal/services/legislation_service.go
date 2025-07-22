@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,19 +19,23 @@ type LegislationService interface {
 	CountLegislationsNotApproved(role string) (int64, error)
 	GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error)
 	UpdateLegislation(legislation *models.Legislation, userID uint, role string) error
-	SetLegislationApproval(id uint, approved bool, role string) error
+	SetLegislationApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteLegislation(id uint, userID uint, role string) error
 }
 
 type legislationService struct {
 	repo                       repositories.LegislationRepository
 	legislationSubtopicService LegislationSubtopicService
+	adminNotificationObserver  *observers.AdminNotificationObserver
+	userNotificationObserver   *observers.UserNotificationObserver
 }
 
-func NewLegislationService(repo repositories.LegislationRepository, legislationSubtopicService LegislationSubtopicService) LegislationService {
+func NewLegislationService(repo repositories.LegislationRepository, legislationSubtopicService LegislationSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) LegislationService {
 	return &legislationService{
 		repo:                       repo,
 		legislationSubtopicService: legislationSubtopicService,
+		adminNotificationObserver:  adminNotificationObserver,
+		userNotificationObserver:   userNotificationObserver,
 	}
 }
 
@@ -57,6 +62,15 @@ func (s *legislationService) CreateLegislation(legislation *models.Legislation, 
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva legislación",
+		Action:       "created",
+		ResourceID:   int(createdLegislation.ID),
+		ResourceType: "legislation",
+	})
 
 	return createdLegislation, nil
 }
@@ -125,11 +139,23 @@ func (s *legislationService) UpdateLegislation(legislation *models.Legislation, 
 		return nil
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una legislación.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "legislation",
+		})
+
+	}
+
 	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 
-func (s *legislationService) SetLegislationApproval(id uint, approved bool, role string) error {
+func (s *legislationService) SetLegislationApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -147,6 +173,29 @@ func (s *legislationService) SetLegislationApproval(id uint, approved bool, role
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo tú legislación."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo tú legislación."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "legislation",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)

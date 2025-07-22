@@ -198,7 +198,7 @@ func (d *DocumentationController) SetDocumentationApproval(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims := claimsValue.(*security.Claims)
 
-	err = d.service.SetDocumentationApproval(uint(id), req.Approved, claims.Role)
+	err = d.service.SetDocumentationApproval(uint(id), req.Approved, claims.UserID, claims.Role)
 	if err != nil {
 		if err == customerrors.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})

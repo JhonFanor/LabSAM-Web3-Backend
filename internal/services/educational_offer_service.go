@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,19 +19,23 @@ type EducationalOfferService interface {
 	CountEducationalOffersNotApproved(role string) (int64, error)
 	GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error)
 	UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error
-	SetEducationalOfferApproval(id uint, approved bool, role string) error
+	SetEducationalOfferApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteEducationalOffer(id uint, userID uint, role string) error
 }
 
 type educationalOfferService struct {
 	repo                            repositories.EducationalOfferRepository
 	educationalOfferSubtopicService EducationalOfferSubtopicService
+	adminNotificationObserver       *observers.AdminNotificationObserver
+	userNotificationObserver        *observers.UserNotificationObserver
 }
 
-func NewEducationalOfferService(repo repositories.EducationalOfferRepository, educationalOfferSubtopicService EducationalOfferSubtopicService) EducationalOfferService {
+func NewEducationalOfferService(repo repositories.EducationalOfferRepository, educationalOfferSubtopicService EducationalOfferSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) EducationalOfferService {
 	return &educationalOfferService{
 		repo:                            repo,
 		educationalOfferSubtopicService: educationalOfferSubtopicService,
+		adminNotificationObserver:       adminNotificationObserver,
+		userNotificationObserver:        userNotificationObserver,
 	}
 }
 
@@ -57,6 +62,15 @@ func (s *educationalOfferService) CreateEducationalOffer(educationalOffer *model
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva oferta educativa.",
+		Action:       "created",
+		ResourceID:   int(createdEducationalOffer.ID),
+		ResourceType: "educational_offer",
+	})
 
 	return createdEducationalOffer, nil
 }
@@ -125,11 +139,23 @@ func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *model
 		return nil
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una oferta educativa.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "educational_offer",
+		})
+
+	}
+
 	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 
-func (s *educationalOfferService) SetEducationalOfferApproval(id uint, approved bool, role string) error {
+func (s *educationalOfferService) SetEducationalOfferApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -147,6 +173,29 @@ func (s *educationalOfferService) SetEducationalOfferApproval(id uint, approved 
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo tú oferta educativa."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo tú oferta educativa."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "bank_of_resume",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)

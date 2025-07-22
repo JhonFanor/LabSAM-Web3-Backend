@@ -10,6 +10,5 @@ func GetTableNameFromModel(model interface{}) string {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	// Convención simple: struct `News` -> tabla `news`
 	return strings.ToLower(t.Name())
 }

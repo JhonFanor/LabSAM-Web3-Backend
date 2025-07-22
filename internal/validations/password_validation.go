@@ -1,19 +1,23 @@
 package validations
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	passwordvalidator "github.com/wagslane/go-password-validator"
 )
-
-const minEntropyBits = 60
 
 func PasswordValidation(fl validator.FieldLevel) bool {
 	password := strings.TrimSpace(fl.Field().String())
-	err := passwordvalidator.Validate(password, minEntropyBits)
-	if err != nil {
+
+	if len(password) < 8 {
 		return false
 	}
-	return true
+
+	hasLower := regexp.MustCompile(`[a-z]`).MatchString
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString
+	hasDigit := regexp.MustCompile(`\d`).MatchString
+	hasSpecial := regexp.MustCompile(`[^A-Za-z0-9]`).MatchString
+
+	return hasLower(password) && hasUpper(password) && hasDigit(password) && hasSpecial(password)
 }

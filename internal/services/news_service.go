@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,19 +19,23 @@ type NewsService interface {
 	CountNewsNotApproved(role string) (int64, error)
 	GetNewsByID(id uint, userID uint, role string) (*models.News, error)
 	UpdateNews(news *models.News, userID uint, role string) error
-	SetNewsApproval(id uint, approved bool, role string) error
+	SetNewsApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteNews(id uint, userID uint, role string) error
 }
 
 type newsService struct {
-	repo                repositories.NewsRepository
-	newsSubtopicService NewsSubtopicService
+	repo                      repositories.NewsRepository
+	newsSubtopicService       NewsSubtopicService
+	adminNotificationObserver *observers.AdminNotificationObserver
+	userNotificationObserver  *observers.UserNotificationObserver
 }
 
-func NewNewsService(repo repositories.NewsRepository, newsSubtopicService NewsSubtopicService) NewsService {
+func NewNewsService(repo repositories.NewsRepository, newsSubtopicService NewsSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) NewsService {
 	return &newsService{
-		repo:                repo,
-		newsSubtopicService: newsSubtopicService,
+		repo:                      repo,
+		newsSubtopicService:       newsSubtopicService,
+		adminNotificationObserver: adminNotificationObserver,
+		userNotificationObserver:  userNotificationObserver,
 	}
 }
 
@@ -57,6 +62,15 @@ func (s *newsService) CreateNews(news *models.News, userID uint, subtopicIDs []u
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva noticia.",
+		Action:       "created",
+		ResourceID:   int(createdNews.ID),
+		ResourceType: "news",
+	})
 
 	return createdNews, nil
 }
@@ -125,11 +139,23 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 		return customerrors.ErrNoUpdates
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una noticia.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "news",
+		})
+
+	}
+
 	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 
-func (s *newsService) SetNewsApproval(id uint, approved bool, role string) error {
+func (s *newsService) SetNewsApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -147,6 +173,29 @@ func (s *newsService) SetNewsApproval(id uint, approved bool, role string) error
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo tú noticia."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo tú noticia."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "news",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)

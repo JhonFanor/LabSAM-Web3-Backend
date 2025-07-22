@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,19 +19,23 @@ type DocumentationService interface {
 	CountDocumentationsNotApproved(role string) (int64, error)
 	GetDocumentationByID(id uint, userID uint, role string) (*models.Documentation, error)
 	UpdateDocumentation(documentation *models.Documentation, userID uint, role string) error
-	SetDocumentationApproval(id uint, approved bool, role string) error
+	SetDocumentationApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteDocumentation(id uint, userID uint, role string) error
 }
 
 type documentationService struct {
 	repo                         repositories.DocumentationRepository
 	documentationSubtopicService DocumentationSubtopicService
+	adminNotificationObserver    *observers.AdminNotificationObserver
+	userNotificationObserver     *observers.UserNotificationObserver
 }
 
-func NewDocumentationService(repo repositories.DocumentationRepository, documentationSubtopicService DocumentationSubtopicService) DocumentationService {
+func NewDocumentationService(repo repositories.DocumentationRepository, documentationSubtopicService DocumentationSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) DocumentationService {
 	return &documentationService{
 		repo:                         repo,
 		documentationSubtopicService: documentationSubtopicService,
+		adminNotificationObserver:    adminNotificationObserver,
+		userNotificationObserver:     userNotificationObserver,
 	}
 }
 
@@ -56,6 +61,15 @@ func (s *documentationService) CreateDocumentation(documentation *models.Documen
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva documentación.",
+		Action:       "created",
+		ResourceID:   int(createdDocumentation.ID),
+		ResourceType: "documentation",
+	})
 
 	return createdDocumentation, nil
 }
@@ -124,11 +138,23 @@ func (s *documentationService) UpdateDocumentation(documentation *models.Documen
 		return nil
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una documentación.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "documentation",
+		})
+
+	}
+
 	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 
-func (s *documentationService) SetDocumentationApproval(id uint, approved bool, role string) error {
+func (s *documentationService) SetDocumentationApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -146,6 +172,29 @@ func (s *documentationService) SetDocumentationApproval(id uint, approved bool, 
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo tú documentación."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo tú documentación."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "documentation",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)

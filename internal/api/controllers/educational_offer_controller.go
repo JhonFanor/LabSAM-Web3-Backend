@@ -204,7 +204,7 @@ func (e *EducationalOfferController) SetEducationalOfferApproval(c *gin.Context)
 	claimsValue, _ := c.Get("claims")
 	claims := claimsValue.(*security.Claims)
 
-	err = e.service.SetEducationalOfferApproval(uint(id), req.Approved, claims.Role)
+	err = e.service.SetEducationalOfferApproval(uint(id), req.Approved, claims.UserID, claims.Role)
 	if err != nil {
 		if err == customerrors.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})

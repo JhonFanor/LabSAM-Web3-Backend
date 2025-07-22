@@ -201,7 +201,7 @@ func (b *BankOfResumeController) SetBankOfResumeApproval(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims := claimsValue.(*security.Claims)
 
-	err = b.service.SetBankOfResumeApproval(uint(id), req.Approved, claims.Role)
+	err = b.service.SetBankOfResumeApproval(uint(id), req.Approved, claims.UserID, claims.Role)
 	if err != nil {
 		if err == customerrors.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})

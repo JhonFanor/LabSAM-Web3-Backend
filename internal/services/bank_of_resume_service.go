@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,19 +19,23 @@ type BankOfResumeService interface {
 	CountBankOfResumesNotApproved(role string) (int64, error)
 	GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error)
 	UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error
-	SetBankOfResumeApproval(id uint, approved bool, role string) error
+	SetBankOfResumeApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteBankOfResume(id uint, userId uint, role string) error
 }
 
 type bankOfResumeService struct {
 	repo                        repositories.BankOfResumeRepository
 	bankOfResumeSubtopicService BankOfResumeSubtopicService
+	adminNotificationObserver   *observers.AdminNotificationObserver
+	userNotificationObserver    *observers.UserNotificationObserver
 }
 
-func NewBankOfResumeService(repo repositories.BankOfResumeRepository, bankOfResumeSubtopicService BankOfResumeSubtopicService) BankOfResumeService {
+func NewBankOfResumeService(repo repositories.BankOfResumeRepository, bankOfResumeSubtopicService BankOfResumeSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) BankOfResumeService {
 	return &bankOfResumeService{
 		repo:                        repo,
 		bankOfResumeSubtopicService: bankOfResumeSubtopicService,
+		adminNotificationObserver:   adminNotificationObserver,
+		userNotificationObserver:    userNotificationObserver,
 	}
 }
 
@@ -57,6 +62,15 @@ func (s *bankOfResumeService) CreateBankOfResume(bankOfResume *models.BankOfResu
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva hoja de vida.",
+		Action:       "created",
+		ResourceID:   int(createdBankOfResume.ID),
+		ResourceType: "bank_of_resume",
+	})
 
 	return createdBankOfResume, nil
 }
@@ -125,11 +139,23 @@ func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResu
 		return nil
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una hoja de vida.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "bank_of_resume",
+		})
+
+	}
+
 	existing.User = nil
 	return s.repo.Update(existing, updates)
 }
 
-func (s *bankOfResumeService) SetBankOfResumeApproval(id uint, approved bool, role string) error {
+func (s *bankOfResumeService) SetBankOfResumeApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -147,6 +173,29 @@ func (s *bankOfResumeService) SetBankOfResumeApproval(id uint, approved bool, ro
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo tú hoja de vida."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo tú hoja de vida."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "bank_of_resume",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)

@@ -198,7 +198,7 @@ func (l *LegislationController) SetLegislationApproval(c *gin.Context) {
 	claimsValue, _ := c.Get("claims")
 	claims := claimsValue.(*security.Claims)
 
-	err = l.service.SetLegislationApproval(uint(id), req.Approved, claims.Role)
+	err = l.service.SetLegislationApproval(uint(id), req.Approved, claims.UserID, claims.Role)
 	if err != nil {
 		if err == customerrors.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})

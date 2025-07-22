@@ -235,7 +235,7 @@ func (c *CompanyController) SetCompanyApproval(ctx *gin.Context) {
 	claimsValue, _ := ctx.Get("claims")
 	claims := claimsValue.(*security.Claims)
 
-	err = c.service.SetCompanyApproval(uint(id), req.Approved, claims.Role)
+	err = c.service.SetCompanyApproval(uint(id), req.Approved, claims.UserID, claims.Role)
 	if err != nil {
 		if err == customerrors.ErrUnauthorized {
 			ctx.JSON(http.StatusForbidden, responses.ErrorResponse{Error: err.Error()})

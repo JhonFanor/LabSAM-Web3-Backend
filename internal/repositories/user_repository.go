@@ -12,6 +12,7 @@ type UserRepository interface {
 	Delete(id uint) error
 	GetByID(id uint) (*models.User, error)
 	GetAll() ([]models.User, error)
+	GetAdmins() ([]models.User, error)
 	FindByEmail(email string) (*models.User, error)
 }
 
@@ -52,6 +53,21 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (r *userRepository) GetAdmins() ([]models.User, error) {
+	var admins []models.User
+
+	err := r.db.
+		Joins("JOIN roles ON roles.id = users.role_id").
+		Where("roles.name = ?", "admin").
+		Preload("Role").
+		Find(&admins).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return admins, nil
 }
 
 func (r *userRepository) FindByEmail(email string) (*models.User, error) {

@@ -27,6 +27,7 @@ func main() {
 		provide.RepositoryProvide(),
 		provide.ServiceProvide(),
 		provide.MiddlewareProvide(),
+		provide.ObserverProvide,
 		provide.ControllerProvide(),
 		provide.RouteProvide(),
 		fx.Invoke(config.LoadEnvVariables),

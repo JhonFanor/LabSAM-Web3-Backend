@@ -4,6 +4,7 @@ import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
+	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
 	"lamsam-web3-backend/internal/utils"
 
@@ -18,21 +19,25 @@ type CompanyService interface {
 	CountCompaniesNotApproved(role string) (int64, error)
 	GetCompanyByID(id uint, userID uint, role string) (*models.Company, error)
 	UpdateCompany(company *models.Company, userID uint, role string) error
-	SetCompanyApproval(id uint, approved bool, role string) error
+	SetCompanyApproval(id uint, approved bool, adminId uint, role string) error
 	DeleteCompany(id uint, userID uint, role string) error
 }
 
 type companyService struct {
-	repo                   repositories.CompanyRepository
-	localitationService    LocalitationService
-	companySubtopicService CompanySubtopicService
+	repo                      repositories.CompanyRepository
+	localitationService       LocalitationService
+	companySubtopicService    CompanySubtopicService
+	adminNotificationObserver *observers.AdminNotificationObserver
+	userNotificationObserver  *observers.UserNotificationObserver
 }
 
-func NewCompanyService(repo repositories.CompanyRepository, localitationService LocalitationService, companySubtopicService CompanySubtopicService) CompanyService {
+func NewCompanyService(repo repositories.CompanyRepository, localitationService LocalitationService, companySubtopicService CompanySubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) CompanyService {
 	return &companyService{
-		repo:                   repo,
-		localitationService:    localitationService,
-		companySubtopicService: companySubtopicService,
+		repo:                      repo,
+		localitationService:       localitationService,
+		companySubtopicService:    companySubtopicService,
+		adminNotificationObserver: adminNotificationObserver,
+		userNotificationObserver:  userNotificationObserver,
 	}
 }
 
@@ -59,6 +64,15 @@ func (s *companyService) CreateCompany(company *models.Company, userID uint, sub
 			return nil, err
 		}
 	}
+
+	s.adminNotificationObserver.Handle(observers.EventObserver{
+		Type:         observers.EventObserverType(observers.Created),
+		SenderID:     userID,
+		Message:      "Ha creado una nueva empresa.",
+		Action:       "created",
+		ResourceID:   int(createdCompany.ID),
+		ResourceType: "company",
+	})
 
 	return createdCompany, nil
 }
@@ -127,6 +141,18 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 		return nil
 	}
 
+	if role != "admin" {
+		s.adminNotificationObserver.Handle(observers.EventObserver{
+			Type:         observers.EventObserverType(observers.Updated),
+			SenderID:     userID,
+			Message:      "Ha actualizado una empresa.",
+			Action:       "updated",
+			ResourceID:   int(existing.ID),
+			ResourceType: "company",
+		})
+
+	}
+
 	existing.User = nil
 	err = s.repo.Update(existing, updates)
 
@@ -137,7 +163,7 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 	return err
 }
 
-func (s *companyService) SetCompanyApproval(id uint, approved bool, role string) error {
+func (s *companyService) SetCompanyApproval(id uint, approved bool, adminId uint, role string) error {
 	if role != "admin" {
 		return customerrors.ErrUnauthorized
 	}
@@ -155,6 +181,29 @@ func (s *companyService) SetCompanyApproval(id uint, approved bool, role string)
 	updates := map[string]interface{}{
 		"is_approved": &isApproved,
 	}
+
+	message := ""
+	action := ""
+	var typeObserver observers.EventObserverType
+	if approved {
+		typeObserver = observers.EventObserverType(observers.Approved)
+		message = "El administrador aprobo la información de la empresa."
+		action = "approved"
+	} else {
+		typeObserver = observers.EventObserverType(observers.Rejected)
+		message = "El administrador rechazo la información de la empresa."
+		action = "rejected"
+	}
+
+	s.userNotificationObserver.Handle(observers.EventObserver{
+		Type:         typeObserver,
+		SenderID:     adminId,
+		ReceiverID:   existing.UserID,
+		Message:      message,
+		Action:       action,
+		ResourceID:   int(existing.ID),
+		ResourceType: "company",
+	})
 
 	existing.User = nil
 	return s.repo.Update(existing, updates)
