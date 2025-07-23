@@ -41,6 +41,7 @@ func (lr *LegislationRoutes) Routes() {
 		legislation.GET("/user/me", lr.TokenMiddleware.ValidateToken(), lr.LegislationController.GetAllLegislationsByUserID)
 		legislation.GET("/admin/not-approved", lr.TokenMiddleware.ValidateToken(), lr.LegislationController.GetAllLegislationsNotApproved)
 		legislation.GET("/admin/not-approved/count", lr.TokenMiddleware.ValidateToken(), lr.LegislationController.CountLegislationsNotApproved)
+		legislation.GET("/count-by-subtopic", lr.LegislationController.CountLegislationBySubtopic)
 		legislation.GET("/:id", lr.TokenMiddleware.ValidateOptionalToken(), lr.LegislationController.GetLegislationByID)
 		legislation.PUT("/:id", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationUpdateRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.UpdateLegislation)
 		legislation.PUT("/:id/approval", lr.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.SetLegislationApproval)

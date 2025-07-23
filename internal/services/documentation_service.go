@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type DocumentationService interface {
 	GetAllDocumentationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllDocumentationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountDocumentationsNotApproved(role string) (int64, error)
+	CountDocumentationBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetDocumentationByID(id uint, userID uint, role string) (*models.Documentation, error)
 	UpdateDocumentation(documentation *models.Documentation, userID uint, role string) error
 	SetDocumentationApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type DocumentationService interface {
 type documentationService struct {
 	repo                         repositories.DocumentationRepository
 	documentationSubtopicService DocumentationSubtopicService
+	subtopicService              SubtopicService
 	adminNotificationObserver    *observers.AdminNotificationObserver
 	userNotificationObserver     *observers.UserNotificationObserver
 }
 
-func NewDocumentationService(repo repositories.DocumentationRepository, documentationSubtopicService DocumentationSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) DocumentationService {
+func NewDocumentationService(repo repositories.DocumentationRepository, documentationSubtopicService DocumentationSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) DocumentationService {
 	return &documentationService{
 		repo:                         repo,
 		documentationSubtopicService: documentationSubtopicService,
+		subtopicService:              subtopicService,
 		adminNotificationObserver:    adminNotificationObserver,
 		userNotificationObserver:     userNotificationObserver,
 	}
@@ -115,6 +119,29 @@ func (s *documentationService) GetDocumentationByID(id uint, userID uint, role s
 	}
 
 	return nil, customerrors.ErrInvalidID
+}
+
+func (s *documentationService) CountDocumentationBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *documentationService) UpdateDocumentation(documentation *models.Documentation, userID uint, role string) error {

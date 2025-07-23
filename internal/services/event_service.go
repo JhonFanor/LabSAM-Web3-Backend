@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type EventService interface {
 	GetAllEventsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllEventsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountEventsNotApproved(role string) (int64, error)
+	CountEventBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetEventByID(id uint, userID uint, role string) (*models.Event, error)
 	UpdateEvent(event *models.Event, userID uint, role string) error
 	SetEventApproval(id uint, approved bool, adminId uint, role string) error
@@ -27,14 +29,16 @@ type eventService struct {
 	repo                      repositories.EventRepository
 	localitationService       LocalitationService
 	eventSubtopicService      EventSubtopicService
+	subtopicService           SubtopicService
 	adminNotificationObserver *observers.AdminNotificationObserver
 	userNotificationObserver  *observers.UserNotificationObserver
 }
 
-func NewEventService(repo repositories.EventRepository, eventSubtopicService EventSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) EventService {
+func NewEventService(repo repositories.EventRepository, eventSubtopicService EventSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) EventService {
 	return &eventService{
 		repo:                      repo,
 		eventSubtopicService:      eventSubtopicService,
+		subtopicService:           subtopicService,
 		adminNotificationObserver: adminNotificationObserver,
 		userNotificationObserver:  userNotificationObserver,
 	}
@@ -96,6 +100,29 @@ func (s *eventService) CountEventsNotApproved(role string) (int64, error) {
 		return 0, customerrors.ErrUnauthorized
 	}
 	return s.repo.CountNotApproved()
+}
+
+func (s *eventService) CountEventBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *eventService) GetEventByID(id uint, userID uint, role string) (*models.Event, error) {

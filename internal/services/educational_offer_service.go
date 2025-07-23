@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type EducationalOfferService interface {
 	GetAllEducationalOffersByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllEducationalOffersNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountEducationalOffersNotApproved(role string) (int64, error)
+	CountEducationalOfferBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error)
 	UpdateEducationalOffer(educationalOffer *models.EducationalOffer, userID uint, role string) error
 	SetEducationalOfferApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type EducationalOfferService interface {
 type educationalOfferService struct {
 	repo                            repositories.EducationalOfferRepository
 	educationalOfferSubtopicService EducationalOfferSubtopicService
+	subtopicService                 SubtopicService
 	adminNotificationObserver       *observers.AdminNotificationObserver
 	userNotificationObserver        *observers.UserNotificationObserver
 }
 
-func NewEducationalOfferService(repo repositories.EducationalOfferRepository, educationalOfferSubtopicService EducationalOfferSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) EducationalOfferService {
+func NewEducationalOfferService(repo repositories.EducationalOfferRepository, educationalOfferSubtopicService EducationalOfferSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) EducationalOfferService {
 	return &educationalOfferService{
 		repo:                            repo,
 		educationalOfferSubtopicService: educationalOfferSubtopicService,
+		subtopicService:                 subtopicService,
 		adminNotificationObserver:       adminNotificationObserver,
 		userNotificationObserver:        userNotificationObserver,
 	}
@@ -95,6 +99,29 @@ func (s *educationalOfferService) CountEducationalOffersNotApproved(role string)
 		return 0, customerrors.ErrUnauthorized
 	}
 	return s.repo.CountNotApproved()
+}
+
+func (s *educationalOfferService) CountEducationalOfferBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *educationalOfferService) GetEducationalOfferByID(id uint, userID uint, role string) (*models.EducationalOffer, error) {

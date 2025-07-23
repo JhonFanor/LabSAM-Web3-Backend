@@ -125,6 +125,16 @@ func (i *InvestigationController) CountInvestigationsNotApproved(c *gin.Context)
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (i *InvestigationController) CountInvestigationBySubtopic(c *gin.Context) {
+	count, err := i.service.CountInvestigationBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (i *InvestigationController) GetInvestigationByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

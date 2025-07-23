@@ -41,6 +41,7 @@ func (cr *CompanyRoutes) Routes() {
 		company.GET("/user/me", cr.TokenMiddleware.ValidateToken(), cr.CompanyController.GetAllCompaniesByUserID)
 		company.GET("/admin/not-approved", cr.TokenMiddleware.ValidateToken(), cr.CompanyController.GetAllCompaniesNotApproved)
 		company.GET("/admin/not-approved/count", cr.TokenMiddleware.ValidateToken(), cr.CompanyController.CountCompaniesNotApproved)
+		company.GET("/count-by-subtopic", cr.CompanyController.CountComapnyBySubtopic)
 		company.GET("/:id", cr.TokenMiddleware.ValidateOptionalToken(), cr.CompanyController.GetCompanyByID)
 		company.PUT("/:id", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyUpdateRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.UpdateCompany)
 		company.PUT("/:id/approval", cr.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.SetCompanyApproval)

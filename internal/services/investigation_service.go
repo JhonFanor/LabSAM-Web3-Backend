@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type InvestigationService interface {
 	GetAllInvestigationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllInvestigationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountInvestigationsNotApproved(role string) (int64, error)
+	CountInvestigationBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error)
 	UpdateInvestigation(investigation *models.Investigation, userID uint, role string) error
 	SetInvestigationApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type InvestigationService interface {
 type investigationService struct {
 	repo                         repositories.InvestigationRepository
 	investigationSubtopicService InvestigationSubtopicService
+	subtopicService              SubtopicService
 	adminNotificationObserver    *observers.AdminNotificationObserver
 	userNotificationObserver     *observers.UserNotificationObserver
 }
 
-func NewInvestigationService(repo repositories.InvestigationRepository, investigationSubtopicService InvestigationSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) InvestigationService {
+func NewInvestigationService(repo repositories.InvestigationRepository, investigationSubtopicService InvestigationSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) InvestigationService {
 	return &investigationService{
 		repo:                         repo,
 		investigationSubtopicService: investigationSubtopicService,
+		subtopicService:              subtopicService,
 		adminNotificationObserver:    adminNotificationObserver,
 		userNotificationObserver:     userNotificationObserver,
 	}
@@ -95,6 +99,29 @@ func (s *investigationService) CountInvestigationsNotApproved(role string) (int6
 		return 0, customerrors.ErrUnauthorized
 	}
 	return s.repo.CountNotApproved()
+}
+
+func (s *investigationService) CountInvestigationBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *investigationService) GetInvestigationByID(id uint, userID uint, role string) (*models.Investigation, error) {

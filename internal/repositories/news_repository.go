@@ -15,6 +15,7 @@ type NewsRepository interface {
 	GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error)
 	CountNotApproved() (int64, error)
+	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.News, error)
 	Update(news *models.News, updates map[string]interface{}) error
 	Delete(id uint) error
@@ -84,6 +85,15 @@ func (r *newsRepository) CountNotApproved() (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (r *newsRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
+	var count int64
+	err := r.db.
+		Table("news_subtopic").
+		Where("subtopic_id = ?", subtopicID).
+		Count(&count).Error
+	return count, err
 }
 
 func (r *newsRepository) GetByID(id uint) (*models.News, error) {

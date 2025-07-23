@@ -15,6 +15,7 @@ type JobBoardRepository interface {
 	GetAllByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllNotApproved(c *gin.Context) (*dto.PaginationDTO, error)
 	CountNotApproved() (int64, error)
+	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.JobBoard, error)
 	Update(jobBoard *models.JobBoard, updates map[string]interface{}) error
 	Delete(id uint) error
@@ -85,6 +86,15 @@ func (r *jobBoardRepository) CountNotApproved() (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (r *jobBoardRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
+	var count int64
+	err := r.db.
+		Table("job_board_subtopic").
+		Where("subtopic_id = ?", subtopicID).
+		Count(&count).Error
+	return count, err
 }
 
 func (r *jobBoardRepository) GetByID(id uint) (*models.JobBoard, error) {

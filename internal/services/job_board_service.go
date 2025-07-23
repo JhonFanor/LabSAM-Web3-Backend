@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type JobBoardService interface {
 	GetAllJobsBoardByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllJobsBoardNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountJobsBoardNotApproved(role string) (int64, error)
+	CountJobBoardBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error)
 	UpdateJobBoard(jobBoard *models.JobBoard, userID uint, role string) error
 	SetJobBoardApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type JobBoardService interface {
 type jobBoardService struct {
 	repo                      repositories.JobBoardRepository
 	jobBoardSubtopicService   JobBoardSubtopicService
+	subtopicService           SubtopicService
 	adminNotificationObserver *observers.AdminNotificationObserver
 	userNotificationObserver  *observers.UserNotificationObserver
 }
 
-func NewJobBoardService(repo repositories.JobBoardRepository, jobBoardSubtopicService JobBoardSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) JobBoardService {
+func NewJobBoardService(repo repositories.JobBoardRepository, jobBoardSubtopicService JobBoardSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) JobBoardService {
 	return &jobBoardService{
 		repo:                      repo,
 		jobBoardSubtopicService:   jobBoardSubtopicService,
+		subtopicService:           subtopicService,
 		adminNotificationObserver: adminNotificationObserver,
 		userNotificationObserver:  userNotificationObserver,
 	}
@@ -95,6 +99,29 @@ func (s *jobBoardService) CountJobsBoardNotApproved(role string) (int64, error) 
 		return 0, customerrors.ErrUnauthorized
 	}
 	return s.repo.CountNotApproved()
+}
+
+func (s *jobBoardService) CountJobBoardBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *jobBoardService) GetJobBoardByID(id uint, userID uint, role string) (*models.JobBoard, error) {

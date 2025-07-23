@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type BankOfResumeService interface {
 	GetAllBankOfResumesByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllBankOfResumesNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountBankOfResumesNotApproved(role string) (int64, error)
+	CountBankOfResumeBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetBankOfResumeByID(id uint, userID uint, role string) (*models.BankOfResume, error)
 	UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error
 	SetBankOfResumeApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type BankOfResumeService interface {
 type bankOfResumeService struct {
 	repo                        repositories.BankOfResumeRepository
 	bankOfResumeSubtopicService BankOfResumeSubtopicService
+	subtopicService             SubtopicService
 	adminNotificationObserver   *observers.AdminNotificationObserver
 	userNotificationObserver    *observers.UserNotificationObserver
 }
 
-func NewBankOfResumeService(repo repositories.BankOfResumeRepository, bankOfResumeSubtopicService BankOfResumeSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) BankOfResumeService {
+func NewBankOfResumeService(repo repositories.BankOfResumeRepository, bankOfResumeSubtopicService BankOfResumeSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) BankOfResumeService {
 	return &bankOfResumeService{
 		repo:                        repo,
 		bankOfResumeSubtopicService: bankOfResumeSubtopicService,
+		subtopicService:             subtopicService,
 		adminNotificationObserver:   adminNotificationObserver,
 		userNotificationObserver:    userNotificationObserver,
 	}
@@ -116,6 +120,29 @@ func (s *bankOfResumeService) GetBankOfResumeByID(id uint, userID uint, role str
 	}
 
 	return nil, customerrors.ErrUnauthorized
+}
+
+func (s *bankOfResumeService) CountBankOfResumeBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResume, userID uint, role string) error {

@@ -123,6 +123,16 @@ func (l *LegislationController) CountLegislationsNotApproved(c *gin.Context) {
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (l *LegislationController) CountLegislationBySubtopic(c *gin.Context) {
+	count, err := l.service.CountLegislationBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (l *LegislationController) GetLegislationByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

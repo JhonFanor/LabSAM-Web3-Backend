@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type LegislationService interface {
 	GetAllLegislationsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllLegislationsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountLegislationsNotApproved(role string) (int64, error)
+	CountLegislationBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error)
 	UpdateLegislation(legislation *models.Legislation, userID uint, role string) error
 	SetLegislationApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type LegislationService interface {
 type legislationService struct {
 	repo                       repositories.LegislationRepository
 	legislationSubtopicService LegislationSubtopicService
+	subtopicService            SubtopicService
 	adminNotificationObserver  *observers.AdminNotificationObserver
 	userNotificationObserver   *observers.UserNotificationObserver
 }
 
-func NewLegislationService(repo repositories.LegislationRepository, legislationSubtopicService LegislationSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) LegislationService {
+func NewLegislationService(repo repositories.LegislationRepository, legislationSubtopicService LegislationSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) LegislationService {
 	return &legislationService{
 		repo:                       repo,
 		legislationSubtopicService: legislationSubtopicService,
+		subtopicService:            subtopicService,
 		adminNotificationObserver:  adminNotificationObserver,
 		userNotificationObserver:   userNotificationObserver,
 	}
@@ -95,6 +99,29 @@ func (s *legislationService) CountLegislationsNotApproved(role string) (int64, e
 		return 0, customerrors.ErrUnauthorized
 	}
 	return s.repo.CountNotApproved()
+}
+
+func (s *legislationService) CountLegislationBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *legislationService) GetLegislationByID(id uint, userID uint, role string) (*models.Legislation, error) {

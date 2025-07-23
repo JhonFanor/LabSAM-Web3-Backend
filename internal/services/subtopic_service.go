@@ -13,6 +13,7 @@ type SubtopicService interface {
 	UpdateSubtopic(topic *models.Subtopic) error
 	DeleteSubtopic(id uint) error
 	GetSubtopicByID(id uint) (*models.Subtopic, error)
+	GetAllSubtopic() ([]models.Subtopic, error)
 }
 
 type subtopicService struct {
@@ -53,4 +54,8 @@ func (s *subtopicService) GetSubtopicByID(id uint) (*models.Subtopic, error) {
 		return nil, customerrors.ErrInvalidID
 	}
 	return s.repo.GetByID(id)
+}
+
+func (s *subtopicService) GetAllSubtopic() ([]models.Subtopic, error) {
+	return s.repo.GetAll()
 }

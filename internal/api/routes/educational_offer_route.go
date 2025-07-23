@@ -41,6 +41,7 @@ func (eor *EducationalOfferRoutes) Routes() {
 		educationalOffer.GET("/user/me", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetAllEducationalOffersByUserID)
 		educationalOffer.GET("/admin/not-approved", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetAllEducationalOffersNotApproved)
 		educationalOffer.GET("/admin/not-approved/count", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CountEducationalOffersNotApproved)
+		educationalOffer.GET("/count-by-subtopic", eor.EducationalOfferController.CountEducationalOfferBySubtopic)
 		educationalOffer.GET("/:id", eor.TokenMiddleware.ValidateOptionalToken(), eor.EducationalOfferController.GetEducationalOfferByID)
 		educationalOffer.PUT("/:id", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalUpdateOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.UpdateEducationalOffer)
 		educationalOffer.PUT("/:id/approval", eor.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.SetEducationalOfferApproval)

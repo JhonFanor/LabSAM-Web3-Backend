@@ -123,6 +123,16 @@ func (d *DocumentationController) CountDocumentationsNotApproved(c *gin.Context)
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (d *DocumentationController) CountDocumentationBySubtopic(c *gin.Context) {
+	count, err := d.service.CountDocumentationBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (d *DocumentationController) GetDocumentationByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

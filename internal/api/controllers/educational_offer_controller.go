@@ -126,6 +126,16 @@ func (e *EducationalOfferController) CountEducationalOffersNotApproved(c *gin.Co
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (e *EducationalOfferController) CountEducationalOfferBySubtopic(c *gin.Context) {
+	count, err := e.service.CountEducationalOfferBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (e *EducationalOfferController) GetEducationalOfferByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

@@ -144,6 +144,16 @@ func (c *CompanyController) CountCompaniesNotApproved(context *gin.Context) {
 	context.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (c *CompanyController) CountComapnyBySubtopic(context *gin.Context) {
+	count, err := c.service.CountCompanyBySubtopic()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, count)
+}
+
 func (c *CompanyController) GetCompanyByID(context *gin.Context) {
 	id, err := strconv.Atoi(context.Param("id"))
 	if err != nil {

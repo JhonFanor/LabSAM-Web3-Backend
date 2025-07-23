@@ -41,6 +41,7 @@ func (er *EventRoutes) Routes() {
 		event.GET("/user/me", er.TokenMiddleware.ValidateToken(), er.EventController.GetAllEventsByUserID)
 		event.GET("/admin/not-approved", er.TokenMiddleware.ValidateToken(), er.EventController.GetAllEventsNotApproved)
 		event.GET("/admin/not-approved/count", er.TokenMiddleware.ValidateToken(), er.EventController.CountEventsNotApproved)
+		event.GET("/count-by-subtopic", er.EventController.CountEventBySubtopic)
 		event.GET("/:id", er.TokenMiddleware.ValidateOptionalToken(), er.EventController.GetEventByID)
 		event.PUT("/:id", er.ValidatorMiddleware.ValidateInput(&requests.EventUpdateRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.UpdateEvent)
 		event.PUT("/:id/approval", er.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.SetEventApproval)

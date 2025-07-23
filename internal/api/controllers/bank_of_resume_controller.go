@@ -126,6 +126,16 @@ func (b *BankOfResumeController) CountBankOfResumesNotApproved(c *gin.Context) {
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (b *BankOfResumeController) CountBankOfResumeBySubtopic(c *gin.Context) {
+	count, err := b.service.CountBankOfResumeBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (b *BankOfResumeController) GetBankOfResumeByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

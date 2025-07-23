@@ -41,6 +41,7 @@ func (ir *InvestigationRoutes) Routes() {
 		investigation.GET("/user/me", ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.GetAllInvestigationsByUserID)
 		investigation.GET("/admin/not-approved", ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.GetAllInvestigationsNotApproved)
 		investigation.GET("/admin/not-approved/count", ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.CountInvestigationsNotApproved)
+		investigation.GET("/count-by-subtopic", ir.InvestigationController.CountInvestigationBySubtopic)
 		investigation.GET("/:id", ir.TokenMiddleware.ValidateOptionalToken(), ir.InvestigationController.GetInvestigationByID)
 		investigation.PUT("/:id", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationUpdateRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.UpdateInvestigation)
 		investigation.PUT("/:id/approval", ir.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.SetInvestigationApproval)

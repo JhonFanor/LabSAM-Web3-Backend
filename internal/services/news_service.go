@@ -3,6 +3,7 @@ package services
 import (
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto"
+	"lamsam-web3-backend/internal/dto/responses"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/observers"
 	"lamsam-web3-backend/internal/repositories"
@@ -17,6 +18,7 @@ type NewsService interface {
 	GetAllNewsByUserID(c *gin.Context, userID uint) (*dto.PaginationDTO, error)
 	GetAllNewsNotApproved(c *gin.Context, role string) (*dto.PaginationDTO, error)
 	CountNewsNotApproved(role string) (int64, error)
+	CountNewsBySubtopic() ([]responses.SubtopicCountResponse, error)
 	GetNewsByID(id uint, userID uint, role string) (*models.News, error)
 	UpdateNews(news *models.News, userID uint, role string) error
 	SetNewsApproval(id uint, approved bool, adminId uint, role string) error
@@ -26,14 +28,16 @@ type NewsService interface {
 type newsService struct {
 	repo                      repositories.NewsRepository
 	newsSubtopicService       NewsSubtopicService
+	subtopicService           SubtopicService
 	adminNotificationObserver *observers.AdminNotificationObserver
 	userNotificationObserver  *observers.UserNotificationObserver
 }
 
-func NewNewsService(repo repositories.NewsRepository, newsSubtopicService NewsSubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) NewsService {
+func NewNewsService(repo repositories.NewsRepository, newsSubtopicService NewsSubtopicService, subtopicService SubtopicService, adminNotificationObserver *observers.AdminNotificationObserver, userNotificationObserver *observers.UserNotificationObserver) NewsService {
 	return &newsService{
 		repo:                      repo,
 		newsSubtopicService:       newsSubtopicService,
+		subtopicService:           subtopicService,
 		adminNotificationObserver: adminNotificationObserver,
 		userNotificationObserver:  userNotificationObserver,
 	}
@@ -95,6 +99,29 @@ func (s *newsService) CountNewsNotApproved(role string) (int64, error) {
 		return 0, customerrors.ErrUnauthorized
 	}
 	return s.repo.CountNotApproved()
+}
+
+func (s *newsService) CountNewsBySubtopic() ([]responses.SubtopicCountResponse, error) {
+	subtopics, err := s.subtopicService.GetAllSubtopic()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []responses.SubtopicCountResponse
+
+	for _, sub := range subtopics {
+		count, err := s.repo.CountBySubtopicID(sub.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, responses.SubtopicCountResponse{
+			SubtopicName: sub.Name,
+			Count:        count,
+		})
+	}
+
+	return result, nil
 }
 
 func (s *newsService) GetNewsByID(id uint, userID uint, role string) (*models.News, error) {

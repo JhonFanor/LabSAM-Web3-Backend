@@ -144,6 +144,16 @@ func (e *EventController) CountEventsNotApproved(c *gin.Context) {
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (e *EventController) CountEventBySubtopic(c *gin.Context) {
+	count, err := e.service.CountEventBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (e *EventController) GetEventByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

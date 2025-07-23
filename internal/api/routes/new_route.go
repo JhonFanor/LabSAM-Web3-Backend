@@ -41,6 +41,7 @@ func (nr *NewsRoutes) Routes() {
 		news.GET("/user/me", nr.TokenMiddleware.ValidateToken(), nr.NewsController.GetAllNewsByUserID)
 		news.GET("/admin/not-approved", nr.TokenMiddleware.ValidateToken(), nr.NewsController.GetAllNewsNotApproved)
 		news.GET("/admin/not-approved/count", nr.TokenMiddleware.ValidateToken(), nr.NewsController.CountNewsNotApproved)
+		news.GET("/count-by-subtopic", nr.NewsController.CountNewsBySubtopic)
 		news.GET("/:id", nr.TokenMiddleware.ValidateOptionalToken(), nr.NewsController.GetNewsByID)
 		news.PUT("/:id", nr.ValidatorMiddleware.ValidateInput(&requests.NewsUpdateRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.UpdateNews)
 		news.PUT("/:id/approval", nr.ValidatorMiddleware.ValidateInput(&requests.ApprovalRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.SetNewsApproval)

@@ -123,6 +123,16 @@ func (j *JobBoardController) CountJobsBoardNotApproved(c *gin.Context) {
 	c.JSON(http.StatusOK, responses.CountResponse{Count: count})
 }
 
+func (j *JobBoardController) CountJobBoardBySubtopic(c *gin.Context) {
+	count, err := j.service.CountJobBoardBySubtopic()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, count)
+}
+
 func (j *JobBoardController) GetJobBoardByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
