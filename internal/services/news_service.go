@@ -179,11 +179,11 @@ func (s *newsService) SetNewsApproval(id uint, approved bool, adminId uint, role
 	var typeObserver observers.EventObserverType
 	if approved {
 		typeObserver = observers.EventObserverType(observers.Approved)
-		message = "El administrador aprobo tú noticia."
+		message = "El administrador aprobo la noticia."
 		action = "approved"
 	} else {
 		typeObserver = observers.EventObserverType(observers.Rejected)
-		message = "El administrador rechazo tú noticia."
+		message = "El administrador rechazo la noticia."
 		action = "rejected"
 	}
 

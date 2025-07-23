@@ -143,10 +143,10 @@ func (s *investigationService) UpdateInvestigation(investigation *models.Investi
 		s.adminNotificationObserver.Handle(observers.EventObserver{
 			Type:         observers.EventObserverType(observers.Updated),
 			SenderID:     userID,
-			Message:      "Ha actualizado una hoja de vida.",
+			Message:      "Ha actualizado una investigacion.",
 			Action:       "updated",
 			ResourceID:   int(existing.ID),
-			ResourceType: "bank_of_resume",
+			ResourceType: "investigation",
 		})
 
 	}
@@ -179,11 +179,11 @@ func (s *investigationService) SetInvestigationApproval(id uint, approved bool, 
 	var typeObserver observers.EventObserverType
 	if approved {
 		typeObserver = observers.EventObserverType(observers.Approved)
-		message = "El administrador aprobo tú hoja de vida."
+		message = "El administrador aprobo la investigación."
 		action = "approved"
 	} else {
 		typeObserver = observers.EventObserverType(observers.Rejected)
-		message = "El administrador rechazo tú hoja de vida."
+		message = "El administrador rechazo la investigación."
 		action = "rejected"
 	}
 
@@ -194,7 +194,7 @@ func (s *investigationService) SetInvestigationApproval(id uint, approved bool, 
 		Message:      message,
 		Action:       action,
 		ResourceID:   int(existing.ID),
-		ResourceType: "bank_of_resume",
+		ResourceType: "investigation",
 	})
 
 	existing.User = nil

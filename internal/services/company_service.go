@@ -68,7 +68,7 @@ func (s *companyService) CreateCompany(company *models.Company, userID uint, sub
 	s.adminNotificationObserver.Handle(observers.EventObserver{
 		Type:         observers.EventObserverType(observers.Created),
 		SenderID:     userID,
-		Message:      "Ha creado una nueva empresa.",
+		Message:      "Ha creado información de una empresa.",
 		Action:       "created",
 		ResourceID:   int(createdCompany.ID),
 		ResourceType: "company",
@@ -145,7 +145,7 @@ func (s *companyService) UpdateCompany(company *models.Company, userID uint, rol
 		s.adminNotificationObserver.Handle(observers.EventObserver{
 			Type:         observers.EventObserverType(observers.Updated),
 			SenderID:     userID,
-			Message:      "Ha actualizado una empresa.",
+			Message:      "Ha actualizado la información de una empresa.",
 			Action:       "updated",
 			ResourceID:   int(existing.ID),
 			ResourceType: "company",

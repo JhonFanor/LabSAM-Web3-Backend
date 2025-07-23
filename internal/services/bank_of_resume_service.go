@@ -69,7 +69,7 @@ func (s *bankOfResumeService) CreateBankOfResume(bankOfResume *models.BankOfResu
 		Message:      "Ha creado una nueva hoja de vida.",
 		Action:       "created",
 		ResourceID:   int(createdBankOfResume.ID),
-		ResourceType: "bank_of_resume",
+		ResourceType: "bank-of-resume",
 	})
 
 	return createdBankOfResume, nil
@@ -146,7 +146,7 @@ func (s *bankOfResumeService) UpdateBankOfResume(bankOfResume *models.BankOfResu
 			Message:      "Ha actualizado una hoja de vida.",
 			Action:       "updated",
 			ResourceID:   int(existing.ID),
-			ResourceType: "bank_of_resume",
+			ResourceType: "bank-of-resume",
 		})
 
 	}
@@ -194,7 +194,7 @@ func (s *bankOfResumeService) SetBankOfResumeApproval(id uint, approved bool, ad
 		Message:      message,
 		Action:       action,
 		ResourceID:   int(existing.ID),
-		ResourceType: "bank_of_resume",
+		ResourceType: "bank-of-resume",
 	})
 
 	existing.User = nil

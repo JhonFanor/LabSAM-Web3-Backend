@@ -69,7 +69,7 @@ func (s *educationalOfferService) CreateEducationalOffer(educationalOffer *model
 		Message:      "Ha creado una nueva oferta educativa.",
 		Action:       "created",
 		ResourceID:   int(createdEducationalOffer.ID),
-		ResourceType: "educational_offer",
+		ResourceType: "educational-offer",
 	})
 
 	return createdEducationalOffer, nil
@@ -146,7 +146,7 @@ func (s *educationalOfferService) UpdateEducationalOffer(educationalOffer *model
 			Message:      "Ha actualizado una oferta educativa.",
 			Action:       "updated",
 			ResourceID:   int(existing.ID),
-			ResourceType: "educational_offer",
+			ResourceType: "educational-offer",
 		})
 
 	}
@@ -194,7 +194,7 @@ func (s *educationalOfferService) SetEducationalOfferApproval(id uint, approved 
 		Message:      message,
 		Action:       action,
 		ResourceID:   int(existing.ID),
-		ResourceType: "bank_of_resume",
+		ResourceType: "educational-offer",
 	})
 
 	existing.User = nil

@@ -186,11 +186,11 @@ func (s *eventService) SetEventApproval(id uint, approved bool, adminId uint, ro
 	var typeObserver observers.EventObserverType
 	if approved {
 		typeObserver = observers.EventObserverType(observers.Approved)
-		message = "El administrador aprobo tú evento."
+		message = "El administrador aprobo el evento."
 		action = "approved"
 	} else {
 		typeObserver = observers.EventObserverType(observers.Rejected)
-		message = "El administrador rechazo tú evento."
+		message = "El administrador rechazo el evento."
 		action = "rejected"
 	}
 

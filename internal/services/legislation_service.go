@@ -179,11 +179,11 @@ func (s *legislationService) SetLegislationApproval(id uint, approved bool, admi
 	var typeObserver observers.EventObserverType
 	if approved {
 		typeObserver = observers.EventObserverType(observers.Approved)
-		message = "El administrador aprobo tú legislación."
+		message = "El administrador aprobo la legislación."
 		action = "approved"
 	} else {
 		typeObserver = observers.EventObserverType(observers.Rejected)
-		message = "El administrador rechazo tú legislación."
+		message = "El administrador rechazo la legislación."
 		action = "rejected"
 	}
 

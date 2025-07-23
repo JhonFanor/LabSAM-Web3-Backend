@@ -69,7 +69,7 @@ func (s *jobBoardService) CreateJobBoard(jobBoard *models.JobBoard, userID uint,
 		Message:      "Ha creado una nueva oferta de trabajo.",
 		Action:       "created",
 		ResourceID:   int(createdJobBoard.ID),
-		ResourceType: "job_board",
+		ResourceType: "job-board",
 	})
 
 	return createdJobBoard, nil
@@ -146,7 +146,7 @@ func (s *jobBoardService) UpdateJobBoard(jobBoard *models.JobBoard, userID uint,
 			Message:      "Ha actualizado una oferta de trabajo.",
 			Action:       "updated",
 			ResourceID:   int(existing.ID),
-			ResourceType: "job_board",
+			ResourceType: "job-board",
 		})
 
 	}
@@ -194,7 +194,7 @@ func (s *jobBoardService) SetJobBoardApproval(id uint, approved bool, adminId ui
 		Message:      message,
 		Action:       action,
 		ResourceID:   int(existing.ID),
-		ResourceType: "job_board",
+		ResourceType: "job-board",
 	})
 
 	existing.User = nil

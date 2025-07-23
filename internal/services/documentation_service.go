@@ -178,11 +178,11 @@ func (s *documentationService) SetDocumentationApproval(id uint, approved bool, 
 	var typeObserver observers.EventObserverType
 	if approved {
 		typeObserver = observers.EventObserverType(observers.Approved)
-		message = "El administrador aprobo tú documentación."
+		message = "El administrador aprobo la documentación."
 		action = "approved"
 	} else {
 		typeObserver = observers.EventObserverType(observers.Rejected)
-		message = "El administrador rechazo tú documentación."
+		message = "El administrador rechazo la documentación."
 		action = "rejected"
 	}
 
