@@ -17,6 +17,7 @@ type DocumentationRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.Documentation, error)
+	GetRandomApproved() (*models.Documentation, error)
 	Update(documentation *models.Documentation, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -106,6 +107,19 @@ func (r *documentationRepository) GetByID(id uint) (*models.Documentation, error
 	var documentation models.Documentation
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&documentation, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+		return nil, err
+	}
+	return &documentation, nil
+}
+
+func (r *documentationRepository) GetRandomApproved() (*models.Documentation, error) {
+	var documentation models.Documentation
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&documentation).Error
+	if err != nil {
 		return nil, err
 	}
 	return &documentation, nil

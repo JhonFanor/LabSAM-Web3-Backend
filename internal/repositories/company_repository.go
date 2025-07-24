@@ -17,6 +17,7 @@ type CompanyRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.Company, error)
+	GetRandomApproved() (*models.Company, error)
 	Update(company *models.Company, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -106,6 +107,19 @@ func (r *companyRepository) GetByID(id uint) (*models.Company, error) {
 	var company models.Company
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&company, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("Localitation")); err != nil {
+		return nil, err
+	}
+	return &company, nil
+}
+
+func (r *companyRepository) GetRandomApproved() (*models.Company, error) {
+	var company models.Company
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&company).Error
+	if err != nil {
 		return nil, err
 	}
 	return &company, nil

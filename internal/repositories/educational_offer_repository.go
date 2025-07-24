@@ -17,6 +17,7 @@ type EducationalOfferRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.EducationalOffer, error)
+	GetRandomApproved() (*models.EducationalOffer, error)
 	Update(educationalOffer *models.EducationalOffer, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -105,6 +106,19 @@ func (r *educationalOfferRepository) GetByID(id uint) (*models.EducationalOffer,
 	var educationalOffer models.EducationalOffer
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&educationalOffer, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+		return nil, err
+	}
+	return &educationalOffer, nil
+}
+
+func (r *educationalOfferRepository) GetRandomApproved() (*models.EducationalOffer, error) {
+	var educationalOffer models.EducationalOffer
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&educationalOffer).Error
+	if err != nil {
 		return nil, err
 	}
 	return &educationalOffer, nil

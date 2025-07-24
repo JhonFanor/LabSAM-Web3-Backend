@@ -17,6 +17,7 @@ type EventRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.Event, error)
+	GetRandomApproved() (*models.Event, error)
 	Update(event *models.Event, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -101,6 +102,19 @@ func (r *eventRepository) GetByID(id uint) (*models.Event, error) {
 	var event models.Event
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&event, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("Localitation")); err != nil {
+		return nil, err
+	}
+	return &event, nil
+}
+
+func (r *eventRepository) GetRandomApproved() (*models.Event, error) {
+	var event models.Event
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&event).Error
+	if err != nil {
 		return nil, err
 	}
 	return &event, nil

@@ -17,6 +17,7 @@ type LegislationRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.Legislation, error)
+	GetRandomApproved() (*models.Legislation, error)
 	Update(legislation *models.Legislation, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -101,6 +102,19 @@ func (r *legislationRepository) GetByID(id uint) (*models.Legislation, error) {
 	var legislation models.Legislation
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&legislation, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+		return nil, err
+	}
+	return &legislation, nil
+}
+
+func (r *legislationRepository) GetRandomApproved() (*models.Legislation, error) {
+	var legislation models.Legislation
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&legislation).Error
+	if err != nil {
 		return nil, err
 	}
 	return &legislation, nil

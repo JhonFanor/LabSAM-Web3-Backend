@@ -29,6 +29,7 @@ func ControllerProvide() fx.Option {
 			controllers.NewNewsController,
 			controllers.NewNewsSubtopicController,
 			controllers.NewNotificationController,
+			controllers.NewPublicationsController,
 			controllers.NewTopicController,
 			controllers.NewUploadController,
 			controllers.NewUserController,

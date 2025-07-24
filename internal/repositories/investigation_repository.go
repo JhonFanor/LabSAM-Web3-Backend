@@ -17,6 +17,7 @@ type InvestigationRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.Investigation, error)
+	GetRandomApproved() (*models.Investigation, error)
 	Update(investigation *models.Investigation, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -101,6 +102,19 @@ func (r *investigationRepository) GetByID(id uint) (*models.Investigation, error
 	var investigation models.Investigation
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&investigation, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+		return nil, err
+	}
+	return &investigation, nil
+}
+
+func (r *investigationRepository) GetRandomApproved() (*models.Investigation, error) {
+	var investigation models.Investigation
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&investigation).Error
+	if err != nil {
 		return nil, err
 	}
 	return &investigation, nil

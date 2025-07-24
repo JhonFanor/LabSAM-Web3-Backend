@@ -17,6 +17,7 @@ type BankOfResumeRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.BankOfResume, error)
+	GetRandomApproved() (*models.BankOfResume, error)
 	Update(bankOfResume *models.BankOfResume, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -105,6 +106,19 @@ func (r *bankOfResumeRepository) GetByID(id uint) (*models.BankOfResume, error) 
 	var bankOfResume models.BankOfResume
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&bankOfResume, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+		return nil, err
+	}
+	return &bankOfResume, nil
+}
+
+func (r *bankOfResumeRepository) GetRandomApproved() (*models.BankOfResume, error) {
+	var bankOfResume models.BankOfResume
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&bankOfResume).Error
+	if err != nil {
 		return nil, err
 	}
 	return &bankOfResume, nil

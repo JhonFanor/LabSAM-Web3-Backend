@@ -17,6 +17,7 @@ type NewsRepository interface {
 	CountNotApproved() (int64, error)
 	CountBySubtopicID(subtopicID uint) (int64, error)
 	GetByID(id uint) (*models.News, error)
+	GetRandomApproved() (*models.News, error)
 	Update(news *models.News, updates map[string]interface{}) error
 	Delete(id uint) error
 }
@@ -100,6 +101,19 @@ func (r *newsRepository) GetByID(id uint) (*models.News, error) {
 	var news models.News
 	conditions := map[string]interface{}{"id": id}
 	if err := r.dbManager.Find(&news, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+		return nil, err
+	}
+	return &news, nil
+}
+
+func (r *newsRepository) GetRandomApproved() (*models.News, error) {
+	var news models.News
+	err := r.db.
+		Preload("User").
+		Where("is_approved = ?", true).
+		Order("RANDOM()").
+		First(&news).Error
+	if err != nil {
 		return nil, err
 	}
 	return &news, nil
