@@ -111,6 +111,9 @@ func (r *legislationRepository) GetRandomApproved() (*models.Legislation, error)
 	var legislation models.Legislation
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&legislation).Error

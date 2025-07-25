@@ -110,6 +110,9 @@ func (r *newsRepository) GetRandomApproved() (*models.News, error) {
 	var news models.News
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&news).Error

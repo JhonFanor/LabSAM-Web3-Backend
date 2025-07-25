@@ -116,6 +116,9 @@ func (r *companyRepository) GetRandomApproved() (*models.Company, error) {
 	var company models.Company
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&company).Error

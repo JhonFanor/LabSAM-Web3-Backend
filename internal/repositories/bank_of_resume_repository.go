@@ -115,6 +115,9 @@ func (r *bankOfResumeRepository) GetRandomApproved() (*models.BankOfResume, erro
 	var bankOfResume models.BankOfResume
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&bankOfResume).Error

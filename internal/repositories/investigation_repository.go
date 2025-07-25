@@ -111,6 +111,9 @@ func (r *investigationRepository) GetRandomApproved() (*models.Investigation, er
 	var investigation models.Investigation
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&investigation).Error

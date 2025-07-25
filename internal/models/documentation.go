@@ -11,6 +11,6 @@ type Documentation struct {
 	UserID      uint       `json:"-"`
 	User        *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Subtopics   []Subtopic `gorm:"many2many:documentation_subtopic;" json:"subtopics,omitempty"`
-	CreatedAt   *time.Time `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	CreatedAt   *time.Time `json:"created_at"`
+	UpdatedAt   *time.Time `json:"updated_at"`
 }

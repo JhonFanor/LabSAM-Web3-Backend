@@ -20,31 +20,40 @@ import (
 
 type AuthControllerParams struct {
 	fx.In
-	Validator         *validator.Validate
-	JwtConfig         *config.JwtConfig
-	AuthService       services.AuthService
-	UserService       services.UserService
-	RoleService       services.RoleService
-	PermissionService services.PermissionService
+	Validator             *validator.Validate
+	JwtConfig             *config.JwtConfig
+	AuthService           services.AuthService
+	UserService           services.UserService
+	ContactService        services.ContactService
+	LocationService       services.LocationService
+	UniversityTypeService services.UniversityTypeService
+	RoleService           services.RoleService
+	PermissionService     services.PermissionService
 }
 
 type AuthController struct {
-	Validator         *validator.Validate
-	JwtConfig         *config.JwtConfig
-	AuthService       services.AuthService
-	UserService       services.UserService
-	RoleService       services.RoleService
-	PermissionService services.PermissionService
+	Validator             *validator.Validate
+	JwtConfig             *config.JwtConfig
+	AuthService           services.AuthService
+	UserService           services.UserService
+	ContactService        services.ContactService
+	LocationService       services.LocationService
+	UniversityTypeService services.UniversityTypeService
+	RoleService           services.RoleService
+	PermissionService     services.PermissionService
 }
 
 func NewAuthController(p AuthControllerParams) *AuthController {
 	return &AuthController{
-		Validator:         p.Validator,
-		JwtConfig:         p.JwtConfig,
-		AuthService:       p.AuthService,
-		UserService:       p.UserService,
-		RoleService:       p.RoleService,
-		PermissionService: p.PermissionService,
+		Validator:             p.Validator,
+		JwtConfig:             p.JwtConfig,
+		AuthService:           p.AuthService,
+		UserService:           p.UserService,
+		ContactService:        p.ContactService,
+		LocationService:       p.LocationService,
+		UniversityTypeService: p.UniversityTypeService,
+		RoleService:           p.RoleService,
+		PermissionService:     p.PermissionService,
 	}
 }
 
@@ -80,6 +89,36 @@ func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 		return
 	}
 
+	var location models.Location
+	if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	locationCreate, err := a.LocationService.CreateLocation(&location)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	user.BusinessUser.LocationID = &locationCreate.ID
+
+	var contact models.Contact
+	if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	contactCreate, _ := a.ContactService.CreateContact(&contact)
+
+	user.BusinessUser.ContactID = &contactCreate.ID
+
 	createdUser, err := a.AuthService.RegisterBusinessUser(&user, &businessUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responses.ErrorResponse{
@@ -94,17 +133,6 @@ func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 	})
 }
 
-// RegisterRegularUser godoc
-// @Summary Register a new regular user
-// @Description This API endpoint registers a new regular user with all the necessary details.
-// @Tags Auth
-// @Accept  json
-// @Produce  json
-// @Param input body requests.RegularUserRequest true "Regular User Information"
-// @Success 200 {object} responses.UserResponse "Regular user successfully registered"
-// @Failure 400 {object} responses.ErrorResponse "Error registering regular user"
-// @Failure 500 {object} responses.ErrorResponse "Internal server error"
-// @Router /auth/register/regular [post]
 func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 	validatedInput, _ := c.Get("input")
 
@@ -125,6 +153,30 @@ func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 		})
 		return
 	}
+
+	var location models.Location
+	if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	locationCreate, _ := a.LocationService.CreateLocation(&location)
+
+	regularUser.LocationID = &locationCreate.ID
+
+	var contact models.Contact
+	if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	contactCreate, _ := a.ContactService.CreateContact(&contact)
+
+	regularUser.ContactID = &contactCreate.ID
 
 	createdUser, err := a.AuthService.RegisterRegularUser(&user, &regularUser)
 	if err != nil {
@@ -171,6 +223,32 @@ func (a *AuthController) RegisterUniversityUser(c *gin.Context) {
 		})
 		return
 	}
+
+	var location models.Location
+	if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	locationCreate, _ := a.LocationService.CreateLocation(&location)
+
+	user.UniversityUser.LocationID = &locationCreate.ID
+
+	var contact models.Contact
+	if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	contactCreate, _ := a.ContactService.CreateContact(&contact)
+
+	user.UniversityUser.ContactID = &contactCreate.ID
+
+	user.UniversityUser.UniversityTypeID = &input.UniversityType.ID
 
 	createdUser, err := a.AuthService.RegisterUniversityUser(&user, &universityUser)
 	if err != nil {

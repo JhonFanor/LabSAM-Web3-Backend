@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/models"
 
 	"gorm.io/gorm"
@@ -15,15 +17,20 @@ type RegularUserRepository interface {
 }
 
 type regularUserRepository struct {
-	db *gorm.DB
+	dbManager *gormmanagers.DBManager
+	db        *gorm.DB
 }
 
-func NewRegularUserRepository(db *gorm.DB) RegularUserRepository {
-	return &regularUserRepository{db: db}
+func NewRegularUserRepository(dbManager *gormmanagers.DBManager, db *gorm.DB) RegularUserRepository {
+	return &regularUserRepository{
+		dbManager: dbManager,
+		db:        db,
+	}
 }
 
 func (r *regularUserRepository) Create(regularUser *models.RegularUser) (*models.RegularUser, error) {
-	if err := r.db.Create(regularUser).Error; err != nil {
+	fmt.Printf("regularUser.LocationID: %v\n", regularUser.LocationID)
+	if err := r.dbManager.Create(regularUser, r.db); err != nil {
 		return nil, err
 	}
 	return regularUser, nil

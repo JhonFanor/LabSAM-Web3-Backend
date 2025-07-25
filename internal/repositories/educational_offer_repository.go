@@ -115,6 +115,9 @@ func (r *educationalOfferRepository) GetRandomApproved() (*models.EducationalOff
 	var educationalOffer models.EducationalOffer
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&educationalOffer).Error

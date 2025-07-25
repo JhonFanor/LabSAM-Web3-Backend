@@ -111,6 +111,9 @@ func (r *jobBoardRepository) GetRandomApproved() (*models.JobBoard, error) {
 	var jobBoard models.JobBoard
 	err := r.db.
 		Preload("User").
+		Preload("User.RegularUser").
+		Preload("User.UniversityUser").
+		Preload("User.BusinessUser").
 		Where("is_approved = ?", true).
 		Order("RANDOM()").
 		First(&jobBoard).Error
