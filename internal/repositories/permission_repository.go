@@ -13,19 +13,27 @@ type PermissionRepository interface {
 	GetByID(id uint) (*models.Permission, error)
 	GetAll() ([]models.Permission, error)
 	GetAllByUser(userID uint, roleID uint) ([]models.Permission, error)
+	GetAllAssignableToUser(userID uint, roleID uint) ([]models.Permission, error)
 }
 
 type permissionRepository struct {
-	permissionUserRepository PermissionUserRepository
-	permissionRoleRepository PermissionRoleRepository
-	db                       *gorm.DB
+	permissionUserRepository       PermissionUserRepository
+	permissionRoleRepository       PermissionRoleRepository
+	deniedPermissionUserRepository DeniedPermissionUserRepository
+	db                             *gorm.DB
 }
 
-func NewPermissionRepository(permissionUserRepository PermissionUserRepository, permissionRoleRepository PermissionRoleRepository, db *gorm.DB) PermissionRepository {
+func NewPermissionRepository(
+	permissionUserRepo PermissionUserRepository,
+	permissionRoleRepo PermissionRoleRepository,
+	deniedPermissionRepo DeniedPermissionUserRepository,
+	db *gorm.DB,
+) PermissionRepository {
 	return &permissionRepository{
-		permissionUserRepository: permissionUserRepository,
-		permissionRoleRepository: permissionRoleRepository,
-		db:                       db,
+		permissionUserRepository:       permissionUserRepo,
+		permissionRoleRepository:       permissionRoleRepo,
+		deniedPermissionUserRepository: deniedPermissionRepo,
+		db:                             db,
 	}
 }
 
@@ -61,35 +69,92 @@ func (r *permissionRepository) GetAll() ([]models.Permission, error) {
 }
 
 func (r *permissionRepository) GetAllByUser(userID uint, roleID uint) ([]models.Permission, error) {
-	var userPermissions []models.PermissionUser
-	var rolePermissions []models.PermissionRole
 	var permissions []models.Permission
+	permMap := make(map[uint]models.Permission)
 
-	userPermissions, err := r.permissionUserRepository.GetAllByUser(userID)
+	userPerms, err := r.permissionUserRepository.GetAllByUser(userID)
 	if err != nil {
 		return nil, err
 	}
-
-	for _, userPermission := range userPermissions {
-		permission, err := r.GetByID(userPermission.PermissionID)
+	for _, up := range userPerms {
+		p, err := r.GetByID(up.PermissionID)
 		if err != nil {
 			return nil, err
 		}
-		permissions = append(permissions, *permission)
+		permMap[p.ID] = *p
 	}
 
-	rolePermissions, err = r.permissionRoleRepository.GetAllByRole(roleID)
+	rolePerms, err := r.permissionRoleRepository.GetAllByRole(roleID)
 	if err != nil {
 		return nil, err
 	}
-
-	for _, rolePermission := range rolePermissions {
-		permission, err := r.GetByID(rolePermission.PermissionID)
+	for _, rp := range rolePerms {
+		p, err := r.GetByID(rp.PermissionID)
 		if err != nil {
 			return nil, err
 		}
-		permissions = append(permissions, *permission)
+		permMap[p.ID] = *p
+	}
+
+	deniedPerms, err := r.deniedPermissionUserRepository.GetAllByUser(userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, dp := range deniedPerms {
+		delete(permMap, dp.PermissionID)
+	}
+
+	// Convertir map a slice
+	for _, p := range permMap {
+		permissions = append(permissions, p)
 	}
 
 	return permissions, nil
+}
+
+func (r *permissionRepository) GetAllAssignableToUser(userID uint, roleID uint) ([]models.Permission, error) {
+	allPerms, err := r.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	userPerms, err := r.permissionUserRepository.GetAllByUser(userID)
+	if err != nil {
+		return nil, err
+	}
+	userPermSet := make(map[uint]struct{})
+	for _, up := range userPerms {
+		userPermSet[up.PermissionID] = struct{}{}
+	}
+
+	rolePerms, err := r.permissionRoleRepository.GetAllByRole(roleID)
+	if err != nil {
+		return nil, err
+	}
+	rolePermSet := make(map[uint]struct{})
+	for _, rp := range rolePerms {
+		rolePermSet[rp.PermissionID] = struct{}{}
+	}
+
+	deniedPerms, err := r.deniedPermissionUserRepository.GetAllByUser(userID)
+	if err != nil {
+		return nil, err
+	}
+	deniedPermSet := make(map[uint]struct{})
+	for _, dp := range deniedPerms {
+		deniedPermSet[dp.PermissionID] = struct{}{}
+	}
+
+	var assignable []models.Permission
+	for _, p := range allPerms {
+		_, inUser := userPermSet[p.ID]
+		_, inRole := rolePermSet[p.ID]
+		_, denied := deniedPermSet[p.ID]
+
+		if !inUser && !inRole && !denied {
+			assignable = append(assignable, p)
+		}
+	}
+
+	return assignable, nil
 }

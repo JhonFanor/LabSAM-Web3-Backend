@@ -14,6 +14,7 @@ type DocumentationRoutesParams struct {
 	Router                  *gin.Engine
 	ValidatorMiddleware     *middlewares.ValidatorMiddleware
 	TokenMiddleware         *middlewares.TokenMiddleware
+	PermissionMiddleware    *middlewares.PermissionMiddleware
 	DocumentationController *controllers.DocumentationController
 }
 
@@ -21,6 +22,7 @@ type DocumentationRoutes struct {
 	Router                  *gin.Engine
 	ValidatorMiddleware     *middlewares.ValidatorMiddleware
 	TokenMiddleware         *middlewares.TokenMiddleware
+	PermissionMiddleware    *middlewares.PermissionMiddleware
 	DocumentationController *controllers.DocumentationController
 }
 
@@ -29,6 +31,7 @@ func NewDocumentationRoutes(p DocumentationRoutesParams) *DocumentationRoutes {
 		Router:                  p.Router,
 		ValidatorMiddleware:     p.ValidatorMiddleware,
 		TokenMiddleware:         p.TokenMiddleware,
+		PermissionMiddleware:    p.PermissionMiddleware,
 		DocumentationController: p.DocumentationController,
 	}
 }
@@ -36,7 +39,7 @@ func NewDocumentationRoutes(p DocumentationRoutesParams) *DocumentationRoutes {
 func (dr *DocumentationRoutes) Routes() {
 	documentation := dr.Router.Group("/api/documentation")
 	{
-		documentation.POST("", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.CreateDocumentation)
+		documentation.POST("", dr.ValidatorMiddleware.ValidateInput(&requests.DocumentationRequest{}), dr.TokenMiddleware.ValidateToken(), dr.PermissionMiddleware.RequirePermission("documentation:create"), dr.DocumentationController.CreateDocumentation)
 		documentation.GET("", dr.DocumentationController.GetAllDocumentations)
 		documentation.GET("/user/me", dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.GetAllDocumentationsByUserID)
 		documentation.GET("/admin/not-approved", dr.TokenMiddleware.ValidateToken(), dr.DocumentationController.GetAllDocumentationsNotApproved)

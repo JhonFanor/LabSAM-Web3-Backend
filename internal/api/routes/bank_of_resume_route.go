@@ -14,6 +14,7 @@ type BankOfResumeRoutesParams struct {
 	Router                 *gin.Engine
 	ValidatorMiddleware    *middlewares.ValidatorMiddleware
 	TokenMiddleware        *middlewares.TokenMiddleware
+	PermissionMiddleware   *middlewares.PermissionMiddleware
 	BankOfResumeController *controllers.BankOfResumeController
 }
 
@@ -21,6 +22,7 @@ type BankOfResumeRoutes struct {
 	Router                 *gin.Engine
 	ValidatorMiddleware    *middlewares.ValidatorMiddleware
 	TokenMiddleware        *middlewares.TokenMiddleware
+	PermissionMiddleware   *middlewares.PermissionMiddleware
 	BankOfResumeController *controllers.BankOfResumeController
 }
 
@@ -29,6 +31,7 @@ func NewBankOfResumeRoutes(p BankOfResumeRoutesParams) *BankOfResumeRoutes {
 		Router:                 p.Router,
 		ValidatorMiddleware:    p.ValidatorMiddleware,
 		TokenMiddleware:        p.TokenMiddleware,
+		PermissionMiddleware:   p.PermissionMiddleware,
 		BankOfResumeController: p.BankOfResumeController,
 	}
 }
@@ -36,7 +39,7 @@ func NewBankOfResumeRoutes(p BankOfResumeRoutesParams) *BankOfResumeRoutes {
 func (br *BankOfResumeRoutes) Routes() {
 	bankOfResume := br.Router.Group("/api/bank-of-resume")
 	{
-		bankOfResume.POST("", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.CreateBankOfResume)
+		bankOfResume.POST("", br.ValidatorMiddleware.ValidateInput(&requests.BankOfResumeCreateRequest{}), br.TokenMiddleware.ValidateToken(), br.PermissionMiddleware.RequirePermission("bank-of-resume:create"), br.BankOfResumeController.CreateBankOfResume)
 		bankOfResume.GET("", br.BankOfResumeController.GetAllBankOfResumes)
 		bankOfResume.GET("/user/me", br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.GetAllBankOfResumesByUserID)
 		bankOfResume.GET("/admin/not-approved", br.TokenMiddleware.ValidateToken(), br.BankOfResumeController.GetAllBankOfResumesNotApproved)

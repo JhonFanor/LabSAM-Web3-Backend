@@ -1,9 +1,11 @@
 package services
 
 import (
+	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
 
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -13,7 +15,7 @@ type UserService interface {
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
 	GetUserByID(id uint) (*models.User, error)
-	GetAllUsers() ([]models.User, error)
+	GetAllUsers(c *gin.Context) (*dto.PaginationDTO, error)
 	FindUserByEmail(email string) (*models.User, error)
 }
 
@@ -34,6 +36,7 @@ func (s *userService) CreateUser(user *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	user.Password = string(hashedPassword)
 
 	return s.repo.Create(user)
@@ -51,8 +54,8 @@ func (s *userService) GetUserByID(id uint) (*models.User, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *userService) GetAllUsers() ([]models.User, error) {
-	return s.repo.GetAll()
+func (s *userService) GetAllUsers(c *gin.Context) (*dto.PaginationDTO, error) {
+	return s.repo.GetAll(c)
 }
 
 func (s *userService) FindUserByEmail(email string) (*models.User, error) {

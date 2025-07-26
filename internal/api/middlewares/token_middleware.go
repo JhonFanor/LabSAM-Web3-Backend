@@ -45,7 +45,7 @@ func (tm *TokenMiddleware) ValidateToken() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("claims", claims)
+		c.Set("claims", claims) // Aquí se guardan los claims correctamente
 		c.Next()
 	}
 }

@@ -11,6 +11,7 @@ type PermissionRoleRepository interface {
 	RevokePermission(permissionID, roleID uint) error
 	GetPermission(permissionID, roleID uint) (*models.PermissionRole, error)
 	GetAllByRole(roleID uint) ([]models.PermissionRole, error)
+	GetAllByRoleExcludingDenied(roleID, userID uint) ([]models.Permission, error)
 }
 
 type permissionRoleRepository struct {
@@ -42,5 +43,23 @@ func (r *permissionRoleRepository) GetAllByRole(roleID uint) ([]models.Permissio
 	if err := r.db.Where("role_id = ?", roleID).Find(&permissions).Error; err != nil {
 		return nil, err
 	}
+	return permissions, nil
+}
+
+func (r *permissionRoleRepository) GetAllByRoleExcludingDenied(roleID, userID uint) ([]models.Permission, error) {
+	var permissions []models.Permission
+
+	err := r.db.
+		Table("permissions").
+		Select("permissions.*").
+		Joins("JOIN permission_rol ON permission_rol.permission_id = permissions.id").
+		Joins("LEFT JOIN denied_permissions_user ON denied_permissions_user.permission_id = permissions.id AND denied_permissions_user.user_id = ?", userID).
+		Where("permission_rol.role_id = ?", roleID).
+		Where("denied_permissions_user.user_id IS NULL").
+		Find(&permissions).Error
+	if err != nil {
+		return nil, err
+	}
+
 	return permissions, nil
 }

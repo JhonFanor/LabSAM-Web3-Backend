@@ -11,32 +11,35 @@ import (
 
 type JobBoardRoutesParams struct {
 	fx.In
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	JobBoardController  *controllers.JobBoardController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	JobBoardController   *controllers.JobBoardController
 }
 
 type JobBoardRoutes struct {
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	JobBoardController  *controllers.JobBoardController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	JobBoardController   *controllers.JobBoardController
 }
 
 func NewJobBoardRoutes(p JobBoardRoutesParams) *JobBoardRoutes {
 	return &JobBoardRoutes{
-		Router:              p.Router,
-		ValidatorMiddleware: p.ValidatorMiddleware,
-		TokenMiddleware:     p.TokenMiddleware,
-		JobBoardController:  p.JobBoardController,
+		Router:               p.Router,
+		ValidatorMiddleware:  p.ValidatorMiddleware,
+		TokenMiddleware:      p.TokenMiddleware,
+		PermissionMiddleware: p.PermissionMiddleware,
+		JobBoardController:   p.JobBoardController,
 	}
 }
 
 func (jer *JobBoardRoutes) Routes() {
 	jobBoard := jer.Router.Group("/api/job-board")
 	{
-		jobBoard.POST("", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardRequest{}), jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.CreateJobBoard)
+		jobBoard.POST("", jer.ValidatorMiddleware.ValidateInput(&requests.JobBoardRequest{}), jer.TokenMiddleware.ValidateToken(), jer.PermissionMiddleware.RequirePermission("job-board:create"), jer.JobBoardController.CreateJobBoard)
 		jobBoard.GET("", jer.JobBoardController.GetAllJobsBoard)
 		jobBoard.GET("/user/me", jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.GetAllJobsBoardByUserID)
 		jobBoard.GET("/admin/not-approved", jer.TokenMiddleware.ValidateToken(), jer.JobBoardController.GetAllJobsBoardNotApproved)

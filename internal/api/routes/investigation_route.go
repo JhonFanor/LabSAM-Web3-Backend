@@ -14,6 +14,7 @@ type InvestigationRoutesParams struct {
 	Router                  *gin.Engine
 	ValidatorMiddleware     *middlewares.ValidatorMiddleware
 	TokenMiddleware         *middlewares.TokenMiddleware
+	PermissionMiddleware    *middlewares.PermissionMiddleware
 	InvestigationController *controllers.InvestigationController
 }
 
@@ -21,6 +22,7 @@ type InvestigationRoutes struct {
 	Router                  *gin.Engine
 	ValidatorMiddleware     *middlewares.ValidatorMiddleware
 	TokenMiddleware         *middlewares.TokenMiddleware
+	PermissionMiddleware    *middlewares.PermissionMiddleware
 	InvestigationController *controllers.InvestigationController
 }
 
@@ -29,6 +31,7 @@ func NewInvestigationRoutes(p InvestigationRoutesParams) *InvestigationRoutes {
 		Router:                  p.Router,
 		ValidatorMiddleware:     p.ValidatorMiddleware,
 		TokenMiddleware:         p.TokenMiddleware,
+		PermissionMiddleware:    p.PermissionMiddleware,
 		InvestigationController: p.InvestigationController,
 	}
 }
@@ -36,7 +39,7 @@ func NewInvestigationRoutes(p InvestigationRoutesParams) *InvestigationRoutes {
 func (ir *InvestigationRoutes) Routes() {
 	investigation := ir.Router.Group("/api/investigation")
 	{
-		investigation.POST("", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationRequest{}), ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.CreateInvestigation)
+		investigation.POST("", ir.ValidatorMiddleware.ValidateInput(&requests.InvestigationRequest{}), ir.TokenMiddleware.ValidateToken(), ir.PermissionMiddleware.RequirePermission("investigation:create"), ir.InvestigationController.CreateInvestigation)
 		investigation.GET("", ir.InvestigationController.GetAllInvestigations)
 		investigation.GET("/user/me", ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.GetAllInvestigationsByUserID)
 		investigation.GET("/admin/not-approved", ir.TokenMiddleware.ValidateToken(), ir.InvestigationController.GetAllInvestigationsNotApproved)

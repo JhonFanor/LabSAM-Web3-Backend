@@ -13,6 +13,7 @@ type RoutesRegisterParams struct {
 	BankOfResumeSubtopicRoutes  *routes.BankOfResumeSubtopicRoutes
 	CompanyRoutes               *routes.CompanyRoutes
 	CompanySubtopicRoutes       *routes.CompanySubtopicRoutes
+	DeniedPermissionUserRoutes  *routes.DeniedPermissionUserRoutes
 	DocumentationRoutes         *routes.DocumentationRoutes
 	DocumentationSubtopicRoutes *routes.DocumentationSubtopicRoutes
 	EducationalOfferRoutes      *routes.EducationalOfferRoutes
@@ -28,6 +29,9 @@ type RoutesRegisterParams struct {
 	NewsRoutes                  *routes.NewsRoutes
 	NewsSubtopicRoutes          *routes.NewsSubtopicRoutes
 	NotificationRoutes          *routes.NotificationRoutes
+	PermissionRoleRoutes        *routes.PermissionRoleRoutes
+	PermissionRoutes            *routes.PermissionRoutes
+	PermissionUserRoutes        *routes.PermissionUserRoutes
 	Publications                *routes.PublicationRoutes
 	TopicRoutes                 *routes.TopicRoutes
 	UniversityTypeRoutes        *routes.UniversityTypeRoutes
@@ -41,6 +45,7 @@ func RoutesRegister(p RoutesRegisterParams) {
 	p.BankOfResumeSubtopicRoutes.Routes()
 	p.CompanyRoutes.Routes()
 	p.CompanySubtopicRoutes.Routes()
+	p.DeniedPermissionUserRoutes.Routes()
 	p.DocumentationRoutes.Routes()
 	p.DocumentationSubtopicRoutes.Routes()
 	p.EducationalOfferRoutes.Routes()
@@ -56,6 +61,9 @@ func RoutesRegister(p RoutesRegisterParams) {
 	p.NewsRoutes.Routes()
 	p.NewsSubtopicRoutes.Routes()
 	p.NotificationRoutes.Routes()
+	p.PermissionRoleRoutes.Routes()
+	p.PermissionRoutes.Routes()
+	p.PermissionUserRoutes.Routes()
 	p.Publications.Routes()
 	p.TopicRoutes.Routes()
 	p.UniversityTypeRoutes.Routes()

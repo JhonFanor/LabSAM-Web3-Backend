@@ -11,32 +11,35 @@ import (
 
 type EventRoutesParams struct {
 	fx.In
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	EventController     *controllers.EventController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	EventController      *controllers.EventController
 }
 
 type EventRoutes struct {
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	EventController     *controllers.EventController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	EventController      *controllers.EventController
 }
 
 func NewEventRoutes(p EventRoutesParams) *EventRoutes {
 	return &EventRoutes{
-		Router:              p.Router,
-		ValidatorMiddleware: p.ValidatorMiddleware,
-		TokenMiddleware:     p.TokenMiddleware,
-		EventController:     p.EventController,
+		Router:               p.Router,
+		ValidatorMiddleware:  p.ValidatorMiddleware,
+		TokenMiddleware:      p.TokenMiddleware,
+		PermissionMiddleware: p.PermissionMiddleware,
+		EventController:      p.EventController,
 	}
 }
 
 func (er *EventRoutes) Routes() {
 	event := er.Router.Group("/api/event")
 	{
-		event.POST("", er.ValidatorMiddleware.ValidateInput(&requests.EventRequest{}), er.TokenMiddleware.ValidateToken(), er.EventController.CreateEvent)
+		event.POST("", er.ValidatorMiddleware.ValidateInput(&requests.EventRequest{}), er.TokenMiddleware.ValidateToken(), er.PermissionMiddleware.RequirePermission("event:create"), er.EventController.CreateEvent)
 		event.GET("", er.EventController.GetAllEvents)
 		event.GET("/user/me", er.TokenMiddleware.ValidateToken(), er.EventController.GetAllEventsByUserID)
 		event.GET("/admin/not-approved", er.TokenMiddleware.ValidateToken(), er.EventController.GetAllEventsNotApproved)

@@ -11,17 +11,19 @@ import (
 
 type NewsRoutesParams struct {
 	fx.In
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	NewsController      *controllers.NewsController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	NewsController       *controllers.NewsController
 }
 
 type NewsRoutes struct {
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	NewsController      *controllers.NewsController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	NewsController       *controllers.NewsController
 }
 
 func NewNewsRoutes(p NewsRoutesParams) *NewsRoutes {
@@ -36,7 +38,7 @@ func NewNewsRoutes(p NewsRoutesParams) *NewsRoutes {
 func (nr *NewsRoutes) Routes() {
 	news := nr.Router.Group("/api/news")
 	{
-		news.POST("", nr.ValidatorMiddleware.ValidateInput(&requests.NewsRequest{}), nr.TokenMiddleware.ValidateToken(), nr.NewsController.CreateNews)
+		news.POST("", nr.ValidatorMiddleware.ValidateInput(&requests.NewsRequest{}), nr.TokenMiddleware.ValidateToken(), nr.PermissionMiddleware.RequirePermission("news:create"), nr.NewsController.CreateNews)
 		news.GET("", nr.NewsController.GetAllNews)
 		news.GET("/user/me", nr.TokenMiddleware.ValidateToken(), nr.NewsController.GetAllNewsByUserID)
 		news.GET("/admin/not-approved", nr.TokenMiddleware.ValidateToken(), nr.NewsController.GetAllNewsNotApproved)

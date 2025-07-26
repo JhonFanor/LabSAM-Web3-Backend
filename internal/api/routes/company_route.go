@@ -11,32 +11,35 @@ import (
 
 type CompanyRoutesParams struct {
 	fx.In
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	CompanyController   *controllers.CompanyController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	CompanyController    *controllers.CompanyController
 }
 
 type CompanyRoutes struct {
-	Router              *gin.Engine
-	ValidatorMiddleware *middlewares.ValidatorMiddleware
-	TokenMiddleware     *middlewares.TokenMiddleware
-	CompanyController   *controllers.CompanyController
+	Router               *gin.Engine
+	ValidatorMiddleware  *middlewares.ValidatorMiddleware
+	TokenMiddleware      *middlewares.TokenMiddleware
+	PermissionMiddleware *middlewares.PermissionMiddleware
+	CompanyController    *controllers.CompanyController
 }
 
 func NewCompanyRoutes(p CompanyRoutesParams) *CompanyRoutes {
 	return &CompanyRoutes{
-		Router:              p.Router,
-		ValidatorMiddleware: p.ValidatorMiddleware,
-		TokenMiddleware:     p.TokenMiddleware,
-		CompanyController:   p.CompanyController,
+		Router:               p.Router,
+		ValidatorMiddleware:  p.ValidatorMiddleware,
+		TokenMiddleware:      p.TokenMiddleware,
+		PermissionMiddleware: p.PermissionMiddleware,
+		CompanyController:    p.CompanyController,
 	}
 }
 
 func (cr *CompanyRoutes) Routes() {
 	company := cr.Router.Group("/api/company")
 	{
-		company.POST("", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyRequest{}), cr.TokenMiddleware.ValidateToken(), cr.CompanyController.CreateCompany)
+		company.POST("", cr.ValidatorMiddleware.ValidateInput(&requests.CompanyRequest{}), cr.TokenMiddleware.ValidateToken(), cr.PermissionMiddleware.RequirePermission("company:create"), cr.CompanyController.CreateCompany)
 		company.GET("", cr.CompanyController.GetAllCompanies)
 		company.GET("/user/me", cr.TokenMiddleware.ValidateToken(), cr.CompanyController.GetAllCompaniesByUserID)
 		company.GET("/admin/not-approved", cr.TokenMiddleware.ValidateToken(), cr.CompanyController.GetAllCompaniesNotApproved)

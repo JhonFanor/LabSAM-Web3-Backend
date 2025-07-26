@@ -14,6 +14,7 @@ type PermissionService interface {
 	GetPermissionByID(id uint) (*models.Permission, error)
 	GetAllPermissions() ([]models.Permission, error)
 	GetAllPermissionsByUser(userID uint, roleID uint) ([]models.Permission, error)
+	GetAllAssignablePermissionsToUser(userID uint, roleID uint) ([]models.Permission, error)
 }
 
 type permissionService struct {
@@ -50,4 +51,8 @@ func (s *permissionService) GetAllPermissions() ([]models.Permission, error) {
 
 func (s *permissionService) GetAllPermissionsByUser(userID uint, roleID uint) ([]models.Permission, error) {
 	return s.repo.GetAllByUser(userID, roleID)
+}
+
+func (s *permissionService) GetAllAssignablePermissionsToUser(userID uint, roleID uint) ([]models.Permission, error) {
+	return s.repo.GetAllAssignableToUser(userID, roleID)
 }

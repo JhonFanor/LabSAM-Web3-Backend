@@ -12,6 +12,7 @@ type PermissionRoleService interface {
 	RevokePermissionFromRole(permissionID, roleID uint) error
 	GetPermissionRole(permissionID, roleID uint) (*models.PermissionRole, error)
 	GetAllPermissionsByRole(roleID uint) ([]models.PermissionRole, error)
+	GetAllPermissionsByRoleExcludingDenied(roleID, userID uint) ([]models.Permission, error)
 }
 
 type permissionRoleService struct {
@@ -40,4 +41,8 @@ func (s *permissionRoleService) GetPermissionRole(permissionID, roleID uint) (*m
 
 func (s *permissionRoleService) GetAllPermissionsByRole(roleID uint) ([]models.PermissionRole, error) {
 	return s.repo.GetAllByRole(roleID)
+}
+
+func (s *permissionRoleService) GetAllPermissionsByRoleExcludingDenied(roleID, userID uint) ([]models.Permission, error) {
+	return s.repo.GetAllByRoleExcludingDenied(roleID, userID)
 }

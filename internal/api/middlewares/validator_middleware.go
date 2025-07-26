@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"lamsam-web3-backend/internal/dto/responses"
-	"log"
 	"net/http"
 	"reflect"
 
@@ -23,7 +22,6 @@ func NewValidatorMiddleware(validator *validator.Validate) *ValidatorMiddleware 
 func (vm *ValidatorMiddleware) ValidateInput(inputType interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		input := reflect.New(reflect.TypeOf(inputType).Elem()).Interface()
-		log.Print(input)
 		if err := c.ShouldBindJSON(input); err != nil {
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{
 				Error: "Invalid input data. Please check your request payload.",

@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/models"
 
@@ -29,7 +28,6 @@ func NewRegularUserRepository(dbManager *gormmanagers.DBManager, db *gorm.DB) Re
 }
 
 func (r *regularUserRepository) Create(regularUser *models.RegularUser) (*models.RegularUser, error) {
-	fmt.Printf("regularUser.LocationID: %v\n", regularUser.LocationID)
 	if err := r.dbManager.Create(regularUser, r.db); err != nil {
 		return nil, err
 	}

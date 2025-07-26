@@ -14,6 +14,7 @@ type EducationalOfferRoutesParams struct {
 	Router                     *gin.Engine
 	ValidatorMiddleware        *middlewares.ValidatorMiddleware
 	TokenMiddleware            *middlewares.TokenMiddleware
+	PermissionMiddleware       *middlewares.PermissionMiddleware
 	EducationalOfferController *controllers.EducationalOfferController
 }
 
@@ -21,6 +22,7 @@ type EducationalOfferRoutes struct {
 	Router                     *gin.Engine
 	ValidatorMiddleware        *middlewares.ValidatorMiddleware
 	TokenMiddleware            *middlewares.TokenMiddleware
+	PermissionMiddleware       *middlewares.PermissionMiddleware
 	EducationalOfferController *controllers.EducationalOfferController
 }
 
@@ -29,6 +31,7 @@ func NewEducationalOfferRoutes(p EducationalOfferRoutesParams) *EducationalOffer
 		Router:                     p.Router,
 		ValidatorMiddleware:        p.ValidatorMiddleware,
 		TokenMiddleware:            p.TokenMiddleware,
+		PermissionMiddleware:       p.PermissionMiddleware,
 		EducationalOfferController: p.EducationalOfferController,
 	}
 }
@@ -36,7 +39,7 @@ func NewEducationalOfferRoutes(p EducationalOfferRoutesParams) *EducationalOffer
 func (eor *EducationalOfferRoutes) Routes() {
 	educationalOffer := eor.Router.Group("/api/educational-offer")
 	{
-		educationalOffer.POST("", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.CreateEducationalOffer)
+		educationalOffer.POST("", eor.ValidatorMiddleware.ValidateInput(&requests.EducationalOfferRequest{}), eor.TokenMiddleware.ValidateToken(), eor.PermissionMiddleware.RequirePermission("educational-offer:create"), eor.EducationalOfferController.CreateEducationalOffer)
 		educationalOffer.GET("", eor.EducationalOfferController.GetAllEducationalOffers)
 		educationalOffer.GET("/user/me", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetAllEducationalOffersByUserID)
 		educationalOffer.GET("/admin/not-approved", eor.TokenMiddleware.ValidateToken(), eor.EducationalOfferController.GetAllEducationalOffersNotApproved)

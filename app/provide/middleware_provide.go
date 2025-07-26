@@ -9,6 +9,7 @@ import (
 func MiddlewareProvide() fx.Option {
 	return fx.Options(
 		fx.Provide(
+			middlewares.NewPermissionMiddleware,
 			middlewares.NewTokenMiddleware,
 			middlewares.NewValidatorMiddleware,
 		),

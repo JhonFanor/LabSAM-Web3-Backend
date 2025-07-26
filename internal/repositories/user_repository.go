@@ -1,8 +1,11 @@
 package repositories
 
 import (
+	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
+	"lamsam-web3-backend/internal/dto"
 	"lamsam-web3-backend/internal/models"
 
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -11,17 +14,21 @@ type UserRepository interface {
 	Update(user *models.User) error
 	Delete(id uint) error
 	GetByID(id uint) (*models.User, error)
-	GetAll() ([]models.User, error)
+	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
 	GetAdmins() ([]models.User, error)
 	FindByEmail(email string) (*models.User, error)
 }
 
 type userRepository struct {
 	db *gorm.DB
+	qm *gormmanagers.GormQueryManager
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userRepository{db: db}
+func NewUserRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) UserRepository {
+	return &userRepository{
+		db: db,
+		qm: qm,
+	}
 }
 
 func (r *userRepository) Create(user *models.User) (*models.User, error) {
@@ -41,18 +48,24 @@ func (r *userRepository) Delete(id uint) error {
 
 func (r *userRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
-	if err := r.db.First(&user, id).Error; err != nil {
+	if err := r.db.Preload("RegularUser").
+		Preload("UniversityUser").
+		Preload("BusinessUser").First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (r *userRepository) GetAll() ([]models.User, error) {
-	var users []models.User
-	if err := r.db.Find(&users).Error; err != nil {
-		return nil, err
-	}
-	return users, nil
+func (r *userRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
+	paginationInfo := r.qm.ApplyPaginationAndFilters(
+		c,
+		r.db.Preload("RegularUser").
+			Preload("UniversityUser").
+			Preload("BusinessUser"),
+		&models.User{},
+	)
+
+	return paginationInfo, nil
 }
 
 func (r *userRepository) GetAdmins() ([]models.User, error) {

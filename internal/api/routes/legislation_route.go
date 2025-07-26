@@ -14,6 +14,7 @@ type LegislationRoutesParams struct {
 	Router                *gin.Engine
 	ValidatorMiddleware   *middlewares.ValidatorMiddleware
 	TokenMiddleware       *middlewares.TokenMiddleware
+	PermissionMiddleware  *middlewares.PermissionMiddleware
 	LegislationController *controllers.LegislationController
 }
 
@@ -21,6 +22,7 @@ type LegislationRoutes struct {
 	Router                *gin.Engine
 	ValidatorMiddleware   *middlewares.ValidatorMiddleware
 	TokenMiddleware       *middlewares.TokenMiddleware
+	PermissionMiddleware  *middlewares.PermissionMiddleware
 	LegislationController *controllers.LegislationController
 }
 
@@ -29,6 +31,7 @@ func NewLegislationRoutes(p LegislationRoutesParams) *LegislationRoutes {
 		Router:                p.Router,
 		ValidatorMiddleware:   p.ValidatorMiddleware,
 		TokenMiddleware:       p.TokenMiddleware,
+		PermissionMiddleware:  p.PermissionMiddleware,
 		LegislationController: p.LegislationController,
 	}
 }
@@ -36,7 +39,7 @@ func NewLegislationRoutes(p LegislationRoutesParams) *LegislationRoutes {
 func (lr *LegislationRoutes) Routes() {
 	legislation := lr.Router.Group("/api/legislation")
 	{
-		legislation.POST("", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationRequest{}), lr.TokenMiddleware.ValidateToken(), lr.LegislationController.CreateLegislation)
+		legislation.POST("", lr.ValidatorMiddleware.ValidateInput(&requests.LegislationRequest{}), lr.TokenMiddleware.ValidateToken(), lr.PermissionMiddleware.RequirePermission("legislation:create"), lr.LegislationController.CreateLegislation)
 		legislation.GET("", lr.LegislationController.GetAllLegislations)
 		legislation.GET("/user/me", lr.TokenMiddleware.ValidateToken(), lr.LegislationController.GetAllLegislationsByUserID)
 		legislation.GET("/admin/not-approved", lr.TokenMiddleware.ValidateToken(), lr.LegislationController.GetAllLegislationsNotApproved)

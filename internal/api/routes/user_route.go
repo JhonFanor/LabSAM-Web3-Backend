@@ -36,5 +36,14 @@ func (ur *UserRoutes) Routes() {
 	user := ur.Router.Group("/api/user")
 	{
 		user.GET("", ur.TokenMiddleware.ValidateToken(), ur.UserController.GetUserByID)
+		user.GET("/admin",
+			ur.TokenMiddleware.ValidateToken(),
+			ur.UserController.GetAllUsers,
+		)
+
+		user.GET("/admin/:id",
+			ur.TokenMiddleware.ValidateToken(),
+			ur.UserController.GetUserForAdminByID,
+		)
 	}
 }

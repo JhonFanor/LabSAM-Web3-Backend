@@ -8,16 +8,12 @@ import (
 )
 
 func ValidateAccessToken(tokenString string, config *config.JwtConfig) (*security.Claims, error) {
+	claims := &security.Claims{}
 
-	token, err := jwt.ParseWithClaims(tokenString, &security.Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return config.SECRET_KEY, nil
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(config.SECRET_KEY), nil
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	claims, ok := token.Claims.(*security.Claims)
-	if !ok || !token.Valid {
+	if err != nil || !token.Valid {
 		return nil, err
 	}
 
