@@ -34,6 +34,7 @@ func RouteProvide() fx.Option {
 			routes.NewPermissionRoutes,
 			routes.NewPermissionUserRoutes,
 			routes.NewPublicationRoutes,
+			routes.NewRejectionCommentRoutes,
 			routes.NewTopicRoutes,
 			routes.NewUniversityTypeRoutes,
 			routes.NewUploadRoutes,

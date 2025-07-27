@@ -37,6 +37,7 @@ func RepositoryProvide() fx.Option {
 			repositories.NewPermissionRoleRepository,
 			repositories.NewPermissionUserRepository,
 			repositories.NewRegularUserRepository,
+			repositories.NewRejectionCommentRepository,
 			repositories.NewRoleRepository,
 			repositories.NewSubtopicRepository,
 			repositories.NewTopicRepository,

@@ -163,7 +163,7 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 
 	updates := utils.StructToMap(news)
 	if len(updates) == 0 {
-		return customerrors.ErrNoUpdates
+		return nil
 	}
 
 	if role != "admin" {

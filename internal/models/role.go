@@ -5,10 +5,10 @@ import (
 )
 
 type Role struct {
-	ID          uint         `gorm:"primary_key;auto_increment" json:"id"`
-	Name        string       `gorm:"size:255;not null;unique" json:"name"`
-	CreatedAt   time.Time    `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt   time.Time    `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID          uint         `json:"id"`
+	Name        string       `json:"name"`
 	Permissions []Permission `gorm:"many2many:permission_rol;" json:"permissions"`
 	Users       []User       `gorm:"foreignkey:RoleID" json:"users"`
+	CreatedAt   *time.Time   `gorm:"autoUpdateTime" json:"created_at"`
+	UpdatedAt   *time.Time   `gorm:"autoUpdateTime" json:"updated_at"`
 }

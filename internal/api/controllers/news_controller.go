@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"lamsam-web3-backend/internal/consts"
 	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/dto/requests"
@@ -124,7 +123,6 @@ func (n *NewsController) CountNewsNotApproved(c *gin.Context) {
 }
 
 func (n *NewsController) CountNewsBySubtopic(c *gin.Context) {
-	fmt.Println("✅ Entró al controller CountNewsBySubtopic")
 	count, err := n.service.CountNewsBySubtopic()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})

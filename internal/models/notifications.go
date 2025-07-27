@@ -13,5 +13,5 @@ type Notification struct {
 	IsRead       bool       `json:"is_read"`
 	Sender       *User      `gorm:"foreignKey:SenderID;" json:"sender"`
 	Receiver     User       `gorm:"foreignKey:ReceiverID;" json:"receiver"`
-	CreatedAt    *time.Time `json:"created_at"`
+	CreatedAt    *time.Time `gorm:"autoUpdateTime" json:"created_at"`
 }

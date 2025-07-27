@@ -12,6 +12,6 @@ type Investigation struct {
 	UserID      uint       `json:"-"`
 	User        *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Subtopics   []Subtopic `gorm:"many2many:investigation_subtopic;" json:"subtopics,omitempty"`
-	CreatedAt   *time.Time `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	CreatedAt   *time.Time `gorm:"autoUpdateTime" json:"created_at,omitempty"`
+	UpdatedAt   *time.Time `gorm:"autoUpdateTime" json:"updated_at,omitempty"`
 }

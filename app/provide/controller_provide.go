@@ -34,6 +34,7 @@ func ControllerProvide() fx.Option {
 			controllers.NewPermissionRoleController,
 			controllers.NewPermissionUserController,
 			controllers.NewPublicationsController,
+			controllers.NewRejectionCommentController,
 			controllers.NewTopicController,
 			controllers.NewUniversityTypeController,
 			controllers.NewUploadController,
