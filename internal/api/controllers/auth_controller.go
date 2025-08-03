@@ -24,6 +24,7 @@ type AuthControllerParams struct {
 	JwtConfig             *config.JwtConfig
 	AuthService           services.AuthService
 	UserService           services.UserService
+	EmailService          services.EmailService
 	ContactService        services.ContactService
 	LocationService       services.LocationService
 	UniversityTypeService services.UniversityTypeService
@@ -36,6 +37,7 @@ type AuthController struct {
 	JwtConfig             *config.JwtConfig
 	AuthService           services.AuthService
 	UserService           services.UserService
+	EmailService          services.EmailService
 	ContactService        services.ContactService
 	LocationService       services.LocationService
 	UniversityTypeService services.UniversityTypeService
@@ -49,6 +51,7 @@ func NewAuthController(p AuthControllerParams) *AuthController {
 		JwtConfig:             p.JwtConfig,
 		AuthService:           p.AuthService,
 		UserService:           p.UserService,
+		EmailService:          p.EmailService,
 		ContactService:        p.ContactService,
 		LocationService:       p.LocationService,
 		UniversityTypeService: p.UniversityTypeService,
@@ -89,35 +92,51 @@ func (a *AuthController) RegisterBusinessUser(c *gin.Context) {
 		return
 	}
 
-	var location models.Location
-	if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
-		return
+	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.City != "" {
+		var location models.Location
+		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: consts.ErrorMapConst,
+			})
+			return
+		}
+		locationCreate, err := a.LocationService.CreateLocation(&location)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: err.Error(),
+			})
+			return
+		}
+
+		user.BusinessUser.LocationID = &locationCreate.ID
 	}
 
-	locationCreate, err := a.LocationService.CreateLocation(&location)
+	if input.ContactRequest != nil && input.ContactRequest.Phone != "" && input.ContactRequest.Website != "" {
+		var contact models.Contact
+		if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: consts.ErrorMapConst,
+			})
+			return
+		}
+
+		contactCreate, _ := a.ContactService.CreateContact(&contact)
+
+		user.BusinessUser.ContactID = &contactCreate.ID
+	}
+
+	token, err := security.GenerateEmailVerificationToken(user.Email, a.JwtConfig)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando token"})
 		return
 	}
 
-	user.BusinessUser.LocationID = &locationCreate.ID
-
-	var contact models.Contact
-	if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
+	if err := a.EmailService.SendVerificationEmail(user.Email, token); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo enviar el correo"})
 		return
 	}
 
-	contactCreate, _ := a.ContactService.CreateContact(&contact)
-
-	user.BusinessUser.ContactID = &contactCreate.ID
+	user.EmailVerificationToken = token
 
 	createdUser, err := a.AuthService.RegisterBusinessUser(&user, &businessUser)
 	if err != nil {
@@ -154,29 +173,45 @@ func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 		return
 	}
 
-	var location models.Location
-	if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
+	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.City != "" {
+		var location models.Location
+		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: consts.ErrorMapConst,
+			})
+			return
+		}
+		locationCreate, _ := a.LocationService.CreateLocation(&location)
+
+		regularUser.LocationID = &locationCreate.ID
+	}
+
+	if input.ContactRequest != nil && input.ContactRequest.Phone != "" && input.ContactRequest.Website != "" {
+		var contact models.Contact
+		if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: consts.ErrorMapConst,
+			})
+			return
+		}
+
+		contactCreate, _ := a.ContactService.CreateContact(&contact)
+
+		regularUser.ContactID = &contactCreate.ID
+	}
+
+	token, err := security.GenerateEmailVerificationToken(user.Email, a.JwtConfig)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando token"})
 		return
 	}
 
-	locationCreate, _ := a.LocationService.CreateLocation(&location)
-
-	regularUser.LocationID = &locationCreate.ID
-
-	var contact models.Contact
-	if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
+	if err := a.EmailService.SendVerificationEmail(user.Email, token); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo enviar el correo"})
 		return
 	}
 
-	contactCreate, _ := a.ContactService.CreateContact(&contact)
-
-	regularUser.ContactID = &contactCreate.ID
+	user.EmailVerificationToken = token
 
 	createdUser, err := a.AuthService.RegisterRegularUser(&user, &regularUser)
 	if err != nil {
@@ -224,31 +259,45 @@ func (a *AuthController) RegisterUniversityUser(c *gin.Context) {
 		return
 	}
 
-	var location models.Location
-	if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
+	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.Country != "" {
+		var location models.Location
+		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: consts.ErrorMapConst,
+			})
+			return
+		}
+		locationCreate, _ := a.LocationService.CreateLocation(&location)
+		universityUser.LocationID = &locationCreate.ID
+	}
+
+	if input.ContactRequest != nil && input.ContactRequest.Phone != "" && input.ContactRequest.Website != "" {
+		var contact models.Contact
+		if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+				Error: consts.ErrorMapConst,
+			})
+			return
+		}
+		contactCreate, _ := a.ContactService.CreateContact(&contact)
+
+		universityUser.ContactID = &contactCreate.ID
+	}
+
+	universityUser.UniversityTypeID = input.UniversityTypeRequest.ID
+
+	token, err := security.GenerateEmailVerificationToken(user.Email, a.JwtConfig)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando token"})
 		return
 	}
 
-	locationCreate, _ := a.LocationService.CreateLocation(&location)
-
-	user.UniversityUser.LocationID = &locationCreate.ID
-
-	var contact models.Contact
-	if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
-		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
-			Error: consts.ErrorMapConst,
-		})
+	if err := a.EmailService.SendVerificationEmail(user.Email, token); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo enviar el correo"})
 		return
 	}
 
-	contactCreate, _ := a.ContactService.CreateContact(&contact)
-
-	user.UniversityUser.ContactID = &contactCreate.ID
-
-	user.UniversityUser.UniversityTypeID = &input.UniversityType.ID
+	user.EmailVerificationToken = token
 
 	createdUser, err := a.AuthService.RegisterUniversityUser(&user, &universityUser)
 	if err != nil {
@@ -298,6 +347,30 @@ func (a *AuthController) Login(c *gin.Context) {
 	if !user.VerifyPassword(input.Password) {
 		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
 			Error: "Invalid password",
+		})
+		return
+	}
+
+	if !user.EmailVerified {
+		token, err := security.GenerateEmailVerificationToken(user.Email, a.JwtConfig)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando token"})
+			return
+		}
+
+		if err := a.EmailService.SendVerificationEmail(user.Email, token); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo enviar el correo"})
+			return
+		}
+
+		userVerification := &models.User{
+			EmailVerificationToken: token,
+			ID:                     user.ID,
+		}
+		a.UserService.UpdateUser(userVerification)
+
+		c.JSON(http.StatusUnauthorized, responses.ErrorResponse{
+			Error: "Error usuario no verificado",
 		})
 		return
 	}
@@ -385,4 +458,50 @@ func (a *AuthController) Logout(c *gin.Context) {
 	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Sesión cerrada correctamente"})
+}
+
+func (a *AuthController) RequestPasswordReset(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Correo inválido"})
+		return
+	}
+
+	token, err := security.GeneratePasswordResetToken(req.Email, a.JwtConfig)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando token"})
+		return
+	}
+
+	err = a.EmailService.SendPasswordResetEmail(req.Email, token)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error enviando correo"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Correo de recuperación enviado"})
+}
+
+func (a *AuthController) ResetPassword(c *gin.Context) {
+	validatedInput, _ := c.Get("input")
+
+	input := validatedInput.(*requests.ResetPassword)
+
+	claims, err := security.ParseToken(input.Token, string(a.JwtConfig.SECRET_KEY))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token inválido o expirado"})
+		return
+	}
+
+	email := claims["sub"].(string)
+
+	err = a.AuthService.UpdatePasswordByEmail(email, input.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando contraseña"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Contraseña actualizada exitosamente"})
 }

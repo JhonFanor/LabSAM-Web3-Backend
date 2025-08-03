@@ -1,8 +1,10 @@
 package services
 
 import (
+	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
+	"lamsam-web3-backend/internal/utils"
 
 	"gorm.io/gorm"
 )
@@ -32,7 +34,21 @@ func (s *regularUserService) CreateRegularUser(regularUser *models.RegularUser) 
 }
 
 func (s *regularUserService) UpdateRegularUser(regularUser *models.RegularUser) error {
-	return s.repo.Update(regularUser)
+	if regularUser.UserID == 0 {
+		return customerrors.ErrInvalidData
+	}
+
+	updates := utils.StructToMap(regularUser)
+	if len(updates) == 0 {
+		return nil
+	}
+
+	existing, err := s.GetRegularUserByID(regularUser.UserID)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.Update(existing, updates)
 }
 
 func (s *regularUserService) DeleteRegularUser(userID uint) error {

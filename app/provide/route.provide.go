@@ -19,6 +19,7 @@ func RouteProvide() fx.Option {
 			routes.NewDocumentationSubtopicRoutes,
 			routes.NewEducationalOfferRoutes,
 			routes.NewEducationalOfferSubtopicRoutes,
+			routes.NewEmailVerificationRoutes,
 			routes.NewEventRoutes,
 			routes.NewEventSubtopicRoutes,
 			routes.NewInvestigationRoutes,

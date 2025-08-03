@@ -3,7 +3,7 @@ package models
 import "time"
 
 type RegularUser struct {
-	UserID     uint       `json:"user_id"`
+	UserID     uint       `gorm:"primaryKey" json:"user_id"`
 	Name       string     `json:"name"`
 	BirthDate  *time.Time `json:"birth_date"`
 	LocationID *uint      `json:"location_id"`

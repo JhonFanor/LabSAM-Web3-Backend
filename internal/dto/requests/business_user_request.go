@@ -8,3 +8,12 @@ type BusinessUserRequest struct {
 	LocationRequest *LocationRequest `json:"location"`
 	ContactRequest  *ContactRequest  `json:"contact"`
 }
+
+type BusinessUserUpdateRequest struct {
+	Password        *string          `json:"password"`
+	Name            *string          `json:"name"`
+	Avatar          *string          `json:"avatar"`
+	Industry        *string          `json:"industry"`
+	LocationRequest *LocationRequest `json:"location"`
+	ContactRequest  *ContactRequest  `json:"contact"`
+}

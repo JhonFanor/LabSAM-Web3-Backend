@@ -11,7 +11,7 @@ import (
 
 type UserRepository interface {
 	Create(user *models.User) (*models.User, error)
-	Update(user *models.User) error
+	Update(user *models.User, updates map[string]interface{}) error
 	Delete(id uint) error
 	GetByID(id uint) (*models.User, error)
 	GetAll(c *gin.Context) (*dto.PaginationDTO, error)
@@ -20,14 +20,16 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	db *gorm.DB
-	qm *gormmanagers.GormQueryManager
+	dbManager *gormmanagers.DBManager
+	db        *gorm.DB
+	qm        *gormmanagers.GormQueryManager
 }
 
-func NewUserRepository(db *gorm.DB, qm *gormmanagers.GormQueryManager) UserRepository {
+func NewUserRepository(dbManager *gormmanagers.DBManager, db *gorm.DB, qm *gormmanagers.GormQueryManager) UserRepository {
 	return &userRepository{
-		db: db,
-		qm: qm,
+		dbManager: dbManager,
+		db:        db,
+		qm:        qm,
 	}
 }
 
@@ -38,8 +40,8 @@ func (r *userRepository) Create(user *models.User) (*models.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) Update(user *models.User) error {
-	return r.db.Save(user).Error
+func (r *userRepository) Update(user *models.User, updates map[string]interface{}) error {
+	return r.dbManager.Update(user, updates, r.db)
 }
 
 func (r *userRepository) Delete(id uint) error {
@@ -50,7 +52,15 @@ func (r *userRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
 	if err := r.db.Preload("RegularUser").
 		Preload("UniversityUser").
-		Preload("BusinessUser").First(&user, id).Error; err != nil {
+		Preload("BusinessUser").
+		Preload("RegularUser.Location").
+		Preload("RegularUser.Contact").
+		Preload("UniversityUser.UniversityType").
+		Preload("UniversityUser.Location").
+		Preload("UniversityUser.Contact").
+		Preload("BusinessUser.Location").
+		Preload("BusinessUser.Contact").
+		First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -59,7 +69,9 @@ func (r *userRepository) GetByID(id uint) (*models.User, error) {
 func (r *userRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 	paginationInfo := r.qm.ApplyPaginationAndFilters(
 		c,
-		r.db.Preload("RegularUser").
+		r.db.Joins("JOIN roles ON roles.id = users.role_id").
+			Where("roles.name <> ?", "admin").
+			Preload("RegularUser").
 			Preload("UniversityUser").
 			Preload("BusinessUser"),
 		&models.User{},

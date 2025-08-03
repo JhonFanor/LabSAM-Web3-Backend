@@ -27,11 +27,11 @@ type UserGetAllResponse struct {
 }
 
 type UserGetResponse struct {
-	ID             uint                           `json:"id"`
-	Email          string                         `json:"email"`
-	Avatar         string                         `json:"avatar"`
-	RoleID         uint                           `json:"role_id"`
-	RegularUser    *RegularUserMinimalResponse    `json:"regular_user,omitempty"`
-	UniversityUser *UniversityUserMinimalResponse `json:"university_user,omitempty"`
-	BusinessUser   *BusinessUserMinimalResponse   `json:"business_user,omitempty"`
+	ID             uint                       `json:"id"`
+	Email          string                     `json:"email"`
+	Avatar         string                     `json:"avatar"`
+	RoleID         uint                       `json:"role_id"`
+	RegularUser    *RegularUserGetResponse    `json:"regular_user,omitempty"`
+	UniversityUser *UniversityUserGetResponse `json:"university_user,omitempty"`
+	BusinessUser   *BusinessUserGetResponse   `json:"business_user,omitempty"`
 }

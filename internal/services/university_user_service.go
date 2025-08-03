@@ -1,8 +1,11 @@
 package services
 
 import (
+	"fmt"
+	"lamsam-web3-backend/internal/customerrors"
 	"lamsam-web3-backend/internal/models"
 	"lamsam-web3-backend/internal/repositories"
+	"lamsam-web3-backend/internal/utils"
 
 	"gorm.io/gorm"
 )
@@ -32,7 +35,21 @@ func (s *universityUserService) CreateUniversityUser(universityUser *models.Univ
 }
 
 func (s *universityUserService) UpdateUniversityUser(universityUser *models.UniversityUser) error {
-	return s.repo.Update(universityUser)
+	if universityUser.UserID == 0 {
+		return customerrors.ErrInvalidData
+	}
+
+	updates := utils.StructToMap(universityUser)
+	fmt.Print(updates)
+	if len(updates) == 0 {
+		return nil
+	}
+
+	existing, err := s.GetUniversityUserByID(universityUser.UserID)
+	if err != nil {
+		return err
+	}
+	return s.repo.Update(existing, updates)
 }
 
 func (s *universityUserService) DeleteUniversityUser(userID uint) error {

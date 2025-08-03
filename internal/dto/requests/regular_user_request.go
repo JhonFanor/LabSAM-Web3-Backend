@@ -10,3 +10,12 @@ type RegularUserRequest struct {
 	LocationRequest *LocationRequest `json:"location"`
 	ContactRequest  *ContactRequest  `json:"contact"`
 }
+
+type RegularUserUpdateRequest struct {
+	Password        *string          `json:"password"`
+	Name            *string          `json:"name"`
+	Avatar          *string          `json:"avatar"`
+	BirthDate       *time.Time       `json:"birth_date"`
+	LocationRequest *LocationRequest `json:"location"`
+	ContactRequest  *ContactRequest  `json:"contact"`
+}

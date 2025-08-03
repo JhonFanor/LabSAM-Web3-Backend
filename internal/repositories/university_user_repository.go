@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/models"
 
 	"gorm.io/gorm"
@@ -8,18 +9,22 @@ import (
 
 type UniversityUserRepository interface {
 	Create(universityUser *models.UniversityUser) (*models.UniversityUser, error)
-	Update(universityUser *models.UniversityUser) error
+	Update(universityUser *models.UniversityUser, updates map[string]interface{}) error
 	Delete(userID uint) error
 	GetByUserID(userID uint) (*models.UniversityUser, error)
 	GetAll() ([]models.UniversityUser, error)
 }
 
 type universityUserRepository struct {
-	db *gorm.DB
+	dbManager *gormmanagers.DBManager
+	db        *gorm.DB
 }
 
-func NewUniversityUserRepository(db *gorm.DB) UniversityUserRepository {
-	return &universityUserRepository{db: db}
+func NewUniversityUserRepository(dbManager *gormmanagers.DBManager, db *gorm.DB) UniversityUserRepository {
+	return &universityUserRepository{
+		dbManager: dbManager,
+		db:        db,
+	}
 }
 
 func (r *universityUserRepository) Create(universityUser *models.UniversityUser) (*models.UniversityUser, error) {
@@ -29,8 +34,8 @@ func (r *universityUserRepository) Create(universityUser *models.UniversityUser)
 	return universityUser, nil
 }
 
-func (r *universityUserRepository) Update(universityUser *models.UniversityUser) error {
-	return r.db.Save(universityUser).Error
+func (r *universityUserRepository) Update(universityUser *models.UniversityUser, updates map[string]interface{}) error {
+	return r.dbManager.Update(universityUser, updates, r.db)
 }
 
 func (r *universityUserRepository) Delete(userID uint) error {

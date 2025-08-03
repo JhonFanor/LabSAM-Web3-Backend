@@ -9,7 +9,7 @@ import (
 
 type RegularUserRepository interface {
 	Create(regularUser *models.RegularUser) (*models.RegularUser, error)
-	Update(regularUser *models.RegularUser) error
+	Update(regularUser *models.RegularUser, updates map[string]interface{}) error
 	Delete(userID uint) error
 	GetByUserID(userID uint) (*models.RegularUser, error)
 	GetAll() ([]models.RegularUser, error)
@@ -34,8 +34,8 @@ func (r *regularUserRepository) Create(regularUser *models.RegularUser) (*models
 	return regularUser, nil
 }
 
-func (r *regularUserRepository) Update(regularUser *models.RegularUser) error {
-	return r.db.Save(regularUser).Error
+func (r *regularUserRepository) Update(regularUser *models.RegularUser, updates map[string]interface{}) error {
+	return r.dbManager.Update(regularUser, updates, r.db)
 }
 
 func (r *regularUserRepository) Delete(userID uint) error {

@@ -3,6 +3,7 @@ package routes
 import (
 	"lamsam-web3-backend/internal/api/controllers"
 	"lamsam-web3-backend/internal/api/middlewares"
+	"lamsam-web3-backend/internal/dto/requests"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
@@ -43,7 +44,16 @@ func (ur *UserRoutes) Routes() {
 
 		user.GET("/admin/:id",
 			ur.TokenMiddleware.ValidateToken(),
-			ur.UserController.GetUserForAdminByID,
+			ur.UserController.GetUserForProfile,
 		)
+
+		user.GET("/:id",
+			ur.TokenMiddleware.ValidateToken(),
+			ur.UserController.GetUserForProfile,
+		)
+
+		user.PUT("/regular/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.RegularUserUpdateRequest{}), ur.UserController.UpdateRegularUser)
+		user.PUT("/business/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.BusinessUserUpdateRequest{}), ur.UserController.UpdateBusinessUser)
+		user.PUT("/university/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.UniversityUserUpdateRequest{}), ur.UserController.UpdateUniversityUser)
 	}
 }

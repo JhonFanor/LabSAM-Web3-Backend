@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	gormmanagers "lamsam-web3-backend/internal/adapter/gorm/managers"
 	"lamsam-web3-backend/internal/models"
 
 	"gorm.io/gorm"
@@ -8,18 +9,22 @@ import (
 
 type BusinessUserRepository interface {
 	Create(businessUser *models.BusinessUser) (*models.BusinessUser, error)
-	Update(businessUser *models.BusinessUser) error
+	Update(businessUser *models.BusinessUser, updates map[string]interface{}) error
 	Delete(userID uint) error
 	GetByUserID(userID uint) (*models.BusinessUser, error)
 	GetAll() ([]models.BusinessUser, error)
 }
 
 type businessUserRepository struct {
-	db *gorm.DB
+	dbManager *gormmanagers.DBManager
+	db        *gorm.DB
 }
 
-func NewBusinessUserRepository(db *gorm.DB) BusinessUserRepository {
-	return &businessUserRepository{db: db}
+func NewBusinessUserRepository(dbManager *gormmanagers.DBManager, db *gorm.DB) BusinessUserRepository {
+	return &businessUserRepository{
+		dbManager: dbManager,
+		db:        db,
+	}
 }
 
 func (r *businessUserRepository) Create(businessUser *models.BusinessUser) (*models.BusinessUser, error) {
@@ -29,8 +34,8 @@ func (r *businessUserRepository) Create(businessUser *models.BusinessUser) (*mod
 	return businessUser, nil
 }
 
-func (r *businessUserRepository) Update(businessUser *models.BusinessUser) error {
-	return r.db.Save(businessUser).Error
+func (r *businessUserRepository) Update(businessUser *models.BusinessUser, updates map[string]interface{}) error {
+	return r.dbManager.Update(businessUser, updates, r.db)
 }
 
 func (r *businessUserRepository) Delete(userID uint) error {

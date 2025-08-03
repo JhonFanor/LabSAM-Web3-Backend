@@ -39,5 +39,7 @@ func (ar *AuthRoutes) Routes() {
 		auth.POST("/login", ar.ValidatorMiddleware.ValidateInput(&requests.LoginRequest{}), ar.AuthController.Login)
 		auth.POST("/token/refresh", ar.AuthController.RefreshToken)
 		auth.POST("/logout", ar.AuthController.Logout)
+		auth.POST("/forgot-password", ar.AuthController.RequestPasswordReset)
+		auth.POST("/reset-password", ar.ValidatorMiddleware.ValidateInput(&requests.ResetPassword{}), ar.AuthController.ResetPassword)
 	}
 }

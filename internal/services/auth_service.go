@@ -10,6 +10,7 @@ type AuthService interface {
 	RegisterRegularUser(user *models.User, regularUser *models.RegularUser) (*models.User, error)
 	RegisterUniversityUser(user *models.User, universityUser *models.UniversityUser) (*models.User, error)
 	RegisterBusinessUser(user *models.User, businessUser *models.BusinessUser) (*models.User, error)
+	UpdatePasswordByEmail(email, newPassword string) error
 }
 
 type authService struct {
@@ -97,4 +98,15 @@ func (s *authService) RegisterBusinessUser(user *models.User, businessUser *mode
 	}
 
 	return createdUser, nil
+}
+
+func (s *authService) UpdatePasswordByEmail(email, newPassword string) error {
+	user, err := s.userService.FindUserByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	user.Password = newPassword
+
+	return s.userService.UpdateUser(user)
 }

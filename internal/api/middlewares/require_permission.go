@@ -1,20 +1,26 @@
 package middlewares
 
 import (
-	"fmt"
+	"lamsam-web3-backend/internal/services"
 	"lamsam-web3-backend/pkg/security"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type PermissionMiddleware struct{}
-
-func NewPermissionMiddleware() *PermissionMiddleware {
-	return &PermissionMiddleware{}
+type PermissionMiddleware struct {
+	permissionService services.PermissionService
+	roleService       services.RoleService
 }
 
-func (pm *PermissionMiddleware) RequirePermission(permission string) gin.HandlerFunc {
+func NewPermissionMiddleware(ps services.PermissionService, rs services.RoleService) *PermissionMiddleware {
+	return &PermissionMiddleware{
+		permissionService: ps,
+		roleService:       rs,
+	}
+}
+
+func (pm *PermissionMiddleware) RequirePermission(requiredPermission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claimsValue, exists := c.Get("claims")
 		if !exists {
@@ -28,9 +34,20 @@ func (pm *PermissionMiddleware) RequirePermission(permission string) gin.Handler
 			return
 		}
 
-		for _, p := range claims.Permissions {
-			fmt.Print(p)
-			if p == permission {
+		role, err := pm.roleService.GetByName(claims.Role)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el rol"})
+			return
+		}
+
+		permissions, err := pm.permissionService.GetAllPermissionsByUser(claims.UserID, role.ID)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener permisos"})
+			return
+		}
+
+		for _, p := range permissions {
+			if p.Name == requiredPermission {
 				c.Next()
 				return
 			}
