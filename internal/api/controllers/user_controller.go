@@ -141,7 +141,7 @@ func (u *UserController) UpdateRegularUser(c *gin.Context) {
 		return
 	}
 
-	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.Country != "" {
+	if input.LocationRequest != nil && input.LocationRequest.City != "" && input.LocationRequest.Country != "" {
 		var location models.Location
 		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -153,7 +153,7 @@ func (u *UserController) UpdateRegularUser(c *gin.Context) {
 		regularUser.LocationID = &locationCreate.ID
 	}
 
-	if input.ContactRequest != nil && input.ContactRequest.Phone != "" && input.ContactRequest.Website != "" {
+	if input.ContactRequest != nil && (input.ContactRequest.Phone != "" || input.ContactRequest.Website != "") {
 		var contact models.Contact
 		if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -161,14 +161,20 @@ func (u *UserController) UpdateRegularUser(c *gin.Context) {
 			})
 			return
 		}
+		fmt.Print(contact)
 
-		u.contactService.UpdateContact(&contact)
+		if input.ContactRequest.ID != nil {
+			u.contactService.UpdateContact(&contact)
+		} else if created, err := u.contactService.CreateContact(&contact); err == nil {
+			regularUser.ContactID = &created.ID
+		}
 	}
 
-	user.ID = uint(id)
 	if input.Password != nil {
 		user.Password = *input.Password
 	}
+
+	user.ID = uint(id)
 	regularUser.UserID = uint(id)
 
 	err = u.service.UpdateUser(&user)
@@ -215,7 +221,7 @@ func (u *UserController) UpdateBusinessUser(c *gin.Context) {
 		return
 	}
 
-	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.Country != "" {
+	if input.LocationRequest != nil && input.LocationRequest.City != "" && input.LocationRequest.Country != "" {
 		var location models.Location
 		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -235,7 +241,7 @@ func (u *UserController) UpdateBusinessUser(c *gin.Context) {
 		businessUser.LocationID = &locationCreate.ID
 	}
 
-	if input.ContactRequest != nil && input.ContactRequest.Phone != "" && input.ContactRequest.Website != "" {
+	if input.ContactRequest != nil && (input.ContactRequest.Phone != "" || input.ContactRequest.Website != "") {
 		var contact models.Contact
 		if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -244,9 +250,11 @@ func (u *UserController) UpdateBusinessUser(c *gin.Context) {
 			return
 		}
 
-		contactCreate, _ := u.contactService.CreateContact(&contact)
-
-		businessUser.ContactID = &contactCreate.ID
+		if input.ContactRequest.ID != nil {
+			u.contactService.UpdateContact(&contact)
+		} else if created, err := u.contactService.CreateContact(&contact); err == nil {
+			businessUser.ContactID = &created.ID
+		}
 	}
 
 	if input.Password != nil {
@@ -255,9 +263,18 @@ func (u *UserController) UpdateBusinessUser(c *gin.Context) {
 
 	user.ID = uint(id)
 	businessUser.UserID = uint(id)
-	fmt.Print(user)
-	u.service.UpdateUser(&user)
-	u.businessUserService.UpdateBusinessUser(&businessUser)
+
+	err = u.service.UpdateUser(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	err = u.businessUserService.UpdateBusinessUser(&businessUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, responses.SuccessResponse{
 		Message: "Business user successfully updated",
@@ -291,7 +308,7 @@ func (u *UserController) UpdateUniversityUser(c *gin.Context) {
 		return
 	}
 
-	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.Country != "" {
+	if input.LocationRequest != nil && input.LocationRequest.City != "" && input.LocationRequest.Country != "" {
 		var location models.Location
 		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -303,7 +320,7 @@ func (u *UserController) UpdateUniversityUser(c *gin.Context) {
 		universityUser.LocationID = &locationCreate.ID
 	}
 
-	if input.ContactRequest != nil && input.ContactRequest.Phone != "" && input.ContactRequest.Website != "" {
+	if input.ContactRequest != nil && (input.ContactRequest.Phone != "" || input.ContactRequest.Website != "") {
 		var contact models.Contact
 		if err := mapstructure.Decode(*input.ContactRequest, &contact); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -311,10 +328,14 @@ func (u *UserController) UpdateUniversityUser(c *gin.Context) {
 			})
 			return
 		}
-		contactCreate, _ := u.contactService.CreateContact(&contact)
 
-		universityUser.ContactID = &contactCreate.ID
+		if input.ContactRequest.ID != nil {
+			u.contactService.UpdateContact(&contact)
+		} else if created, err := u.contactService.CreateContact(&contact); err == nil {
+			universityUser.ContactID = &created.ID
+		}
 	}
+
 	if input.UniversityTypeRequest != nil {
 		universityUser.UniversityTypeID = input.UniversityTypeRequest.ID
 	}
@@ -326,8 +347,17 @@ func (u *UserController) UpdateUniversityUser(c *gin.Context) {
 	user.ID = uint(id)
 	universityUser.UserID = uint(id)
 
-	u.service.UpdateUser(&user)
-	u.universityUserService.UpdateUniversityUser(&universityUser)
+	err = u.service.UpdateUser(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	err = u.universityUserService.UpdateUniversityUser(&universityUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, responses.SuccessResponse{
 		Message: "University user successfully updated",

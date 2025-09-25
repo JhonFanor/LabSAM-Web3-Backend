@@ -71,6 +71,7 @@ func (r *userRepository) GetAll(c *gin.Context) (*dto.PaginationDTO, error) {
 		c,
 		r.db.Joins("JOIN roles ON roles.id = users.role_id").
 			Where("roles.name <> ?", "admin").
+			Preload("Role").
 			Preload("RegularUser").
 			Preload("UniversityUser").
 			Preload("BusinessUser"),

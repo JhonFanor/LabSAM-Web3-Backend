@@ -28,10 +28,11 @@ type NewsRoutes struct {
 
 func NewNewsRoutes(p NewsRoutesParams) *NewsRoutes {
 	return &NewsRoutes{
-		Router:              p.Router,
-		ValidatorMiddleware: p.ValidatorMiddleware,
-		TokenMiddleware:     p.TokenMiddleware,
-		NewsController:      p.NewsController,
+		Router:               p.Router,
+		ValidatorMiddleware:  p.ValidatorMiddleware,
+		TokenMiddleware:      p.TokenMiddleware,
+		PermissionMiddleware: p.PermissionMiddleware,
+		NewsController:       p.NewsController,
 	}
 }
 

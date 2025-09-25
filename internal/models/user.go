@@ -11,9 +11,9 @@ type User struct {
 	Email                  string          `json:"email"`
 	Avatar                 string          `json:"avatar"`
 	Password               string          `json:"-"`
-	RoleID                 uint            `json:"-"`
 	EmailVerified          bool            `json:"email_verified"`
 	EmailVerificationToken string          `json:"email_verification_token"`
+	RoleID                 uint            `json:"-"`
 	Role                   Role            `gorm:"foreignkey:RoleID" json:"-"`
 	Permissions            []Permission    `gorm:"many2many:permission_user;" json:"-"`
 	CreatedAt              *time.Time      `gorm:"autoUpdateTime" json:"created_at"`
