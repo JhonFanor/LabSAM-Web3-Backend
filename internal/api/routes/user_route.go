@@ -55,5 +55,6 @@ func (ur *UserRoutes) Routes() {
 		user.PUT("/regular/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.RegularUserUpdateRequest{}), ur.UserController.UpdateRegularUser)
 		user.PUT("/business/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.BusinessUserUpdateRequest{}), ur.UserController.UpdateBusinessUser)
 		user.PUT("/university/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.UniversityUserUpdateRequest{}), ur.UserController.UpdateUniversityUser)
+		user.PUT("/admin/:id", ur.TokenMiddleware.ValidateToken(), ur.ValidatorMiddleware.ValidateInput(&requests.AdminUserUpdateRequest{}), ur.UserController.UpdateAdminUser)
 	}
 }

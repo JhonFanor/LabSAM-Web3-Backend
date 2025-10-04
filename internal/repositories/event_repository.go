@@ -92,8 +92,9 @@ func (r *eventRepository) CountNotApproved() (int64, error) {
 func (r *eventRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("event_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("event_subtopic es").
+		Joins("JOIN events e ON e.id = es.event_id").
+		Where("es.subtopic_id = ? AND e.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

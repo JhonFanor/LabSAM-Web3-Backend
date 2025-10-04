@@ -92,8 +92,9 @@ func (r *legislationRepository) CountNotApproved() (int64, error) {
 func (r *legislationRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("legislation_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("legislation_subtopic ls").
+		Joins("JOIN legislations l ON l.id = ls.legislation_id").
+		Where("ls.subtopic_id = ? AND l.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

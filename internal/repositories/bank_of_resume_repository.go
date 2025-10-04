@@ -96,8 +96,9 @@ func (r *bankOfResumeRepository) CountNotApproved() (int64, error) {
 func (r *bankOfResumeRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("bank_of_resume_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("bank_of_resume_subtopic bs").
+		Joins("JOIN bank_of_resumes b ON b.id = bs.bank_of_resume_id").
+		Where("bs.subtopic_id = ? AND b.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

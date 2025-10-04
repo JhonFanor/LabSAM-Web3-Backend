@@ -96,8 +96,9 @@ func (r *companyRepository) CountNotApproved() (int64, error) {
 func (r *companyRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("company_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("company_subtopic cs").
+		Joins("JOIN companies c ON c.id = cs.company_id").
+		Where("cs.subtopic_id = ? AND c.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

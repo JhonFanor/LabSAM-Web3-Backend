@@ -38,6 +38,6 @@ func (r *newsSubtopicRepository) GetByID(newsID, subtopicID uint) (*models.NewsS
 }
 
 func (r *newsSubtopicRepository) Delete(newsID, subtopicID uint) error {
-	return r.db.Where("new_id = ? AND subtopic_id = ?", newsID, subtopicID).
+	return r.db.Where("news_id = ? AND subtopic_id = ?", newsID, subtopicID).
 		Delete(&models.NewsSubtopic{}).Error
 }

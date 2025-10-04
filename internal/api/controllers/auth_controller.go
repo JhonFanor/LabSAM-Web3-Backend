@@ -173,6 +173,10 @@ func (a *AuthController) RegisterRegularUser(c *gin.Context) {
 		return
 	}
 
+	if input.BirthDate != nil {
+		regularUser.BirthDate = input.BirthDate
+	}
+
 	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.City != "" {
 		var location models.Location
 		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
@@ -498,6 +502,33 @@ func (a *AuthController) ResetPassword(c *gin.Context) {
 	email := claims["sub"].(string)
 
 	err = a.AuthService.UpdatePasswordByEmail(email, input.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando contraseña"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Contraseña actualizada exitosamente"})
+}
+
+func (a *AuthController) PasswordChange(c *gin.Context) {
+	validatedInput, _ := c.Get("input")
+
+	input := validatedInput.(*requests.PasswordChangeRequest)	
+
+	claimsValue, _ := c.Get("claims")
+	claims, _ := claimsValue.(*security.Claims)
+	user, err := a.UserService.GetUserByID(claims.UserID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "User not found"})
+		return
+	}
+	
+	if !user.VerifyPassword(input.Password) {
+		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Contraseña anterior invalida"})
+		return
+	}
+
+	err = a.AuthService.UpdatePasswordByEmail(user.Email, input.NewPassword)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando contraseña"})
 		return

@@ -96,8 +96,9 @@ func (r *documentationRepository) CountNotApproved() (int64, error) {
 func (r *documentationRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("documentation_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("documentation_subtopic ds").
+		Joins("JOIN documentations d ON d.id = ds.documentation_id").
+		Where("ds.subtopic_id = ? AND d.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

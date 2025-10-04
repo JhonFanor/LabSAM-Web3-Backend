@@ -13,12 +13,14 @@ type AuthRoutesParams struct {
 	fx.In
 	Router              *gin.Engine
 	ValidatorMiddleware *middlewares.ValidatorMiddleware
+	TokenMiddleware        *middlewares.TokenMiddleware
 	AuthController      *controllers.AuthController
 }
 
 type AuthRoutes struct {
 	Router              *gin.Engine
 	ValidatorMiddleware *middlewares.ValidatorMiddleware
+	TokenMiddleware        *middlewares.TokenMiddleware
 	AuthController      *controllers.AuthController
 }
 
@@ -26,6 +28,7 @@ func NewAuthRoutes(p AuthRoutesParams) *AuthRoutes {
 	return &AuthRoutes{
 		Router:              p.Router,
 		ValidatorMiddleware: p.ValidatorMiddleware,
+		TokenMiddleware:     p.TokenMiddleware,
 		AuthController:      p.AuthController,
 	}
 }
@@ -41,5 +44,6 @@ func (ar *AuthRoutes) Routes() {
 		auth.POST("/logout", ar.AuthController.Logout)
 		auth.POST("/forgot-password", ar.AuthController.RequestPasswordReset)
 		auth.POST("/reset-password", ar.ValidatorMiddleware.ValidateInput(&requests.ResetPassword{}), ar.AuthController.ResetPassword)
+		auth.POST("/password-change", ar.TokenMiddleware.ValidateToken(), ar.ValidatorMiddleware.ValidateInput(&requests.PasswordChangeRequest{}), ar.AuthController.PasswordChange)	
 	}
 }

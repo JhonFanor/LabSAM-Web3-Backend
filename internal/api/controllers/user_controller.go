@@ -363,3 +363,35 @@ func (u *UserController) UpdateUniversityUser(c *gin.Context) {
 		Message: "University user successfully updated",
 	})
 }
+
+func (u *UserController) UpdateAdminUser(c *gin.Context) {
+	validatedInput, _ := c.Get("input")
+
+	input := validatedInput.(*requests.AdminUserUpdateRequest)
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid ID"})
+		return
+	}
+
+	var user models.User
+	if err := mapstructure.Decode(*input, &user); err != nil {
+		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: consts.ErrorMapConst,
+		})
+		return
+	}
+
+	user.ID = uint(id)
+
+	err = u.service.UpdateUser(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, responses.SuccessResponse{
+		Message: "Admin user successfully updated",
+	})
+}

@@ -92,8 +92,9 @@ func (r *jobBoardRepository) CountNotApproved() (int64, error) {
 func (r *jobBoardRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("job_board_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("job_board_subtopic js").
+		Joins("JOIN jobs_board j ON j.id = js.job_board_id").
+		Where("js.subtopic_id = ? AND j.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

@@ -175,7 +175,6 @@ func (s *newsService) UpdateNews(news *models.News, userID uint, role string) er
 			ResourceID:   int(existing.ID),
 			ResourceType: "news",
 		})
-
 	}
 
 	existing.User = nil

@@ -96,8 +96,9 @@ func (r *educationalOfferRepository) CountNotApproved() (int64, error) {
 func (r *educationalOfferRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("educational_offer_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("educational_offer_subtopic es").
+		Joins("JOIN educational_offers e ON e.id = es.educational_offer_id").
+		Where("es.subtopic_id = ? AND e.is_approved = ?", subtopicID, true).
 		Count(&count).Error
 	return count, err
 }

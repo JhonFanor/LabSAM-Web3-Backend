@@ -5,7 +5,7 @@ type JobBoardRequest struct {
 	Company     string `json:"company" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	Type        string `json:"type"`
-	SalaryRange string `json:"salary_range" validate:"required"`
+	SalaryRange string `json:"salary_range"`
 	Link        string `json:"link" validate:"required"`
 	SubtopicIDs []uint `json:"subtopic_ids" validate:"required"`
 }

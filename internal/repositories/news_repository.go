@@ -91,9 +91,11 @@ func (r *newsRepository) CountNotApproved() (int64, error) {
 func (r *newsRepository) CountBySubtopicID(subtopicID uint) (int64, error) {
 	var count int64
 	err := r.db.
-		Table("news_subtopic").
-		Where("subtopic_id = ?", subtopicID).
+		Table("news_subtopic ns").
+		Joins("JOIN news n ON n.id = ns.news_id").
+		Where("ns.subtopic_id = ? AND n.is_approved = ?", subtopicID, true).
 		Count(&count).Error
+
 	return count, err
 }
 

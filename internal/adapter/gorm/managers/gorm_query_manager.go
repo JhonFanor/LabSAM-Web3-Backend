@@ -52,16 +52,14 @@ func (m *GormQueryManager) ApplyPaginationAndFilters(c *gin.Context, db *gorm.DB
 		nextPage = totalPages
 	}
 
-	// Crear una slice del mismo tipo que model
 	modelType := reflect.TypeOf(model)
 	if modelType.Kind() == reflect.Ptr {
-		modelType = modelType.Elem() // Obtener el tipo base si es un puntero
+		modelType = modelType.Elem() 
 	}
 	dataSliceType := reflect.SliceOf(modelType)
-	dataPtr := reflect.New(dataSliceType) // Creamos un puntero a la slice
-	data := dataPtr.Interface()           // Convertimos el puntero a interfaz vacía
+	dataPtr := reflect.New(dataSliceType)
+	data := dataPtr.Interface()         
 
-	// Ejecutar la consulta con la slice correcta
 	result := db.Order(fmt.Sprintf("%s %s", sortBy, sortOrder)).
 		Distinct().
 		Limit(limitInt).
