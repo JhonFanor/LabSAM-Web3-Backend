@@ -10,5 +10,15 @@ CREATE TABLE IF NOT EXISTS "users" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "users" ADD FOREIGN KEY ("role_id") REFERENCES "roles" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "users"
+        ADD CONSTRAINT fk_users_roles
+        FOREIGN KEY ("role_id") REFERENCES "roles" ("id")
+        ON DELETE RESTRICT ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

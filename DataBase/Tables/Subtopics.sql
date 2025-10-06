@@ -6,6 +6,15 @@ CREATE TABLE IF NOT EXISTS "subtopics" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "subtopics" ADD FOREIGN KEY ("topic_id") REFERENCES "topics" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "subtopics"
+        ADD CONSTRAINT fk_subtopics_topics
+        FOREIGN KEY ("topic_id") REFERENCES "topics" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

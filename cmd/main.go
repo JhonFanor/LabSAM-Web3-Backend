@@ -20,7 +20,7 @@ func main() {
 			config.NewGmailConfig,
 			config.NewDatabaseConfig,
 			config.NewJwtConfig,
-			config.NewNginxConfig,
+			config.NewFileServerConfig,
 			config.NewServerConfig,
 			gormmanagers.NewDBManager,
 			gormmanagers.NewGormQueryManager,

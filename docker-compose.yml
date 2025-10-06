@@ -43,6 +43,8 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./DataBase:/database
+      - ./DataBase/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     container_name: postgres_db
     networks:
       - app_network
@@ -51,7 +53,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
 
 networks:
   app_network:

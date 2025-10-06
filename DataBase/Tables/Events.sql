@@ -12,8 +12,24 @@ CREATE TABLE IF NOT EXISTS "events" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "events" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "events"
+        ADD CONSTRAINT fk_events_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
 
-ALTER TABLE "events" ADD FOREIGN KEY ("localitation_id") REFERENCES "localitations" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+    BEGIN
+        ALTER TABLE "events"
+        ADD CONSTRAINT fk_events_localitations
+        FOREIGN KEY ("localitation_id") REFERENCES "localitations" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

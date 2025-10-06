@@ -4,8 +4,24 @@ CREATE TABLE IF NOT EXISTS "bank_of_resume_subtopic" (
   PRIMARY KEY ("bank_of_resume_id", "subtopic_id")
 );
 
-ALTER TABLE "bank_of_resume_subtopic" ADD FOREIGN KEY ("bank_of_resume_id") REFERENCES "bank_of_resumes" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "bank_of_resume_subtopic"
+        ADD CONSTRAINT fk_bank_of_resume_subtopic_bank_of_resumes
+        FOREIGN KEY ("bank_of_resume_id") REFERENCES "bank_of_resumes" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
 
-ALTER TABLE "bank_of_resume_subtopic" ADD FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+    BEGIN
+        ALTER TABLE "bank_of_resume_subtopic"
+        ADD CONSTRAINT fk_bank_of_resume_subtopic_subtopics
+        FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

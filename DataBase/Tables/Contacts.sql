@@ -3,5 +3,3 @@ CREATE TABLE IF NOT EXISTS "contacts" (
   "phone" varchar(50),
   "website" varchar(255)
 );
-
-

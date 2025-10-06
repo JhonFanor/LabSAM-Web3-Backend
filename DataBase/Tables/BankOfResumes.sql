@@ -10,5 +10,16 @@ CREATE TABLE IF NOT EXISTS "bank_of_resumes" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "bank_of_resumes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "bank_of_resumes"
+        ADD CONSTRAINT fk_bank_of_resumes_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;
+

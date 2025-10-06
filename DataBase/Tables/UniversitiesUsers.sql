@@ -8,10 +8,42 @@ CREATE TABLE IF NOT EXISTS "universities_users" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "universities_users" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
-  
-ALTER TABLE universities_users
-  ADD CONSTRAINT fk_universities_users_university_type_id FOREIGN KEY (university_type_id) REFERENCES university_types(id),
-  ADD CONSTRAINT fk_universities_users_location_id FOREIGN KEY (location_id) REFERENCES locations(id),
-  ADD CONSTRAINT fk_universities_users_contact_id FOREIGN KEY (contact_id) REFERENCES contacts(id);
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "universities_users"
+        ADD CONSTRAINT fk_universities_users_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+
+    BEGIN
+        ALTER TABLE "universities_users"
+        ADD CONSTRAINT fk_universities_users_university_types
+        FOREIGN KEY ("university_type_id") REFERENCES "university_types" ("id")
+        ON DELETE RESTRICT ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+
+    BEGIN
+        ALTER TABLE "universities_users"
+        ADD CONSTRAINT fk_universities_users_locations
+        FOREIGN KEY ("location_id") REFERENCES "locations" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+
+    BEGIN
+        ALTER TABLE "universities_users"
+        ADD CONSTRAINT fk_universities_users_contacts
+        FOREIGN KEY ("contact_id") REFERENCES "contacts" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

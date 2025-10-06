@@ -4,8 +4,24 @@ CREATE TABLE IF NOT EXISTS "job_board_subtopic" (
   PRIMARY KEY ("job_board_id", "subtopic_id")
 );
 
-ALTER TABLE "job_board_subtopic" ADD FOREIGN KEY ("job_board_id") REFERENCES "jobs_board" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "job_board_subtopic"
+        ADD CONSTRAINT fk_job_board_subtopic_jobs_board
+        FOREIGN KEY ("job_board_id") REFERENCES "jobs_board" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
 
-ALTER TABLE "job_board_subtopic" ADD FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+    BEGIN
+        ALTER TABLE "job_board_subtopic"
+        ADD CONSTRAINT fk_job_board_subtopic_subtopics
+        FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

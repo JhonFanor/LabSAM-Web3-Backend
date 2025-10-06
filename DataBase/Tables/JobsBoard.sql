@@ -12,5 +12,15 @@ CREATE TABLE IF NOT EXISTS "jobs_board" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "jobs_board" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "jobs_board"
+        ADD CONSTRAINT fk_jobs_board_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

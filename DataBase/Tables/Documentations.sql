@@ -9,5 +9,15 @@ CREATE TABLE IF NOT EXISTS "documentations" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "documentations" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "documentations"
+        ADD CONSTRAINT fk_documentations_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

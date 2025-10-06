@@ -8,9 +8,33 @@ CREATE TABLE IF NOT EXISTS "regulars_users" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "regulars_users" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
-  
-ALTER TABLE regulars_users
-  ADD FOREIGN KEY (location_id) REFERENCES locations(id),
-  ADD FOREIGN KEY (contact_id) REFERENCES contacts(id);
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "regulars_users"
+        ADD CONSTRAINT fk_regulars_users_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+
+    BEGIN
+        ALTER TABLE "regulars_users"
+        ADD CONSTRAINT fk_regulars_users_locations
+        FOREIGN KEY ("location_id") REFERENCES "locations" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+
+    BEGIN
+        ALTER TABLE "regulars_users"
+        ADD CONSTRAINT fk_regulars_users_contacts
+        FOREIGN KEY ("contact_id") REFERENCES "contacts" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

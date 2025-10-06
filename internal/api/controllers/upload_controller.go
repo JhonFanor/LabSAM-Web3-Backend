@@ -17,18 +17,18 @@ import (
 type UploadControllerParams struct {
 	fx.In
 	NewsService services.NewsService
-	Nginx       *config.NginxConfig
+	FileServer  *config.FileServerConfig
 }
 
 type UploadController struct {
-	service services.NewsService
-	nginx   *config.NginxConfig
+	service    services.NewsService
+	fileServer *config.FileServerConfig
 }
 
 func NewUploadController(p UploadControllerParams) *UploadController {
 	return &UploadController{
-		service: p.NewsService,
-		nginx:   p.Nginx,
+		service:    p.NewsService,
+		fileServer: p.FileServer,
 	}
 }
 
@@ -71,7 +71,7 @@ func (n *UploadController) UploadFile(c *gin.Context) {
 		return
 	}
 
-	publicURL := fmt.Sprintf("%s/uploads/%s/%s", strings.TrimRight(n.nginx.NGINX_URL, "/"), folder, filename)
+	publicURL := fmt.Sprintf("%s/uploads/%s/%s", strings.TrimRight(n.fileServer.FILE_SERVER_URL, "/"), folder, filename)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Archivo subido con éxito",

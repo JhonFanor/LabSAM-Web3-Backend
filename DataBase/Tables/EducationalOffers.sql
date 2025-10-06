@@ -13,5 +13,15 @@ CREATE TABLE IF NOT EXISTS "educational_offers" (
   "updated_at" timestamp
 );
 
-ALTER TABLE "educational_offers" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "educational_offers"
+        ADD CONSTRAINT fk_educational_offers_users
+        FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        ON DELETE SET NULL ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

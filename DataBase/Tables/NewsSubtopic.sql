@@ -4,8 +4,24 @@ CREATE TABLE IF NOT EXISTS "news_subtopic" (
   PRIMARY KEY ("news_id", "subtopic_id")
 );
 
-ALTER TABLE "news_subtopic" ADD FOREIGN KEY ("news_id") REFERENCES "news" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "news_subtopic"
+        ADD CONSTRAINT fk_news_subtopic_news
+        FOREIGN KEY ("news_id") REFERENCES "news" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
 
-ALTER TABLE "news_subtopic" ADD FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+    BEGIN
+        ALTER TABLE "news_subtopic"
+        ADD CONSTRAINT fk_news_subtopic_subtopics
+        FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;

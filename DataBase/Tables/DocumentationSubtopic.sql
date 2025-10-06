@@ -4,8 +4,24 @@ CREATE TABLE IF NOT EXISTS "documentation_subtopic" (
   PRIMARY KEY ("documentation_id", "subtopic_id")
 );
 
-ALTER TABLE "documentation_subtopic" ADD FOREIGN KEY ("documentation_id") REFERENCES "documentations" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+    BEGIN
+        ALTER TABLE "documentation_subtopic"
+        ADD CONSTRAINT fk_documentation_subtopic_documentations
+        FOREIGN KEY ("documentation_id") REFERENCES "documentations" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
 
-ALTER TABLE "documentation_subtopic" ADD FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+    BEGIN
+        ALTER TABLE "documentation_subtopic"
+        ADD CONSTRAINT fk_documentation_subtopic_subtopics
+        FOREIGN KEY ("subtopic_id") REFERENCES "subtopics" ("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+    EXCEPTION
+        WHEN duplicate_object THEN
+    END;
+END
+$$;
