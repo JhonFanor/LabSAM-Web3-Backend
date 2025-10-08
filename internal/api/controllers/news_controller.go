@@ -181,7 +181,7 @@ func (n *NewsController) UpdateNews(c *gin.Context) {
 		return
 	}
 
-	news.Date = newsRequest.Date
+	news.Date = &newsRequest.Date
 
 	news.ID = uint(id)
 	claimsValue, _ := c.Get("claims")

@@ -263,7 +263,7 @@ func (a *AuthController) RegisterUniversityUser(c *gin.Context) {
 		return
 	}
 
-	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.Country != "" {
+	if input.LocationRequest != nil && input.LocationRequest.Country != "" && input.LocationRequest.City != "" {
 		var location models.Location
 		if err := mapstructure.Decode(*input.LocationRequest, &location); err != nil {
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{
@@ -513,7 +513,7 @@ func (a *AuthController) ResetPassword(c *gin.Context) {
 func (a *AuthController) PasswordChange(c *gin.Context) {
 	validatedInput, _ := c.Get("input")
 
-	input := validatedInput.(*requests.PasswordChangeRequest)	
+	input := validatedInput.(*requests.PasswordChangeRequest)
 
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
@@ -522,7 +522,7 @@ func (a *AuthController) PasswordChange(c *gin.Context) {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "User not found"})
 		return
 	}
-	
+
 	if !user.VerifyPassword(input.Password) {
 		c.JSON(http.StatusNotFound, responses.ErrorResponse{Error: "Contraseña anterior invalida"})
 		return

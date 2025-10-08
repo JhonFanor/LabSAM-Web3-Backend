@@ -12,9 +12,9 @@ type NewsRequest struct {
 }
 
 type NewsUpdateRequest struct {
-	Title       string     `json:"title,omitempty"`
-	Image       string     `json:"image,omitempty"`
-	Description string     `json:"description,omitempty"`
-	Link        string     `json:"link,omitempty"`
-	Date        *time.Time `json:"date,omitempty"`
+	Title       string    `json:"title" validate:"required"`
+	Image       string    `json:"image" validate:"required"`
+	Description string    `json:"description" validate:"required"`
+	Link        string    `json:"link"`
+	Date        time.Time `json:"date" validate:"required"`
 }
