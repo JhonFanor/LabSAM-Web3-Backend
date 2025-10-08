@@ -27,6 +27,14 @@ func StructToMap(input interface{}) map[string]interface{} {
 
 	result := make(map[string]interface{})
 
+	ignoreFields := map[string]bool{
+		"localitation": true,
+		"user":         true,
+		"subtopics":    true,
+		"created_at":   true,
+		"updated_at":   true,
+	}
+
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		typeField := typ.Field(i)
@@ -44,13 +52,15 @@ func StructToMap(input interface{}) map[string]interface{} {
 			continue
 		}
 
-		if name == "is_approved" {
-			result[name] = field.Interface()
+		if ignoreFields[name] {
 			continue
 		}
 
-		if isZeroValue(field) {
-			continue
+		if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
+			if field.IsNil() {
+				result[name] = nil
+				continue
+			}
 		}
 
 		if field.Kind() == reflect.Struct && field.Type().String() != "time.Time" {
@@ -76,27 +86,4 @@ func StructToMap(input interface{}) map[string]interface{} {
 	}
 
 	return result
-}
-
-func isZeroValue(v reflect.Value) bool {
-	switch v.Kind() {
-	case reflect.String, reflect.Slice, reflect.Map, reflect.Array:
-		return v.Len() == 0
-	case reflect.Bool:
-		return !v.Bool()
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int() == 0
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Uint() == 0
-	case reflect.Float32, reflect.Float64:
-		return v.Float() == 0
-	case reflect.Interface, reflect.Ptr:
-		return v.IsNil()
-	case reflect.Struct:
-		if z, ok := v.Interface().(interface{ IsZero() bool }); ok {
-			return z.IsZero()
-		}
-	}
-
-	return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()).Interface())
 }

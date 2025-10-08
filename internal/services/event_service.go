@@ -27,7 +27,6 @@ type EventService interface {
 
 type eventService struct {
 	repo                      repositories.EventRepository
-	localitationService       LocalitationService
 	eventSubtopicService      EventSubtopicService
 	subtopicService           SubtopicService
 	adminNotificationObserver *observers.AdminNotificationObserver
@@ -139,7 +138,7 @@ func (s *eventService) GetEventByID(id uint, userID uint, role string) (*models.
 		return event, nil
 	}
 
-	if event.UserID == id || role == "admin" {
+	if event.UserID == userID || role == "admin" {
 		return event, nil
 	}
 
@@ -181,10 +180,6 @@ func (s *eventService) UpdateEvent(event *models.Event, userID uint, role string
 
 	existing.User = nil
 	err = s.repo.Update(existing, updates)
-
-	if err == nil && event.LocalitationID != nil && *event.LocalitationID != 0 && event.LocalitationID != existing.LocalitationID {
-		s.localitationService.DeleteLocalitation(*existing.LocalitationID)
-	}
 
 	return err
 }

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS "documentations" (
   "id" serial PRIMARY KEY,
   "title" varchar(255) NOT NULL,
+  "author" varchar(100) NOT NULL,
   "description" text NOT NULL,
   "link" text NOT NULL,
   "is_approved" bool,

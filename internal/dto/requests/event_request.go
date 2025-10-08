@@ -3,20 +3,24 @@ package requests
 import "time"
 
 type EventRequest struct {
-	Title         string               `json:"title" validate:"required"`
-	Image         string               `json:"image" validate:"required"`
-	Description   string               `json:"description" validate:"required"`
-	Link          string               `json:"link" validate:"required"`
-	Date          *time.Time           `json:"date" validate:"required"`
-	Localiatation *LocalitationRequest `json:"localitation"`
-	SubtopicIDs   []uint               `json:"subtopic_ids" validate:"required"`
+	Title            string               `json:"title" validate:"required"`
+	Image            string               `json:"image"`
+	Poster           string               `json:"poster"`
+	Description      string               `json:"description" validate:"required"`
+	Link             string               `json:"link"`
+	RegistrationLink string               `json:"registration_link"`
+	Date             *time.Time           `json:"date" validate:"required"`
+	Localiatation    *LocalitationRequest `json:"localitation" validate:"required"`
+	SubtopicIDs      []uint               `json:"subtopic_ids" validate:"required"`
 }
 
 type EventUpdateRequest struct {
-	Title         string               `json:"title"`
-	Image         string               `json:"image"`
-	Description   string               `json:"description"`
-	Link          string               `json:"link"`
-	Date          *time.Time           `json:"date"`
-	Localiatation *LocalitationRequest `json:"localitation"`
+	Title            string               `json:"title" validate:"required"`
+	Image            string               `json:"image"`
+	Poster           string               `json:"poster"`
+	Description      string               `json:"description" validate:"required"`
+	Link             string               `json:"link"`
+	RegistrationLink string               `json:"registration_link"`
+	Date             *time.Time           `json:"date" validate:"required"`
+	Localiatation    *LocalitationRequest `json:"localitation" validate:"required"`
 }

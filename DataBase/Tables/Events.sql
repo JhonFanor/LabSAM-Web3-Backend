@@ -1,12 +1,14 @@
 CREATE TABLE IF NOT EXISTS "events" (
   "id" serial PRIMARY KEY,
   "title" varchar(255) NOT NULL,
-  "image" text NOT NULL,
+  "image" text,
+  "poster" text,
   "description" text NOT NULL,
-  "link" text NOT NULL,
+  "link" text,
+  "registration_link" text,
   "date" date NOT NULL,
   "is_approved" bool,
-  "user_id" integer NOT NULL,
+  "user_id" integer,
   "localitation_id" integer,
   "created_at" timestamp,
   "updated_at" timestamp

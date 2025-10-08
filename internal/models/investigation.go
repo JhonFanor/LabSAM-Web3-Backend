@@ -5,7 +5,9 @@ import "time"
 type Investigation struct {
 	ID          uint       `json:"id"`
 	Title       string     `json:"title"`
+	Author      string     `json:"author"`
 	Description string     `json:"description"`
+	Logo        string     `json:"logo"`
 	Date        *time.Time `json:"date"`
 	Link        string     `json:"link"`
 	IsApproved  *bool      `json:"is_approved,omitempty"`

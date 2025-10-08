@@ -5,9 +5,11 @@ import "time"
 type Company struct {
 	ID             uint          `json:"id"`
 	Name           string        `json:"name"`
+	Logo           string        `json:"logo"`
 	Industry       string        `json:"industry"`
 	Website        string        `json:"website"`
 	Email          string        `json:"email"`
+	Projects       string        `json:"projects"`
 	IsApproved     *bool         `json:"is_approved,omitempty"`
 	UserID         uint          `json:"-"`
 	LocalitationID *uint         `json:"-"`

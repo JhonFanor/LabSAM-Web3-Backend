@@ -5,6 +5,7 @@ import "time"
 type Documentation struct {
 	ID          uint       `json:"id"`
 	Title       string     `json:"title"`
+	Author      string     `json:"author"`
 	Description string     `json:"description"`
 	Link        string     `json:"link"`
 	IsApproved  *bool      `json:"is_approved,omitempty"`
