@@ -10,9 +10,9 @@ type JobBoardRequest struct {
 	Type         string               `json:"type"`
 	SalaryRange  string               `json:"salary_range"`
 	Link         string               `json:"link" validate:"required"`
-	StartDate    time.Time            `json:"start_date" validate:"required"`
-	EndDate      time.Time            `json:"end_date"`
-	CurrencyType *CurrencyTypeRequest `json:"currency_type"`
+	StartDate    *time.Time           `json:"start_date" validate:"required"`
+	EndDate      *time.Time           `json:"end_date,omitempty"`
+	CurrencyType *CurrencyTypeRequest `json:"currency_type,omitempty"`
 	SubtopicIDs  []uint               `json:"subtopic_ids" validate:"required"`
 }
 

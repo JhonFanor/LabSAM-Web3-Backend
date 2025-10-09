@@ -11,8 +11,8 @@ type JobBoard struct {
 	Type           string       `json:"type"`
 	SalaryRange    string       `json:"salary_range"`
 	Link           string       `json:"link"`
-	StartDate      time.Time    `json:"start_date"`
-	EndDate        time.Time    `json:"end_date"`
+	StartDate      *time.Time   `json:"start_date"`
+	EndDate        *time.Time   `json:"end_date"`
 	IsApproved     *bool        `json:"is_approved,omitempty"`
 	UserID         uint         `json:"-"`
 	CurrencyTypeID *uint        `json:"-"`

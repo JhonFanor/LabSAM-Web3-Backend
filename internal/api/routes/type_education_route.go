@@ -26,7 +26,7 @@ func NewTypeEducationRoutes(p TypeEducationRoutesParams) *TypeEducationRoutes {
 }
 
 func (tr *TypeEducationRoutes) Routes() {
-	typeEducation := tr.Router.Group("/api/type-of-law")
+	typeEducation := tr.Router.Group("/api/type-education")
 	{
 		typeEducation.GET("", tr.TypeEducationController.GetAllTypeEducation)
 	}

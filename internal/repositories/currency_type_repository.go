@@ -17,7 +17,7 @@ type currencyTypeRepository struct {
 	db        *gorm.DB
 }
 
-func NewCurrencyTypeRepository(dbManager *gormmanagers.DBManager, db *gorm.DB) *currencyTypeRepository {
+func NewCurrencyTypeRepository(dbManager *gormmanagers.DBManager, db *gorm.DB) CurrencyTypeRepository {
 	return &currencyTypeRepository{
 		dbManager: dbManager,
 		db:        db,

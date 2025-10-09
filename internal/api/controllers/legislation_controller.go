@@ -50,6 +50,8 @@ func (l *LegislationController) CreateLegislation(ctx *gin.Context) {
 		return
 	}
 
+	legislation.Date = &legislationRequest.Date
+
 	createdLegislation, err := l.service.CreateLegislation(&legislation, claims.UserID, legislationRequest.SubtopicIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
@@ -85,7 +87,7 @@ func (l *LegislationController) GetAllLegislationsByUserID(c *gin.Context) {
 	}
 
 	jsonData, _ := json.Marshal(pagination.Data)
-	var list []responses.BankOfResumeGetAllByUserIDResponse
+	var list []responses.LegislationGetAllByUserIDResponse
 	_ = json.Unmarshal(jsonData, &list)
 	pagination.Data = list
 
@@ -181,7 +183,7 @@ func (l *LegislationController) UpdateLegislation(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
 		return
 	}
-
+	legislation.Date = &legislationRequest.Date
 	legislation.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)

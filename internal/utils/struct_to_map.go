@@ -33,6 +33,7 @@ func StructToMap(input interface{}) map[string]interface{} {
 		"subtopics":    true,
 		"created_at":   true,
 		"updated_at":   true,
+		"type_of_law":  true,
 	}
 
 	for i := 0; i < val.NumField(); i++ {

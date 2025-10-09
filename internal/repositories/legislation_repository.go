@@ -102,7 +102,7 @@ func (r *legislationRepository) CountBySubtopicID(subtopicID uint) (int64, error
 func (r *legislationRepository) GetByID(id uint) (*models.Legislation, error) {
 	var legislation models.Legislation
 	conditions := map[string]interface{}{"id": id}
-	if err := r.dbManager.Find(&legislation, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser")); err != nil {
+	if err := r.dbManager.Find(&legislation, conditions, r.db.Preload("Subtopics").Preload("User").Preload("User.RegularUser").Preload("User.UniversityUser").Preload("User.BusinessUser").Preload("TypeOfLaw")); err != nil {
 		return nil, err
 	}
 	return &legislation, nil

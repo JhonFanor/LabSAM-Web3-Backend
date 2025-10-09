@@ -7,7 +7,7 @@ type Legislation struct {
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	Logo        string     `json:"logo"`
-	Date        time.Time  `json:"date"`
+	Date        *time.Time `json:"date"`
 	Link        string     `json:"link"`
 	IsApproved  *bool      `json:"is_approved,omitempty"`
 	UserID      uint       `json:"-"`

@@ -69,6 +69,9 @@ func (j *JobBoardController) CreateJobBoard(ctx *gin.Context) {
 		jobBoard.CurrencyTypeID = &currencyType.ID
 	}
 
+	jobBoard.StartDate = jobBoardRequest.StartDate
+	jobBoard.EndDate = jobBoardRequest.EndDate
+
 	createdJobBoard, err := j.service.CreateJobBoard(&jobBoard, claims.UserID, jobBoardRequest.SubtopicIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
@@ -217,6 +220,8 @@ func (j *JobBoardController) UpdateJobBoard(c *gin.Context) {
 		jobBoard.CurrencyTypeID = &currencyType.ID
 	}
 
+	jobBoard.StartDate = &jobBoardRequest.StartDate
+	jobBoard.EndDate = &jobBoardRequest.EndDate
 	jobBoard.ID = uint(id)
 	claimsValue, _ := c.Get("claims")
 	claims, _ := claimsValue.(*security.Claims)
