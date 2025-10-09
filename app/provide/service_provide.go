@@ -44,6 +44,7 @@ func ServiceProvide() fx.Option {
 			services.NewRoleService,
 			services.NewSubtopicService,
 			services.NewTopicService,
+			services.NewTyepOfLawServiceService,
 			services.NewUniversityTypeService,
 			services.NewUniversityUserService,
 			services.NewUserService,

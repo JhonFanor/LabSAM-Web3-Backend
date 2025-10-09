@@ -7,6 +7,7 @@ type EventGetAllResponse struct {
 	Title        string                `json:"title"`
 	Image        string                `json:"image"`
 	Poster       string                `json:"poster"`
+	Description  string                `json:"description"`
 	Date         *time.Time            `json:"date"`
 	Localitation *LocalitationResponse `json:"localitation,omitempty"`
 	User         UserMinimalResponse   `json:"user"`
@@ -17,6 +18,7 @@ type EventGetAllByUserIDResponse struct {
 	Title        string                `json:"title"`
 	Image        string                `json:"image"`
 	Poster       string                `json:"poster"`
+	Description  string                `json:"description"`
 	Date         *time.Time            `json:"date"`
 	Localitation *LocalitationResponse `json:"localitation,omitempty"`
 	IsApproved   *bool                 `json:"is_approved"`

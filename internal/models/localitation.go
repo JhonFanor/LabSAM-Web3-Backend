@@ -7,8 +7,8 @@ import (
 type Localitation struct {
 	ID        uint      `json:"id"`
 	Address   string    `json:"address"`
-	Latitude  float64   `json:"latitude"`
-	Longitude float64   `json:"longitude"`
+	Latitude  *float64  `json:"latitude"`
+	Longitude *float64  `json:"longitude"`
 	CreatedAt time.Time `gorm:"autoUpdateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
