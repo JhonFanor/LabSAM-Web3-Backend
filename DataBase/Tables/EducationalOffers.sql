@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "educational_offers" (
   "is_approved" bool,
   "user_id" integer,
   "type_education_id" integer NOT NULL,
-  "currency_type_id" integer NOT NULL,
+  "currency_type_id" integer,
   "created_at" timestamp,
   "updated_at" timestamp
 );

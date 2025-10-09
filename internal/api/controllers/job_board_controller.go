@@ -19,16 +19,19 @@ import (
 
 type JobBoardControllerParams struct {
 	fx.In
-	JobBoardService services.JobBoardService
+	JobBoardService     services.JobBoardService
+	CurrencyTypeService services.CurrencyTypeService
 }
 
 type JobBoardController struct {
-	service services.JobBoardService
+	service             services.JobBoardService
+	currencyTypeService services.CurrencyTypeService
 }
 
 func NewJobBoardController(p JobBoardControllerParams) *JobBoardController {
 	return &JobBoardController{
-		service: p.JobBoardService,
+		service:             p.JobBoardService,
+		currencyTypeService: p.CurrencyTypeService,
 	}
 }
 
@@ -48,6 +51,22 @@ func (j *JobBoardController) CreateJobBoard(ctx *gin.Context) {
 			Error: consts.ErrorMapConst,
 		})
 		return
+	}
+
+	if jobBoardRequest.CurrencyType != nil {
+		var currencyTypeRequest models.CurrencyType
+		if err := mapstructure.Decode(jobBoardRequest.CurrencyType, &currencyTypeRequest); err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		currencyType, err := j.currencyTypeService.CreateCurrencyType(&currencyTypeRequest)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		jobBoard.CurrencyTypeID = &currencyType.ID
 	}
 
 	createdJobBoard, err := j.service.CreateJobBoard(&jobBoard, claims.UserID, jobBoardRequest.SubtopicIDs)
@@ -180,6 +199,22 @@ func (j *JobBoardController) UpdateJobBoard(c *gin.Context) {
 	if err := mapstructure.Decode(jobBoardRequest, &jobBoard); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
 		return
+	}
+
+	if jobBoardRequest.CurrencyType != nil {
+		var currencyTypeRequest models.CurrencyType
+		if err := mapstructure.Decode(jobBoardRequest.CurrencyType, &currencyTypeRequest); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		currencyType, err := j.currencyTypeService.CreateCurrencyType(&currencyTypeRequest)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		jobBoard.CurrencyTypeID = &currencyType.ID
 	}
 
 	jobBoard.ID = uint(id)

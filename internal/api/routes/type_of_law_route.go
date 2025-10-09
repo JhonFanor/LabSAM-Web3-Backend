@@ -26,8 +26,8 @@ func NewTypeOfLawRoutes(p TypeOfLawRoutesParams) *TypeOfLawRoutes {
 }
 
 func (tr *TypeOfLawRoutes) Routes() {
-	topic := tr.Router.Group("/api/type-of-law")
+	typeOfLaw := tr.Router.Group("/api/type-of-law")
 	{
-		topic.GET("", tr.TypeOfLawController.GetAllTypeOfLaw)
+		typeOfLaw.GET("", tr.TypeOfLawController.GetAllTypeOfLaw)
 	}
 }

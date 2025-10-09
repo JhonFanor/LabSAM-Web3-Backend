@@ -20,15 +20,18 @@ import (
 type EducationalOfferControllerParams struct {
 	fx.In
 	EducationalOfferService services.EducationalOfferService
+	CurrencyTypeService     services.CurrencyTypeService
 }
 
 type EducationalOfferController struct {
-	service services.EducationalOfferService
+	service             services.EducationalOfferService
+	currencyTypeService services.CurrencyTypeService
 }
 
 func NewEducationalOfferController(p EducationalOfferControllerParams) *EducationalOfferController {
 	return &EducationalOfferController{
-		service: p.EducationalOfferService,
+		service:             p.EducationalOfferService,
+		currencyTypeService: p.CurrencyTypeService,
 	}
 }
 
@@ -48,6 +51,22 @@ func (e *EducationalOfferController) CreateEducationalOffer(ctx *gin.Context) {
 			Error: consts.ErrorMapConst,
 		})
 		return
+	}
+
+	if educationalOfferRequest.CurrencyType != nil {
+		var currencyTypeRequest models.CurrencyType
+		if err := mapstructure.Decode(educationalOfferRequest.CurrencyType, &currencyTypeRequest); err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		currencyType, err := e.currencyTypeService.CreateCurrencyType(&currencyTypeRequest)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		educationalOffer.CurrencyTypeID = &currencyType.ID
 	}
 
 	educationalOffer.StartDate = educationalOfferRequest.StartDate
@@ -183,6 +202,22 @@ func (e *EducationalOfferController) UpdateEducationalOffer(c *gin.Context) {
 	if err := mapstructure.Decode(educationalOfferRequest, &educationalOffer); err != nil {
 		c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
 		return
+	}
+
+	if educationalOfferRequest.CurrencyType != nil {
+		var currencyTypeRequest models.CurrencyType
+		if err := mapstructure.Decode(educationalOfferRequest.CurrencyType, &currencyTypeRequest); err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: consts.ErrorMapConst})
+			return
+		}
+
+		currencyType, err := e.currencyTypeService.CreateCurrencyType(&currencyTypeRequest)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		educationalOffer.CurrencyTypeID = &currencyType.ID
 	}
 
 	educationalOffer.StartDate = educationalOfferRequest.StartDate

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "jobs_board" (
   "end_date" date,
   "is_approved" bool,
   "user_id" integer,
-  "currency_type_id" integer NOT NULL,
+  "currency_type_id" integer,
   "created_at" timestamp,
   "updated_at" timestamp
 );

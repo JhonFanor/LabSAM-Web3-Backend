@@ -16,7 +16,7 @@ type typeOfLawService struct {
 	db   *gorm.DB
 }
 
-func NewTyepOfLawServiceService(repo repositories.TypeOfLawRepository, db *gorm.DB) TypeOfLawService {
+func NewTypeOfLawServiceService(repo repositories.TypeOfLawRepository, db *gorm.DB) TypeOfLawService {
 	return &typeOfLawService{
 		repo: repo,
 		db:   db,

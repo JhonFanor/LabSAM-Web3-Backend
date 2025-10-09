@@ -15,7 +15,7 @@ type EducationalOffer struct {
 	IsApproved      *bool         `json:"is_approved,omitempty"`
 	UserID          uint          `json:"-"`
 	TypeEducationID uint          `json:"type_education_id"`
-	CurrencyTypeID  uint          `json:"currency_type_id"`
+	CurrencyTypeID  *uint         `json:"currency_type_id"`
 	User            *User         `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	TypeEducation   TypeEducation `gorm:"foreignKey:TypeEducationID" json:"type_education"`
 	CurrencyType    CurrencyType  `gorm:"fo0reignKey:CurrencyTypeID" json:"currency_type"`

@@ -36,6 +36,8 @@ type RoutesRegisterParams struct {
 	Publications                *routes.PublicationRoutes
 	RejectionCommentRoutes      *routes.RejectionCommentRoutes
 	TopicRoutes                 *routes.TopicRoutes
+	TypeEducationRoutes         *routes.TypeEducationRoutes
+	TypeOfLawRoutes             *routes.TypeOfLawRoutes
 	UniversityTypeRoutes        *routes.UniversityTypeRoutes
 	UploadRoutes                *routes.UploadRoutes
 	UserRoutes                  *routes.UserRoutes
@@ -70,6 +72,8 @@ func RoutesRegister(p RoutesRegisterParams) {
 	p.Publications.Routes()
 	p.RejectionCommentRoutes.Routes()
 	p.TopicRoutes.Routes()
+	p.TypeEducationRoutes.Routes()
+	p.TypeOfLawRoutes.Routes()
 	p.UniversityTypeRoutes.Routes()
 	p.UploadRoutes.Routes()
 	p.UserRoutes.Routes()

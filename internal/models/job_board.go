@@ -15,7 +15,7 @@ type JobBoard struct {
 	EndDate        time.Time    `json:"end_date"`
 	IsApproved     *bool        `json:"is_approved,omitempty"`
 	UserID         uint         `json:"-"`
-	CurrencyTypeID uint         `json:"-"`
+	CurrencyTypeID *uint        `json:"-"`
 	User           *User        `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	CurrencyType   CurrencyType `gorm:"foreignKey:CurrencyTypeID" json:"currency_type_id"`
 	Subtopics      []Subtopic   `gorm:"many2many:job_board_subtopic;" json:"subtopics,omitempty"`
