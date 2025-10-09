@@ -14,9 +14,12 @@ Tables/Companies.sql
 Tables/News.sql
 Tables/Events.sql
 Tables/Investigations.sql
+Tables/CurrencyType.sql
 Tables/JobsBoard.sql
 Tables/BankOfResumes.sql
+Talbes/TypeEducation.sql
 Tables/EducationalOffers.sql
+Tables/TypeOfLaw.sql
 Tables/Legislations.sql
 Tables/Documentations.sql
 Tables/Topics.sql
