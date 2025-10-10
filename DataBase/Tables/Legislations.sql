@@ -26,7 +26,7 @@ BEGIN
     BEGIN
         ALTER TABLE "legislations"
         ADD CONSTRAINT fk_legislations_type_of_law
-        FOREIGN KEY ("type_of_law_id") REFERENCES "users" ("type_of_law")
+        FOREIGN KEY ("type_of_law_id") REFERENCES "type_of_law" ("id")
         ON DELETE SET NULL ON UPDATE CASCADE;
     EXCEPTION
         WHEN duplicate_object THEN

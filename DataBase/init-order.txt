@@ -3,6 +3,7 @@ Tables/Permissions.sql
 Tables/PermissionRol.sql
 Tables/Users.sql
 Tables/PermissionUser.sql
+Tables/DeniedPermissionsUser.sql
 Tables/Locations.sql
 Tables/Contacts.sql
 Tables/UniversityTypes.sql
@@ -17,7 +18,7 @@ Tables/Investigations.sql
 Tables/CurrencyType.sql
 Tables/JobsBoard.sql
 Tables/BankOfResumes.sql
-Talbes/TypeEducation.sql
+Tables/TypeEducation.sql
 Tables/EducationalOffers.sql
 Tables/TypeOfLaw.sql
 Tables/Legislations.sql
